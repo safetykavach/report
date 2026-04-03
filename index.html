@@ -1,0 +1,3423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no"/>
+<title>Dhanuka Safety Kavach</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.0/chart.umd.min.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;500;600;700&family=Noto+Sans:wght@300;400;500;600;700&family=Noto+Sans+Devanagari:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+/* ============================================================
+   CSS STYLES
+============================================================ */
+:root {
+  --primary:#1B6B3A; --primary-dark:#145229; --primary-light:#2E9E58;
+  --green:#1B6B3A; --green-light:#2E9E58; --green-pale:#E8F5EE; --green-pale2:#D0EBDB;
+  --orange:#E07B1A; --orange-light:#F59D2A; --red:#C0392B; --red-light:#E74C3C;
+  --bg:#F4F7F5; --surface:#FFFFFF; --surface2:#F0F6F2; --surface3:#E3EFE8;
+  --border:#C8DDD0; --border-light:#E0EDE6; --text:#1A2E24; --text-muted:#4A6B58; --text-dim:#8AAD97;
+  --sidebar-w:260px; --header-h:60px; --radius:10px;
+  --shadow:0 4px 20px rgba(27,107,58,0.12); --shadow-sm:0 2px 8px rgba(27,107,58,0.08);
+}
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{height:100%;font-family:'Noto Sans','Noto Sans Devanagari',sans-serif;background:var(--bg);color:var(--text);font-size:14px; -webkit-font-smoothing: antialiased;}
+h1,h2,h3,h4,.heading{font-family:'Rajdhani',sans-serif;letter-spacing:0.3px}
+
+::-webkit-scrollbar{width:6px;height:6px}
+::-webkit-scrollbar-track{background:var(--surface2)}
+::-webkit-scrollbar-thumb{background:var(--green-pale2);border-radius:3px}
+
+/* INITIAL BOOT SCREEN */
+#boot-screen {
+  position: fixed; inset: 0; background: var(--primary-dark); z-index: 99999;
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  transition: opacity 0.3s ease;
+}
+.boot-spinner { width:40px; height:40px; border:3px solid rgba(255,255,255,0.2); border-top-color:#fff; border-radius:50%; animation:spin 0.8s linear infinite; }
+
+#app{display:none;height:100vh;overflow:hidden}
+#sidebar{width:var(--sidebar-w);background:var(--primary-dark);display:flex;flex-direction:column;transition:transform 0.3s;z-index:200;flex-shrink:0;box-shadow:2px 0 12px rgba(20,82,41,0.18)}
+#main-content{flex:1;display:flex;flex-direction:column;overflow:hidden}
+#header{height:var(--header-h);background:var(--surface);border-bottom:2px solid var(--border-light);display:flex;align-items:center;padding:0 20px;gap:12px;flex-shrink:0;box-shadow:var(--shadow-sm)}
+#page-area{flex:1;overflow-y:auto;padding:24px;background:var(--bg);position:relative;}
+
+.sidebar-logo{padding:14px 16px;border-bottom:1px solid rgba(255,255,255,0.12);display:flex;align-items:center;gap:12px;background:rgba(255,255,255,0.97)}
+.sidebar-logo img{height:44px;width:auto;object-fit:contain;flex-shrink:0;display:block}
+.sidebar-logo-text{font-family:'Rajdhani',sans-serif;font-size:15px;font-weight:700;line-height:1.2;color:var(--primary)}
+.sidebar-logo-text span{color:var(--text-muted);display:block;font-size:10px;font-weight:600;letter-spacing:1.4px;text-transform:uppercase}
+.nav-section{padding:8px 0}
+.nav-label{padding:10px 20px 4px;font-size:10px;font-weight:700;letter-spacing:1.8px;color:rgba(255,255,255,0.35);text-transform:uppercase}
+.nav-item{display:flex;align-items:center;gap:10px;padding:10px 20px;cursor:pointer;transition:all 0.18s;border-left:3px solid transparent;color:rgba(255,255,255,0.65);font-size:13.5px}
+.nav-item:hover{background:rgba(255,255,255,0.1);color:#fff;border-left-color:rgba(255,255,255,0.3)}
+.nav-item.active{background:rgba(255,255,255,0.15);border-left-color:#7ED9A0;color:#fff;font-weight:600}
+.nav-item svg{width:18px;height:18px;flex-shrink:0;opacity:0.75}
+.nav-item.active svg{opacity:1}
+.nav-item:hover svg{opacity:1}
+.nav-divider{height:1px;background:rgba(255,255,255,0.1);margin:6px 16px}
+
+#menu-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);display:none;padding:6px;border-radius:6px;transition:background 0.2s;}
+#menu-btn:hover{background:var(--green-pale)}
+#menu-btn svg{width:22px;height:22px}
+
+.header-actions { display:flex; align-items:center; gap:8px; justify-content:flex-end; flex:1; }
+.lang-toggle, .user-chip, .btn-logout {
+  height: 32px !important; display: inline-flex; align-items: center; justify-content: center;
+  box-sizing: border-box; font-size: 12px; margin:0; cursor:pointer; border-radius: 16px;
+  font-family: 'Noto Sans', sans-serif; font-weight: 600; transition: all 0.2s;
+}
+.lang-toggle { background:var(--surface2); border:1px solid var(--border); color:var(--text-muted); padding:0 12px; }
+.lang-toggle:hover, .lang-toggle.active { background:var(--primary); border-color:var(--primary); color:#fff; }
+.user-chip { background:var(--green-pale); border:1px solid var(--border); padding:0 10px 0 4px; gap:6px; color:var(--primary); }
+.user-chip:hover { background:var(--green-pale2); }
+.user-avatar { width:24px; height:24px; border-radius:50%; background:var(--primary); display:flex; align-items:center; justify-content:center; font-size:11px; font-weight:700; color:#fff; }
+.btn-logout { background:transparent; border:1px solid var(--border); color:var(--red); width:32px; padding:0; border-radius:50%; }
+.btn-logout:hover { background:var(--red-light); color:#fff; border-color:var(--red-light); }
+
+.card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:20px;box-shadow:var(--shadow-sm)}
+.card-title{font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;margin-bottom:14px;color:var(--primary)}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+
+.kpi-card{background:var(--surface);border:1px solid var(--border-light);border-radius:var(--radius);padding:18px;position:relative;overflow:hidden;transition:transform 0.2s,box-shadow 0.2s;box-shadow:var(--shadow-sm)}
+.kpi-card:hover{transform:translateY(-3px);box-shadow:var(--shadow)}
+.kpi-card::before{content:'';position:absolute;top:0;left:0;right:0;height:4px}
+.kpi-card.blue::before{background:linear-gradient(90deg,var(--primary),var(--green-light))}
+.kpi-card.green::before{background:linear-gradient(90deg,#27AE60,#82E0AA)}
+.kpi-card.orange::before{background:linear-gradient(90deg,var(--orange),var(--orange-light))}
+.kpi-card.red::before{background:linear-gradient(90deg,var(--red),var(--red-light))}
+.kpi-label{font-size:11px;font-weight:700;letter-spacing:0.8px;color:var(--text-muted);text-transform:uppercase;margin-bottom:6px}
+.kpi-value{font-family:'Rajdhani',sans-serif;font-size:32px;font-weight:700;line-height:1;color:var(--text)}
+.kpi-sub{font-size:11px;color:var(--text-dim);margin-top:4px}
+.kpi-icon{position:absolute;right:16px;top:50%;transform:translateY(-50%);opacity:0.07;font-size:48px}
+
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:8px 16px;border-radius:6px;border:none;cursor:pointer;font-size:13px;font-weight:600;font-family:'Noto Sans',sans-serif;transition:all 0.2s;white-space:nowrap}
+.btn-primary{background:var(--primary);color:#fff;box-shadow:0 2px 6px rgba(27,107,58,0.25)}
+.btn-primary:hover{background:var(--primary-dark);box-shadow:0 4px 12px rgba(27,107,58,0.35)}
+.btn-success{background:#27AE60;color:#fff}
+.btn-danger{background:var(--red);color:#fff}
+.btn-outline{background:var(--surface);border:1.5px solid var(--border);color:var(--text-muted)}
+.btn-outline:hover{border-color:var(--primary);color:var(--primary);background:var(--green-pale)}
+.btn-sm{padding:5px 10px;font-size:12px}
+.btn-whatsapp{background:#25D366;color:#fff}
+
+.form-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.form-full{grid-column:1/-1}
+.form-group{display:flex;flex-direction:column;gap:4px}
+.form-label{font-size:12px;font-weight:700;color:var(--text-muted);letter-spacing:0.3px;text-transform:uppercase}
+.form-control{background:#fff;border:1.5px solid var(--border);color:var(--text);padding:9px 12px;border-radius:6px;font-family:'Noto Sans',sans-serif;font-size:13px;transition:border-color 0.2s,box-shadow 0.2s;width:100%; box-sizing:border-box;}
+.form-control:focus{outline:none;border-color:var(--primary);box-shadow:0 0 0 3px rgba(27,107,58,0.12)}
+textarea.form-control{resize:vertical;min-height:80px}
+
+.table-wrap{overflow-x:auto;border-radius:var(--radius);border:1px solid var(--border-light);box-shadow:var(--shadow-sm)}
+table{width:100%;border-collapse:collapse}
+th{background:var(--primary);padding:10px 14px;text-align:left;font-size:11px;font-weight:700;letter-spacing:0.8px;text-transform:uppercase;color:#fff;white-space:nowrap}
+td{padding:10px 14px;border-top:1px solid var(--border-light);font-size:13px;color:var(--text);background:#fff; vertical-align: middle;}
+tr:hover td{background:var(--green-pale)}
+
+.badge{display:inline-flex;align-items:center;padding:4px 10px;border-radius:12px;font-size:11px;font-weight:700;letter-spacing:0.3px}
+.badge-open{background:#FEF3E7;color:#D35400;border:1px solid #F5CBA7}
+.badge-closed{background:#E9F7EF;color:#1E8449;border:1px solid #A9DFBF}
+.badge-pending{background:var(--green-pale);color:var(--primary);border:1px solid var(--green-pale2)}
+
+.modal-overlay{position:fixed;inset:0;background:rgba(20,50,30,0.45);backdrop-filter:blur(4px);z-index:1000;display:flex;align-items:center;justify-content:center;padding:16px;opacity:0;transition:opacity 0.2s; pointer-events:none}
+.modal-overlay.show{opacity:1; pointer-events:auto;}
+.modal{background:var(--surface);border:1px solid var(--border-light);border-radius:14px;max-width:720px;width:100%;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(20,82,41,0.25); transform:translateZ(0);}
+.modal-header{padding:18px 24px;border-bottom:2px solid var(--border-light);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--surface);z-index:1}
+.modal-title{font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:700;color:var(--primary)}
+.modal-close{background:none;border:none;color:var(--text-muted);cursor:pointer;padding:4px;border-radius:4px;transition:all 0.2s}
+.modal-close:hover{color:var(--red);background:var(--green-pale)}
+.modal-body{padding:24px}
+.modal-footer{padding:16px 24px;border-top:1px solid var(--border-light);display:flex;flex-wrap:wrap;gap:10px;justify-content:flex-end;background:var(--surface2);border-radius:0 0 14px 14px}
+
+.progress-bar{height:8px;background:var(--surface3);border-radius:4px;overflow:hidden}
+.progress-fill{height:100%;border-radius:4px;transition:width 0.5s ease}
+.progress-fill.blue{background:linear-gradient(90deg,var(--primary),var(--green-light))}
+.progress-fill.green{background:linear-gradient(90deg,#27AE60,#82E0AA)}
+.progress-fill.orange{background:linear-gradient(90deg,var(--orange),var(--orange-light))}
+
+.tab-bar{display:flex;gap:4px;background:var(--surface2);padding:4px;border-radius:8px;margin-bottom:20px;border:1px solid var(--border-light)}
+.tab{padding:8px 16px;border-radius:6px;cursor:pointer;font-size:13px;font-weight:600;color:var(--text-muted);transition:all 0.2s;white-space:nowrap}
+.tab.active{background:var(--primary);color:#fff;box-shadow:0 2px 8px rgba(27,107,58,0.3)}
+.tab-content{display:none}
+.tab-content.active{display:block}
+
+.toast-container{position:fixed;bottom:24px;right:24px;z-index:9999;display:flex;flex-direction:column;gap:8px}
+.toast{background:var(--surface);border:1px solid var(--border-light);border-radius:8px;padding:12px 16px;min-width:280px;box-shadow:var(--shadow);display:flex;align-items:center;gap:10px;font-size:13px;animation:toastIn 0.3s ease;color:var(--text)}
+.toast.success{border-left:4px solid #27AE60}
+.toast.error{border-left:4px solid var(--red)}
+@keyframes toastIn{from{opacity:0;transform:translateX(40px)}to{opacity:1;transform:none}}
+
+/* LOADER & ANIMATIONS */
+.loader { display:flex; flex-direction:column; align-items:center; justify-content:center; padding:60px 20px; }
+.spinner { width:36px; height:36px; border:3px solid var(--border); border-top-color:var(--primary); border-radius:50%; animation:spin 0.7s linear infinite; margin:0 auto 12px; }
+@keyframes spin { to { transform:rotate(360deg); } }
+
+.ehs-anim-wrap { position:relative; width:64px; height:64px; animation:ehs-pulse 1.5s infinite alternate ease-in-out; margin-bottom:16px; margin-left:auto; margin-right:auto; }
+.ehs-anim-ring { position:absolute; inset:-10px; border:2.5px dashed var(--primary-light); border-radius:50%; animation:spin 4s linear infinite; }
+@keyframes ehs-pulse { 0%{transform:scale(0.95);filter:drop-shadow(0 4px 6px rgba(27,107,58,0.2))} 100%{transform:scale(1.05);filter:drop-shadow(0 8px 15px rgba(27,107,58,0.4))} }
+.loader-text { font-family:'Rajdhani',sans-serif; font-size:18px; font-weight:700; color:var(--primary); letter-spacing:1px; animation:pulse-text 1.5s infinite alternate; text-align:center; }
+@keyframes pulse-text { 0%{opacity:0.5} 100%{opacity:1} }
+
+.ehs-logo-container { width: 100%; height: 100%; background: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; position: relative; z-index: 2; box-shadow: 0 4px 12px rgba(0,0,0,0.15); overflow: hidden; }
+.ehs-logo-container img { width: 44px; height: 44px; object-fit: contain; }
+.submit-progress-fill { height: 100%; background: linear-gradient(90deg, var(--primary), var(--primary-light)); border-radius: 4px; width: 0%; }
+@keyframes loadProgress { 0% { width: 0%; } 15% { width: 25%; } 50% { width: 65%; } 80% { width: 85%; } 100% { width: 96%; } }
+
+.stat-row{display:flex;align-items:center;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--border-light)}
+.section-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:16px}
+
+.bbs-category-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px}
+.bbs-cat-card{background:var(--surface2);border:1.5px solid var(--border-light);border-radius:8px;padding:12px;cursor:pointer;transition:all 0.2s}
+.bbs-cat-name{font-size:13px;font-weight:600;margin-bottom:8px;color:var(--text)}
+.bbs-radio-group{display:flex;gap:8px}
+.bbs-radio-btn{flex:1;text-align:center;padding:4px 2px;border-radius:4px;border:1px solid var(--border);cursor:pointer;font-size:11px;font-weight:600;transition:all 0.2s;color:var(--text-muted)}
+.bbs-radio-btn.selected-safe{background:#27AE60;border-color:#27AE60;color:#fff}
+.bbs-radio-btn.selected-unsafe{background:var(--red);border-color:var(--red);color:#fff}
+.bbs-radio-btn.selected-na{background:var(--text-dim);border-color:var(--text-dim);color:#fff}
+
+.action-card{background:var(--surface);border:1.5px solid var(--border-light);border-radius:10px;padding:14px;cursor:pointer;transition:all 0.2s;border-left:4px solid var(--orange);box-shadow:var(--shadow-sm)}
+.chart-wrap{position:relative;height:250px}
+.page{animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+
+.photo-preview{width:100%;max-height:200px;object-fit:cover;border-radius:8px;margin-top:8px;border:2px solid var(--border-light)}
+#sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(20,50,30,0.4);z-index:150}
+.detail-row{display:grid;grid-template-columns:150px 1fr;gap:6px;padding:9px 0;border-bottom:1px solid var(--border-light)}
+.detail-key{font-size:11px;font-weight:700;color:var(--text-muted);text-transform:uppercase}
+.detail-val{font-size:13px;color:var(--text)}
+.empty-state{text-align:center;padding:48px 24px;color:var(--text-dim)}
+
+.filter-collapse { display: none; overflow: hidden; margin-bottom: 14px; }
+.filter-collapse.show { display: block; animation: fadeIn 0.2s ease-in-out; }
+
+#login-screen{ width:100%;min-height:100vh; background:linear-gradient(135deg,#0d3320 0%,#145229 40%,#1e7a3e 100%); display:none; align-items:center;justify-content:center;padding:20px; }
+.login-box{ background:#fff;border-radius:20px; width:100%;max-width:420px; box-shadow:0 32px 80px rgba(0,0,0,0.35); overflow:hidden; animation:loginDrop 0.4s ease forwards; transform: translateZ(0); }
+@keyframes loginDrop { from { opacity: 0; transform: translateY(-30px); } to { opacity: 1; transform: translateY(0); } }
+
+.login-header{background:linear-gradient(135deg,#145229,#2E9E58);padding:36px 32px 28px;text-align:center;}
+.login-logo-wrap{width:84px;height:84px;border-radius:50%;background:#fff;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 24px rgba(0,0,0,0.18);border:3px solid rgba(255,255,255,0.6);}
+.login-logo-wrap img{width:68px;height:68px;object-fit:contain;}
+.login-app-name{font-family:'Rajdhani',sans-serif;font-size:22px;font-weight:700;color:#fff;letter-spacing:0.5px;}
+.login-tagline{font-size:12px;color:rgba(255,255,255,0.75);letter-spacing:1.2px;font-weight:500;text-transform:uppercase;}
+.login-body{padding:28px 32px 32px}
+.login-body .form-control{background:#F4F7F5;border:1.5px solid #C8DDD0;color:#1A2E24;padding:11px 14px;font-size:14px;border-radius:8px;}
+.login-body .form-control:focus{border-color:#1B6B3A;background:#fff}
+.login-divider{height:1px;background:#E3EFE8;margin:18px 0}
+.login-dept-row{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.btn-login{width:100%;padding:13px;border-radius:10px;background:linear-gradient(135deg,#1B6B3A,#2E9E58);color:#fff;font-size:15px;font-weight:700;border:none;cursor:pointer;font-family:'Rajdhani',sans-serif;box-shadow:0 4px 16px rgba(27,107,58,0.35);transition:all 0.2s;margin-top:6px;}
+.btn-login:hover{background:linear-gradient(135deg,#145229,#1B6B3A);}
+.login-footer-note{text-align:center;font-size:11px;color:#8AAD97;margin-top:16px;}
+@keyframes loginShake{0%,100%{transform:none}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+
+#header-logo-wrap{display:none}
+
+.hide-mobile { display: inline; }
+
+@media(max-width:900px){
+  #sidebar{position:fixed;top:0;left:0;height:100%;transform:translateX(-100%)}
+  #sidebar.open{transform:none}
+  #sidebar-overlay{display:block}
+  #menu-btn{display:flex!important}
+  #header-logo-wrap{display:flex!important}
+  .grid-4, .grid-3{grid-template-columns:1fr 1fr}
+  .form-grid{grid-template-columns:1fr}
+  .form-full{grid-column:unset}
+}
+@media(max-width:600px){
+  #page-area{padding:16px}
+  .grid-2,.grid-3,.grid-4{grid-template-columns:1fr}
+  .modal{max-height:100vh;border-radius:0}
+  .hide-mobile { display: none !important; }
+  .btn-share { padding: 0 !important; width: 38px !important; height: 38px !important; border-radius: 50% !important; min-width: 38px; }
+  .btn-share svg { margin: 0 !important; width: 18px; height: 18px; }
+  
+  /* MOBILE KEYBOARD FIX FOR WIZARD */
+  .wiz-modal { height: 100dvh !important; max-height: 100dvh !important; border-radius: 0 !important; }
+  .wiz-header { border-radius: 0 !important; }
+}
+
+/* WIZARD FONT SIZE UPGRADES */
+.wiz-body .form-label { font-size: 16px !important; margin-bottom: 10px !important; }
+.wiz-body .form-control { font-size: 18px !important; padding: 18px 16px !important; }
+
+@media(max-width: 768px) {
+  .table-wrap { overflow-x: auto !important; -webkit-overflow-scrolling: touch; }
+  .table-wrap table { min-width: 650px; }
+  .col-hidden-mobile { display: none !important; }
+}
+
+/* ============================================================
+   WIZARD & FLOATING BUTTON STYLES
+============================================================ */
+.fab-quick-report { position: fixed; bottom: 24px; right: 24px; z-index: 900; background: linear-gradient(135deg, var(--red), #E74C3C); color: white; width: 64px; height: 64px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 30px; box-shadow: 0 6px 20px rgba(192,57,43,0.4); cursor: pointer; border: none; transition: transform 0.2s; }
+.fab-quick-report:active { transform: scale(0.9); }
+
+.quick-report-btn { background: linear-gradient(135deg, var(--primary), var(--primary-light)); color: white; border: none; border-radius: 16px; padding: 20px; width: 100%; font-size: 22px; font-weight: 700; font-family: 'Rajdhani', sans-serif; box-shadow: 0 8px 24px rgba(27,107,58,0.25); cursor: pointer; transition: transform 0.2s; display: flex; align-items: center; justify-content: center; gap: 14px; text-align: left; }
+.quick-report-btn:active { transform: scale(0.96); }
+
+.wiz-overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 3000; display: none; justify-content: center; align-items: flex-end; backdrop-filter: blur(3px); }
+.wiz-modal {
+  background: var(--surface);
+  width: 100%;
+  max-width: 500px;
+  /* CHANGE: Use 100dvh to automatically shrink when keyboard appears */
+  height: 100dvh; 
+  max-height: 100dvh;
+  border-radius: 24px 24px 0 0;
+  display: flex;
+  flex-direction: column; /* CHANGE: Stacks header, body, and footer */
+  overflow: hidden; 
+  animation: wizSlideUp 0.3s cubic-bezier(0.1, 0.9, 0.2, 1);
+  position: relative;
+}
+
+.wiz-info-modal { background: var(--surface); width: 100%; max-width: 420px; border-radius: 24px; display: flex; flex-direction: column; margin: 20px; align-self: center; box-shadow: 0 10px 40px rgba(0,0,0,0.25); animation: wizPopIn 0.2s ease-out; }
+@keyframes wizPopIn { from { transform: scale(0.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+.wiz-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; justify-content: space-between; align-items: center; background: #fff; z-index: 10; border-radius: 24px 24px 0 0; }
+.wiz-title { font-size: 22px; font-family: 'Rajdhani', sans-serif; font-weight: 700; color: var(--primary); }
+.wiz-close-btn { background: var(--surface2); border: none; font-size: 22px; color: var(--text); cursor: pointer; width: 38px; height: 38px; border-radius: 50%; display: flex; align-items: center; justify-content: center; transition: background 0.2s; }
+.wiz-close-btn:active { background: var(--border); }
+
+.wiz-progress-container { width: 100%; height: 6px; background: var(--surface2); }
+.wiz-progress-bar { height: 100%; background: var(--primary-light); width: 0%; transition: width 0.3s ease; }
+.wiz-body {
+  padding: 24px;
+  /* CHANGE: flex: 1 makes the body take available space and scroll, 
+     keeping the footer pushed to the bottom of the screen */
+  flex: 1; 
+  overflow-y: auto; 
+  background: var(--surface);
+  -webkit-overflow-scrolling: touch;
+}
+
+.wiz-step-title { font-size: 20px; font-weight: 700; color: var(--primary-dark); margin-bottom: 8px; text-align: center; }
+.wiz-info-btn-container { text-align: center; margin-bottom: 24px; }
+.wiz-info-btn { background: #E8F5EE; color: var(--primary); border: 1px solid var(--border); padding: 6px 14px; border-radius: 16px; font-size: 13px; font-weight: 600; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
+
+.wiz-big-btn { width: 100%; background: var(--surface2); border: 2px solid var(--border); border-radius: 16px; padding: 24px 16px; margin-bottom: 16px; cursor: pointer; font-size: 18px; font-weight: 600; color: var(--text); text-align: center; transition: all 0.2s; line-height: 1.4; }
+.wiz-big-btn.lang-btn { font-size: 22px; padding: 30px 20px; }
+.wiz-big-btn:active { border-color: var(--primary); background: #E8F5EE; transform: scale(0.98); }
+.wiz-big-btn.act { border-left: 8px solid var(--red); }
+.wiz-big-btn.cond { border-left: 8px solid var(--orange); }
+
+.wiz-footer {
+  padding: 16px 24px;
+  border-top: 1px solid var(--border);
+  background: #fff;
+  display: flex;
+  gap: 12px;
+  z-index: 10;
+  /* CHANGE: flex-shrink: 0 ensures buttons NEVER get small or hidden */
+  flex-shrink: 0; 
+  /* CHANGE: Adds padding for modern mobile home-bars */
+  padding-bottom: env(safe-area-inset-bottom, 16px); 
+}
+
+/* CHANGE: Increase font-size for better mobile readability */
+.wiz-body .form-label { 
+  font-size: 16px !important; 
+  margin-bottom: 10px !important; 
+}
+
+.wiz-body .form-control { 
+  font-size: 16px !important; /* Prevents iOS auto-zoom on focus */
+  padding: 14px 12px !important; 
+}
+
+/* CHANGE: Increase font-size for better mobile readability */
+.wiz-btn-nav { flex: 1; padding: 16px; border-radius: 12px; font-size: 18px; font-weight: 700; cursor: pointer; border: none; transition: transform 0.1s; }
+.wiz-btn-nav:active { transform: scale(0.96); }
+.wiz-btn-back { background: var(--surface2); color: var(--text-muted); }
+.wiz-btn-next { background: var(--primary); color: white; box-shadow: 0 4px 12px rgba(27,107,58,0.25); }
+.wiz-btn-submit { background: var(--red); color: white; box-shadow: 0 4px 12px rgba(192,57,43,0.25); }
+
+.wiz-step { display: none; }
+.wiz-step.active { display: block; animation: fadeIn 0.3s ease; }
+.wiz-info-content { font-size: 15px; line-height: 1.6; color: var(--text); }
+.wiz-info-content h4 { color: var(--primary-dark); font-size: 18px; margin-bottom: 8px; margin-top: 16px; }
+.wiz-info-content h4:first-child { margin-top: 0; }
+.wiz-info-content .tag { font-weight: 700; display: inline-block; padding: 2px 8px; border-radius: 6px; font-size: 12px; margin-bottom: 6px; }
+.tag-act { background: #FADBD8; color: var(--red); }
+.tag-cond { background: #FDEBD0; color: var(--orange); }
+.wiz-info-content p { margin-bottom: 12px; }
+.wiz-info-content i { color: var(--text-muted); font-size: 14px; display: block; margin-top: 4px; padding: 8px; background: var(--bg); border-radius: 8px; border-left: 3px solid var(--border); }
+</style>
+</head>
+<body>
+
+<div id="boot-screen"><div class="boot-spinner"></div></div>
+
+<div id="login-screen">
+  <div class="login-box">
+    <div class="login-header">
+      <div class="login-logo-wrap"><img src="https://lh3.googleusercontent.com/d/1AyVNnRebS0vJv2HHh2m0vRfQqKnpXw6g" alt="Dhanuka Logo"/></div>
+      <div class="login-app-name">Dhanuka Safety Kavach</div>
+      <div class="login-tagline">Safety Management Portal</div>
+    </div>
+    <div class="login-body">
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label tr" data-hi="पूरा नाम *">Full Name *</label>
+        <input class="form-control" id="login-name" placeholder="Enter your full name" autocomplete="name"/>
+      </div>
+      <div class="form-group" style="margin-bottom:14px">
+        <label class="form-label tr" data-hi="ईमेल पता *">Email Address *</label>
+        <input class="form-control" type="email" id="login-email" placeholder="you@dhanuka.com" autocomplete="email"/>
+      </div>
+      <div class="login-dept-row" style="margin-bottom:14px">
+        <div class="form-group">
+          <label class="form-label tr" data-hi="विभाग *">Department *</label>
+          <select class="form-control" id="login-dept">
+            <option value="">Select...</option>
+            <option value="Production">Production</option>
+            <option value="Maintenance">Maintenance</option>
+            <option value="EHS">EHS</option>
+            <option value="QC">QC</option>
+            <option value="HR">HR</option>
+            <option value="Accounts">Accounts</option>
+            <option value="Stores">Stores</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label class="form-label tr" data-hi="संयंत्र / साइट *">Plant / Site *</label>
+          <select class="form-control" id="login-plant">
+            <option value="">Select...</option>
+            <option value="Udhampur">Udhampur</option>
+            <option value="Plant B">Plant B</option>
+            <option value="Plant C">Plant C</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="margin-bottom:4px">
+        <label class="form-label tr" data-hi="कर्मचारी आईडी">Employee ID</label>
+        <input class="form-control" id="login-empid" placeholder="EMP001 (optional)" autocomplete="off"/>
+      </div>
+      <div class="login-divider"></div>
+      <button class="btn-login tr" id="btn-enter-portal" data-hi="🚀 पोर्टल में प्रवेश करें">🚀 Enter Portal</button>
+      <div class="login-footer-note tr" data-hi="आपका विवरण केवल इस डिवाइस पर सहेजा गया है।">Your details are saved locally on this device only.</div>
+      <div style="text-align:center; font-size:11px; color:#8AAD97; margin-top:24px; padding-top:16px; border-top:1px dashed #C8DDD0; line-height:1.6;">
+        Developed By - <b style="color:#1B6B3A;">Bhanu Pratap Singh</b><br>
+        Email - <a href="mailto:bhanupratap@dhanuka.com" style="color:#2E9E58; text-decoration:none;">bhanupratap@dhanuka.com</a>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="sidebar-overlay" data-action="closeSidebar"></div>
+
+<button class="fab-quick-report" id="fabQuickReport" onclick="openWizard()" title="Quick Report" style="display:none;">🚨</button>
+
+<div id="app">
+<nav id="sidebar">
+  <div class="sidebar-logo">
+    <div style="display:flex;align-items:center;gap:12px;width:100%">
+      <div style="width:44px;height:44px;border-radius:12px;background:#fff;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 8px rgba(0,0,0,0.2);overflow:hidden">
+        <img src="https://lh3.googleusercontent.com/d/1AyVNnRebS0vJv2HHh2m0vRfQqKnpXw6g" alt="Dhanuka Logo" style="width:38px;height:38px;object-fit:contain"/>
+      </div>
+      <div class="sidebar-logo-text">DHANUKA<span>SAFETY KAVACH</span></div>
+    </div>
+  </div>
+  <div style="overflow-y:auto;flex:1">
+    <div class="nav-section">
+      <div class="nav-label tr" data-hi="मुख्य">Main</div>
+      <div class="nav-item active" data-action="navigate" data-page="dashboard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+        <span class="tr" data-hi="डैशबोर्ड">Dashboard</span>
+      </div>
+      <div class="nav-item" data-action="navigate" data-page="myzone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+        <span class="tr" data-hi="मेरा क्षेत्र">My Zone</span>
+      </div>
+      <div class="nav-item" data-action="navigate" data-page="analytics">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+        <span class="tr" data-hi="विश्लेषण">Analytics</span>
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">
+      <div class="nav-label tr" data-hi="रिपोर्ट दर्ज करें">Submit Report</div>
+      <div class="nav-item" data-action="navigate" data-page="hazard">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>
+        <span class="tr" data-hi="असुरक्षित कार्य / स्थिति">UA / UC Reporting</span>
+      </div>
+      <div class="nav-item" data-action="navigate" data-page="observation">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+        <span class="tr" data-hi="सुरक्षा अवलोकन">Safety Observation</span>
+      </div>
+      <div class="nav-item" data-action="navigate" data-page="incident">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 01-2.18 2 19.79 19.79 0 01-8.63-3.07A19.5 19.5 0 013.07 9.8a19.79 19.79 0 01-3.07-8.64A2 2 0 012 .82h3a2 2 0 012 1.72c.127.96.361 1.903.7 2.81a2 2 0 01-.45 2.11L6.09 8.91a16 16 0 006 6l1.27-1.27a2 2 0 012.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0122 16.92z"/></svg>
+        <span class="tr" data-hi="घटना रिपोर्ट">Incident Report</span>
+      </div>
+      <div class="nav-item" data-action="navigate" data-page="training">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"/><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"/></svg>
+        <span class="tr" data-hi="प्रशिक्षण रिकॉर्ड">Training Record</span>
+      </div>
+      <div class="nav-item" data-action="navigate" data-page="fac">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 12h-4l-3 9L9 3l-3 9H2"/></svg>
+        <span class="tr" data-hi="FAC रिकॉर्ड">FAC Record</span>
+      </div>
+      <div class="nav-item" data-action="navigate" data-page="bbs">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 00-3-3.87M16 3.13a4 4 0 010 7.75"/></svg>
+        <span class="tr" data-hi="बीबीएस अवलोकन">BBS Observation</span>
+      </div>
+    </div>
+    <div class="nav-divider"></div>
+    <div class="nav-section">
+      <div class="nav-item" data-action="navigate" data-page="admin">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14M12 2v2M12 20v2M2 12h2M20 12h2"/></svg>
+        <span class="tr" data-hi="व्यवस्थापक">Admin Config</span>
+      </div>
+    </div>
+  </div>
+</nav>
+
+<div id="main-content">
+  <header id="header">
+    <button id="menu-btn" data-action="toggleSidebar">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+    </button>
+    <div id="header-logo-wrap" style="display:none;align-items:center;gap:8px;cursor:pointer;" data-action="navigate" data-page="dashboard">
+      <div style="width:30px;height:30px;border-radius:6px;background:var(--green-pale2);display:flex;align-items:center;justify-content:center;overflow:hidden;border:1px solid var(--border)">
+        <img src="https://lh3.googleusercontent.com/d/1AyVNnRebS0vJv2HHh2m0vRfQqKnpXw6g" alt="Dhanuka" style="width:24px;height:24px;object-fit:contain"/>
+      </div>
+      <span style="font-family:'Rajdhani',sans-serif;font-size:16px;font-weight:700;color:var(--primary)">Dhanuka Safety Kavach</span>
+    </div>
+    
+    <div class="header-actions">
+      <button class="lang-toggle" id="lang-btn" data-action="toggleLang">हिंदी</button>
+      <div class="user-chip" data-action="navigate" data-page="myzone">
+        <div class="user-avatar" id="user-avatar-hdr">U</div>
+        <span class="user-name" id="user-name-hdr">User</span>
+      </div>
+      <button class="btn-logout" id="btn-logout" data-action="logoutUser" title="Logout">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+  <div id="page-area">
+    <div id="page-root"></div>
+  </div>
+</div>
+</div>
+
+<div id="global-loader-overlay" class="modal-overlay" style="z-index: 4000;">
+  <div id="global-loader-content"></div>
+</div>
+
+<div id="modal-overlay" class="modal-overlay">
+  <div id="modal-box" class="modal" id="modal-box-inner">
+    <div class="modal-header">
+      <div class="modal-title" id="modal-title">Report Details</div>
+      <button class="modal-close" data-action="closeModal">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+    </div>
+    <div id="modal-body" class="modal-body"></div>
+    <div id="modal-footer" class="modal-footer"></div>
+  </div>
+</div>
+
+<div class="wiz-overlay" id="wizardOverlay">
+  <div class="wiz-modal">
+    <div class="wiz-header">
+      <div class="wiz-title" id="wizModalTitle">Report Hazard</div>
+      <button class="wiz-close-btn" onclick="closeWizard()">✕</button>
+    </div>
+    <div class="wiz-progress-container"><div class="wiz-progress-bar" id="wizProgressBar"></div></div>
+    <div class="wiz-body" id="wizModalBody">
+      
+      <div class="wiz-step active" id="wiz-step-0">
+        <div class="wiz-step-title" style="font-size:24px; margin-bottom:24px;">Select Language<br><span style="font-size:20px; color:var(--text-muted)">भाषा चुनें</span></div>
+        <button class="wiz-big-btn lang-btn" onclick="wizSetLang('hi')"><span style="font-size:32px;">🇮🇳</span><br>हिंदी (Hindi)</button>
+        <button class="wiz-big-btn lang-btn" onclick="wizSetLang('en')"><span style="font-size:32px;">🇬🇧</span><br>English</button>
+      </div>
+
+      <div class="wiz-step" id="wiz-step-1">
+        <div class="wiz-step-title" id="wiz-title-1"></div>
+        <div class="wiz-info-btn-container">
+          <button class="wiz-info-btn" onclick="wizShowInfo('type')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span id="wiz-lbl-info-type">What's the difference?</span>
+          </button>
+        </div>
+        <button class="wiz-big-btn act" onclick="wizSetType('Unsafe Act')" id="wiz-btn-act"></button>
+        <button class="wiz-big-btn cond" onclick="wizSetType('Unsafe Condition')" id="wiz-btn-cond"></button>
+      </div>
+
+      <div class="wiz-step" id="wiz-step-2">
+        <div class="wiz-step-title" id="wiz-title-2"></div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-area"></label>
+          <select class="form-control" id="wiz-area"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-subarea"></label>
+          <input type="text" class="form-control" id="wiz-subarea" placeholder="...">
+        </div>
+      </div>
+
+      <div class="wiz-step" id="wiz-step-3">
+        <div class="wiz-step-title" id="wiz-title-3"></div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-cat"></label>
+          <select class="form-control" id="wiz-cat" onchange="wizToggleOtherCat()"></select>
+        </div>
+        <div class="form-group" id="wiz-other-cat-group" style="display:none;">
+          <label class="form-label" id="wiz-lbl-other-cat"></label>
+          <input type="text" class="form-control" id="wiz-other-cat">
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-details"></label>
+          <textarea class="form-control" id="wiz-details"></textarea>
+        </div>
+      </div>
+
+      <div class="wiz-step" id="wiz-step-4">
+        <div class="wiz-step-title" id="wiz-title-4"></div>
+        <div class="wiz-info-btn-container">
+          <button class="wiz-info-btn" onclick="wizShowInfo('risk')">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+            <span id="wiz-lbl-info-risk">How to score?</span>
+          </button>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-sev"></label>
+          <select class="form-control" id="wiz-sev"></select>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-lik"></label>
+          <select class="form-control" id="wiz-lik"></select>
+        </div>
+      </div>
+
+      <div class="wiz-step" id="wiz-step-5">
+        <div class="wiz-step-title" id="wiz-title-5"></div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-action"></label>
+          <textarea class="form-control" id="wiz-action" rows="2"></textarea>
+        </div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-closure"></label>
+          <select class="form-control" id="wiz-closure">
+            <option value="No" id="wiz-opt-no"></option>
+            <option value="Yes" id="wiz-opt-yes"></option>
+          </select>
+        </div>
+        
+        <div id="wiz-assignee-section" style="display:none; background:var(--surface2); padding:16px; border-radius:10px; border:1px dashed var(--border); margin-bottom:24px;">
+          <div class="form-group" style="color:var(--orange); font-weight:700; font-size:15px; margin-bottom:12px;" id="wiz-lbl-assign-title">Action Assignment Details</div>
+          <div class="form-group"><label class="form-label" id="wiz-lbl-target">Target Date</label><input class="form-control" type="date" id="wiz-target"/></div>
+          <div class="form-group"><label class="form-label" id="wiz-lbl-resp">Responsible Person</label>
+            <input class="form-control" id="wiz-resp-person" placeholder="Type name..." autocomplete="name"/>
+            <div id="wiz-resp-suggestions" style="position:relative"></div>
+          </div>
+          <div class="form-group"><label class="form-label" id="wiz-lbl-phone">Phone (Optional)</label><input class="form-control" type="tel" id="wiz-resp-phone"/></div>
+          <div class="form-group"><label class="form-label" id="wiz-lbl-email">Email (Optional)</label><input class="form-control" type="email" id="wiz-resp-email"/></div>
+        </div>
+      </div>
+
+      <div class="wiz-step" id="wiz-step-6">
+        <div class="wiz-step-title" id="wiz-title-6"></div>
+        <div class="form-group">
+          <label class="form-label" id="wiz-lbl-photo"></label>
+          <input type="file" id="wiz-photo" accept="image/*" capture="environment" class="form-control" style="padding:10px; background:#fff;">
+        </div>
+        <div style="text-align:center; padding: 20px; font-size:40px;">📸</div>
+      </div>
+    </div>
+
+    <div class="wiz-footer" id="wiz-footer" style="display:none;">
+      <button class="wiz-btn-nav wiz-btn-back" id="wizBtnBack" onclick="wizPrevStep()">⬅️ Back</button>
+      <button class="wiz-btn-nav wiz-btn-next" id="wizBtnNext" onclick="wizNextStep()">Next ➡️</button>
+    </div>
+  </div>
+</div>
+
+<div class="wiz-overlay" id="wizInfoOverlay" style="z-index: 3100;">
+  <div class="wiz-info-modal">
+    <div class="wiz-header" style="padding: 16px 20px; border-radius: 20px 20px 0 0;">
+      <div class="wiz-title" id="wizInfoModalTitle" style="font-size: 18px;">Info</div>
+      <button class="wiz-close-btn" style="width:32px; height:32px;" onclick="wizCloseInfo()">✕</button>
+    </div>
+    <div class="wiz-body wiz-info-content" id="wizInfoModalBody"></div>
+  </div>
+</div>
+
+<div class="wiz-overlay" id="wizSuccessOverlay" style="z-index: 3500;">
+  <div class="wiz-info-modal" style="text-align:center; padding: 30px 24px;">
+    <div style="font-size: 60px; margin-bottom: 12px;">✅</div>
+    <h3 id="wizSuccessTitle" style="color: var(--primary); margin-bottom: 12px; font-family: 'Rajdhani', sans-serif; font-size: 26px;"></h3>
+    <p id="wizSuccessDesc" style="color: var(--text-muted); margin-bottom: 24px; font-size: 16px; font-weight: 500; line-height: 1.4;"></p>
+    <div style="display: flex; gap: 12px; width: 100%;">
+      <button class="wiz-btn-nav wiz-btn-back" id="wizBtnGoDash" onclick="wizGoDashboard()" style="flex: 1; font-size: 16px; padding: 14px; border: 1px solid var(--border);"></button>
+      <button class="wiz-btn-nav wiz-btn-next" id="wizBtnSubmitAnother" onclick="wizSubmitAnother()" style="flex: 1; font-size: 16px; padding: 14px;"></button>
+    </div>
+  </div>
+</div>
+
+<div class="toast-container" id="toast-container"></div>
+
+<script>
+// ============================================================
+// SAFE STORAGE WRAPPER
+// ============================================================
+var memoryStorage = {};
+function safeSetItem(key, val) { try { localStorage.setItem(key, val); } catch(e) { memoryStorage[key] = val; } }
+function safeGetItem(key) { try { return localStorage.getItem(key) || memoryStorage[key] || null; } catch(e) { return memoryStorage[key] || null; } }
+function safeRemoveItem(key) { try { localStorage.removeItem(key); } catch(e) {} delete memoryStorage[key]; }
+
+// ============================================================
+// GLOBAL STATE & CONFIG
+// ============================================================
+var appState = { lang: 'en', currentPage: 'dashboard', data: {}, userProfile: {}, adminConfig: {}, tempLastData: {} };
+var allReportsData = [], showAllReports = false, deptChart, trendChart, anCharts = {}, obsBlockCount = 0, bbsSelections = {}, bbsUnsafeDetails = {}, adminUnlocked = false;
+var dataFetchPromise = null;
+
+function loadProfile() {
+  try {
+    var p = safeGetItem('sk_profile');
+    if (p && p !== 'undefined') appState.userProfile = JSON.parse(p);
+  } catch(e) { appState.userProfile = {}; }
+  updateHeaderUser();
+}
+function saveProfile(data) {
+  appState.userProfile = data;
+  safeSetItem('sk_profile', JSON.stringify(data));
+  updateHeaderUser();
+}
+function updateHeaderUser() {
+  var n = appState.userProfile.name || 'User';
+  var nameEl = document.getElementById('user-name-hdr');
+  var avatarEl = document.getElementById('user-avatar-hdr');
+  if(nameEl) nameEl.textContent = n.split(' ')[0];
+  if(avatarEl) avatarEl.textContent = n.charAt(0).toUpperCase();
+}
+
+// ============================================================
+// API CALLS & DATA FETCHING
+// ============================================================
+function callBackend(action, data) {
+  data = data || {};
+  return new Promise(function(resolve) {
+    try {
+      google.script.run.withSuccessHandler(function(result) { resolve(result || {success:true}); })
+        .withFailureHandler(function(err) { resolve({success:false, error: err.message || String(err)}); })
+        .handleRequest(action, JSON.stringify(data));
+    } catch(e) { resolve({success:false, error: e.message}); }
+  });
+}
+
+function getAllData() {
+  // 1. Add safety check to prevent crash if data is somehow undefined
+  if (appState.data && Object.keys(appState.data).length > 0) return Promise.resolve(appState.data);
+  if (dataFetchPromise) return dataFetchPromise;
+  
+  dataFetchPromise = new Promise(function(resolve) {
+    callBackend('getAllData').then(function(res) {
+      // 2. Only set appState.data if res.data actually exists and isn't null
+      if (res && res.success && res.data) { 
+        appState.data = res.data; 
+      } else {
+        appState.data = {}; // Safe fallback
+      }
+      resolve(appState.data);
+    }).catch(function(e) { 
+      appState.data = {}; 
+      resolve(appState.data); 
+    });
+  });
+  return dataFetchPromise;
+}
+
+// ============================================================
+// NAVIGATION & TRANSLATION ENGINE
+// ============================================================
+function navigate(page) {
+  appState.currentPage = page;
+  document.querySelectorAll('.nav-item').forEach(function(el) { el.classList.remove('active'); });
+  document.querySelectorAll('.nav-item[data-page="' + page + '"]').forEach(function(el) { el.classList.add('active'); });
+  closeSidebar();
+  
+  // Toggle the Dashboard FAB
+  var fab = document.getElementById('fabQuickReport');
+  if(fab) fab.style.display = (page === 'dashboard') ? 'flex' : 'none';
+  
+  renderPage(page);
+}
+
+function renderPage(page) {
+  var root = document.getElementById('page-root');
+  try {
+    switch(page) {
+      case 'dashboard': renderDashboard(); break; 
+      case 'myzone': renderMyZone(); break; 
+      case 'analytics': renderAnalytics(); break;
+      case 'hazard': renderHazardForm(); break; 
+      case 'observation': renderObservationForm(); break; 
+      case 'incident': renderIncidentForm(); break;
+      case 'training': renderTrainingForm(); break; 
+      case 'fac': renderFACForm(); break; 
+      case 'bbs': renderBBSForm(); break; 
+      case 'admin': renderAdmin(); break;
+      default: root.innerHTML = '<p>Page not found</p>';
+    }
+  } catch (err) { root.innerHTML = '<div class="empty-state">Error loading page.</div>'; console.error(err); }
+  setTimeout(applyTranslations, 50);
+}
+
+function toggleLang() {
+  appState.lang = appState.lang === 'en' ? 'hi' : 'en';
+  var btn = document.getElementById('lang-btn');
+  btn.textContent = appState.lang === 'en' ? 'हिंदी' : 'English';
+  btn.classList.toggle('active', appState.lang === 'hi');
+  applyTranslations();
+}
+
+function applyTranslations() {
+  document.querySelectorAll('.tr').forEach(function(el) {
+    if (!el.dataset.en) { el.dataset.en = el.textContent; }
+    if (appState.lang === 'hi' && el.dataset.hi) {
+      el.textContent = el.dataset.hi;
+    } else if (appState.lang === 'en' && el.dataset.en) {
+      el.textContent = el.dataset.en;
+    }
+  });
+}
+
+// ============================================================
+// UI & HELPERS
+// ============================================================
+function toggleSidebar() {
+  var s = document.getElementById('sidebar');
+  var o = document.getElementById('sidebar-overlay');
+  s.classList.toggle('open');
+  o.style.display = s.classList.contains('open') ? 'block' : 'none';
+}
+function closeSidebar() {
+  var s = document.getElementById('sidebar');
+  var o = document.getElementById('sidebar-overlay');
+  if(s) s.classList.remove('open');
+  if(o) o.style.display = 'none';
+}
+
+function toast(msg, type) {
+  var c = document.getElementById('toast-container');
+  var t = document.createElement('div');
+  t.className = 'toast ' + (type || 'info');
+  var icons = {success:'✅', error:'❌', info:'ℹ️'};
+  t.innerHTML = '<span>' + (icons[type]||'ℹ️') + '</span><span>' + msg + '</span>';
+  c.appendChild(t);
+  setTimeout(function(){ t.remove(); }, 4000);
+}
+function openModal(title, body, footer) {
+  document.getElementById('modal-title').textContent = title;
+  document.getElementById('modal-body').innerHTML = body;
+  document.getElementById('modal-footer').innerHTML = footer || '';
+  var o = document.getElementById('modal-overlay');
+  o.style.display = 'flex'; setTimeout(function(){ o.classList.add('show'); }, 10);
+}
+function closeModal() {
+  var o = document.getElementById('modal-overlay');
+  o.classList.remove('show'); setTimeout(function(){ o.style.display='none'; }, 200);
+}
+
+var safetyTips = [
+  "80% दुर्घटनाएं असुरक्षित स्थितियों के कारण नहीं, बल्कि असुरक्षित कार्यों के कारण होती हैं।",
+  "स्वच्छ कार्यस्थल एक सुरक्षित कार्यस्थल है। अच्छी हाउसकीपिंग का अभ्यास करें।",
+  "नियर मिस (बाल-बाल बचना) एक मुफ्त चेतावनी है—हमेशा तुरंत रिपोर्ट करें।",
+  "जल्दबाजी कार्यस्थल पर चोटों का एक प्रमुख कारण है। अपना समय लें।",
+  "सुरक्षा एक टीम वर्क है। अपने सहकर्मियों का ध्यान रखें।",
+  "आपको असुरक्षित कार्य को रोकने का अधिकार और जिम्मेदारी है।",
+  "थकान भी शराब जितनी ही निर्णय क्षमता को प्रभावित करती है। पर्याप्त आराम करें।",
+  "सभी चोटों की तुरंत रिपोर्ट करें, चाहे वे कितनी भी मामूली क्यों न लगें।",
+  "स्थिति के प्रति जागरूकता (Situational awareness) खतरों से बचाव का सबसे अच्छा तरीका है।",
+  "आपकी सुरक्षा आपके परिवार की मन की शांति है।"
+];
+
+function getLoaderHtml(msg) {
+  var randomTip = safetyTips[Math.floor(Math.random() * safetyTips.length)];
+  var txt = msg || 'डेटा लाया जा रहा है...';
+  return '<div style="display:flex; flex-direction:column; align-items:center; background:var(--surface); padding:32px 40px; border-radius:16px; box-shadow:0 10px 40px rgba(0,0,0,0.3); text-align:center; min-width: 320px;">' +
+    '<div class="ehs-anim-wrap" style="width:72px; height:72px;">' +
+      '<div class="ehs-anim-ring" style="inset:-8px; border-width:3px;"></div>' +
+      '<div class="ehs-logo-container">' +
+        '<img src="https://lh3.googleusercontent.com/d/1AyVNnRebS0vJv2HHh2m0vRfQqKnpXw6g" alt="Dhanuka Logo" />' +
+      '</div>' +
+    '</div>' +
+    '<div class="loader-text">' + txt + '</div>' +
+    '<div style="margin-top:24px; font-size:12px; font-weight:700; color:var(--primary); text-transform:uppercase; letter-spacing:1px; font-family:\'Noto Sans Devanagari\', sans-serif;">आज का सुरक्षा तथ्य</div>' +
+    '<div style="margin-top:6px; font-size:15px; color:var(--text-muted); font-weight:500; max-width:280px; line-height:1.5; font-family:\'Noto Sans Devanagari\', sans-serif;">💡 ' + randomTip + '</div>' +
+    '</div>';
+}
+
+var progressInterval;
+
+function getActionLoaderHtml(actionType) {
+  var fullName = appState.userProfile.name || 'User';
+  var firstName = fullName.split(' ')[0]; 
+  var titleText = 'Thank you ' + firstName + ' Ji.';
+  var subText = actionType === 'close' ? 'Closing report and saving evidence...' : 'Your report is being processed.';
+
+  return '<div style="display:flex; flex-direction:column; align-items:center; background:var(--surface); padding:32px 40px; border-radius:16px; box-shadow:0 20px 60px rgba(0,0,0,0.3); text-align:center; min-width: 320px;">' +
+    '<div class="ehs-anim-wrap" style="width:72px; height:72px;">' +
+      '<div class="ehs-anim-ring" style="inset:-8px; border-width:3px;"></div>' +
+      '<div class="ehs-logo-container"><img src="https://lh3.googleusercontent.com/d/1AyVNnRebS0vJv2HHh2m0vRfQqKnpXw6g" alt="Dhanuka Logo" /></div>' +
+    '</div>' +
+    '<div style="font-family:\'Rajdhani\',sans-serif; font-size:24px; font-weight:700; color:var(--primary); margin-bottom:6px;">' + titleText + '</div>' +
+    '<div style="font-size:15px; color:var(--text-muted); margin-bottom: 24px; font-weight:500;">' + subText + '</div>' +
+    '<div style="width: 100%; height: 8px; background: var(--surface3); border-radius: 4px; overflow: hidden; margin-bottom: 8px;">' +
+      '<div class="submit-progress-fill" id="action-progress-bar"></div>' +
+    '</div>' +
+    '<div style="font-size: 14px; font-weight: 700; color: var(--primary);" id="action-progress-text">0%</div>' +
+    '<div style="margin-top:28px; font-size:13px; color:var(--text-muted); font-weight:600; line-height: 1.6;">Together we protect<br><span style="color:var(--primary); font-size:14px;">Environment • Health • Safety</span></div>' +
+    '</div>';
+}
+
+function showGlobalLoader(msg) {
+  var overlay = document.getElementById('global-loader-overlay');
+  var content = document.getElementById('global-loader-content');
+  if (overlay && content) { 
+    var isSubmit = msg && (msg.toLowerCase().indexOf('submit') !== -1 || msg.toLowerCase().indexOf('sav') !== -1 || msg.toLowerCase().indexOf('जमा') !== -1);
+    var isClose = msg && msg.toLowerCase().indexOf('clos') !== -1;
+
+    if (isSubmit || isClose) {
+        content.innerHTML = getActionLoaderHtml(isClose ? 'close' : 'submit');
+        var fill = document.getElementById('action-progress-bar');
+        if(fill) fill.style.animation = 'loadProgress 3s cubic-bezier(0.4, 0, 0.2, 1) forwards';
+        var pct = 0;
+        clearInterval(progressInterval);
+        progressInterval = setInterval(function() {
+          var el = document.getElementById('action-progress-text');
+          if(!el) return;
+          pct += Math.floor(Math.random() * 4) + 1;
+          if(pct > 96) pct = 96; 
+          el.textContent = pct + '%';
+        }, 120);
+    } else {
+        clearInterval(progressInterval); 
+        content.innerHTML = getLoaderHtml(msg);
+    }
+    overlay.style.display = 'flex'; 
+    setTimeout(function(){ overlay.classList.add('show'); }, 10); 
+    applyTranslations();
+  }
+}
+
+function hideGlobalLoader() {
+  var overlay = document.getElementById('global-loader-overlay');
+  if (overlay) { 
+    var pctText = document.getElementById('action-progress-text');
+    var barFill = document.getElementById('action-progress-bar');
+    if (pctText && barFill) {
+        clearInterval(progressInterval);
+        pctText.textContent = '100%';
+        pctText.style.color = '#27AE60';
+        barFill.style.animation = 'none';
+        barFill.style.transition = 'width 0.3s ease';
+        barFill.style.width = '100%';
+    }
+    setTimeout(function() {
+        overlay.classList.remove('show'); 
+        setTimeout(function(){ overlay.style.display = 'none'; }, 200); 
+    }, 300); 
+  }
+}
+
+function askSubmitAnother(reportName, pageRoute, lastData, reportId) {
+  var body = '<div style="text-align:center; padding:10px 0;">' +
+             '<div style="font-size:48px; margin-bottom:12px;">✅</div>' +
+             '<div style="font-size:18px; font-weight:700; color:var(--primary); margin-bottom:6px;" class="tr" data-hi="सफलतापूर्वक जमा किया गया!">Submitted Successfully!</div>' +
+             '<div style="font-size:13px; color:var(--text-muted); margin-bottom:24px;">ID: <span style="font-family:monospace;font-weight:600;color:var(--text);">' + reportId + '</span></div>' +
+             '<div style="font-size:15px; font-weight:500;" class="tr" data-hi="क्या आप एक और रिपोर्ट दर्ज करना चाहते हैं?">Do you want to submit another ' + reportName + '?</div>' +
+             '</div>';
+  var footer = '<button class="btn btn-outline tr" data-action="goDashboardFetch" data-hi="नहीं, डैशबोर्ड पर जाएं">No, Go to Dashboard</button>' +
+               '<button class="btn btn-primary tr" data-action="submitAnother" data-page="' + pageRoute + '" data-hi="हाँ, एक और दर्ज करें">Yes, Submit Another</button>';
+  
+  appState.tempLastData = lastData;
+  openModal('Report Submitted', body, footer);
+  setTimeout(applyTranslations, 10);
+}
+
+function restoreLastFormData(page, data) {
+  if(!data) return;
+  var pfx = '';
+  if(page==='hazard') pfx='hz';
+  else if(page==='observation') pfx='obs';
+  else if(page==='incident') pfx='inc';
+  else if(page==='training') pfx='trn';
+  else if(page==='fac') pfx='fac';
+  else if(page==='bbs') pfx='bbs';
+
+  if(pfx) {
+     if(data.dept) { var d=document.getElementById(pfx+'-dept'); if(d) d.value=data.dept; }
+     if(data.loc)  { var l=document.getElementById(pfx+'-loc');  if(l) { l.value=data.loc; l.dispatchEvent(new Event('change')); } }
+     if(data.type) { var t=document.getElementById(pfx+'-type'); if(t) { t.value=data.type; t.dispatchEvent(new Event('change')); } }
+     if(data.cat)  { var c=document.getElementById(pfx+'-cat');  if(c) c.value=data.cat; }
+     if(data.topic){ var tp=document.getElementById(pfx+'-topic'); if(tp) tp.value=data.topic; }
+     if(data.shift){ var sh=document.getElementById(pfx+'-shift'); if(sh) sh.value=data.shift; }
+
+     if(data.closure === 'Yes') {
+         var cl = document.getElementById(pfx+'-closure');
+         if(cl) {
+             cl.value = 'Yes';
+             var sec = document.getElementById(pfx+'-assignee-section');
+             if(sec) sec.style.display = 'block';
+             if(data.targetDate) { var td=document.getElementById(pfx+'-target'); if(td) td.value=data.targetDate; }
+             if(data.respPerson) { var rp=document.getElementById(pfx+'-resp-person'); if(rp) rp.value=data.respPerson; }
+             if(data.respPhone)  { var rph=document.getElementById(pfx+'-resp-phone'); if(rph) rph.value=data.respPhone; }
+             if(data.respEmail)  { var re=document.getElementById(pfx+'-resp-email');  if(re) re.value=data.respEmail; }
+         }
+     }
+  }
+}
+
+function compressImageAsync(file) {
+  return new Promise(function(resolve) {
+    var MAX_WIDTH = 600; var objUrl = URL.createObjectURL(file); var img = new Image();
+    img.onload = function() {
+      var canvas = document.createElement('canvas'); var ratio = Math.min(MAX_WIDTH / img.width, 1);
+      canvas.width = img.width * ratio; canvas.height = img.height * ratio;
+      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
+      var dataUrl = canvas.toDataURL('image/jpeg', 0.4); URL.revokeObjectURL(objUrl); resolve(dataUrl);
+    };
+    img.onerror = function() { URL.revokeObjectURL(objUrl); resolve(null); }; img.src = objUrl;
+  });
+}
+
+function generateReportId(typeCode) {
+  var now = new Date();
+  var dd   = ('00' + now.getDate()).slice(-2);
+  var mm   = ('00' + (now.getMonth() + 1)).slice(-2);
+  var yyyy = String(now.getFullYear());
+  var dateStr = dd + mm + yyyy;
+  var serial = 1;
+  try {
+    var moduleMap = {'UA':'Hazard_Reports','UC':'Hazard_Reports','NM':'Hazard_Reports','OBS':'Observations','INC':'Incident','TRN':'Training','FAC':'FAC','BBS':'BBS'};
+    var rows = (appState.data[moduleMap[typeCode]||'Hazard_Reports'])||[];
+    var count = 0;
+    for(var i=0; i<rows.length; i++) {
+      var p = (rows[i]['Report ID']||'').split('-');
+      if(p[0] === typeCode && p[1] && p[1].slice(2,4) === mm && p[1].slice(4) === yyyy) { count++; }
+    }
+    serial = count + 1;
+  } catch(e){}
+  return typeCode + '-' + dateStr + '-' + ('00' + serial).slice(-2);
+}
+
+function getTypeCode(reportType) {
+  var t=(reportType||'').toLowerCase();
+  if(t.indexOf('unsafe act') !== -1)       return 'UA';
+  if(t.indexOf('unsafe condition') !== -1) return 'UC';
+  if(t.indexOf('near miss') !== -1)        return 'NM';
+  if(t.indexOf('observation') !== -1)      return 'OBS';
+  if(t.indexOf('incident') !== -1)         return 'INC';
+  if(t.indexOf('training') !== -1)         return 'TRN';
+  if(t.indexOf('fac') !== -1)              return 'FAC';
+  if(t.indexOf('bbs') !== -1)              return 'BBS';
+  return 'RPT';
+}
+function formatDate(ts) { 
+  if(!ts) return '—';
+  var d = new Date(ts);
+  if(isNaN(d.getTime())) return ts; 
+  var day = ('0' + d.getDate()).slice(-2);
+  var months = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  var month = months[d.getMonth()];
+  var year = String(d.getFullYear()).slice(-2);
+  return day + '-' + month + '-' + year; 
+}
+
+function formatTime(ts) {
+  if(!ts) return '—';
+  var d = new Date(ts);
+  if(isNaN(d.getTime())) return ts; 
+  var h = ('0' + d.getHours()).slice(-2);
+  var m = ('0' + d.getMinutes()).slice(-2);
+  return h + ':' + m;
+}
+
+function getStatusBadge(status) {
+  var s = (status||'').toLowerCase();
+  if (s==='open') return '<span class="badge badge-open">Open</span>';
+  if (s==='closed' || s==='submitted') return '<span class="badge badge-closed">' + (status||'Closed') + '</span>';
+  return '<span class="badge badge-pending">' + (status||'—') + '</span>';
+}
+function getAdminConfig() {
+  if (appState.data && appState.data.Config && appState.data.Config.length > 0 && appState.data.Config[0].ConfigData) {
+    try {
+      var parsed = JSON.parse(appState.data.Config[0].ConfigData);
+      if (!parsed.areaDetails) parsed.areaDetails = [];
+      if (!parsed.autoCcEmails) parsed.autoCcEmails = '';
+      safeSetItem('sk_admin_config', JSON.stringify(parsed));
+      return parsed;
+    } catch(e) {}
+  }
+  try {
+    var c = safeGetItem('sk_admin_config');
+    if (c && c !== 'undefined') {
+      var parsed2 = JSON.parse(c);
+      if (parsed2 && typeof parsed2 === 'object') {
+        if (!parsed2.areaDetails) parsed2.areaDetails = [];
+        if (!parsed2.autoCcEmails) parsed2.autoCcEmails = '';
+        return parsed2;
+      }
+    }
+  } catch(e){}
+  
+  return { 
+  plants: ['Udhampur'], 
+  departments: ['Production', 'Maintenance', 'EHS', 'QC', 'HR', 'Accounts', 'Stores'], 
+  subAreas: [], // Leave empty so it only pulls from what you add in the Admin panel!
+  areaDetails: [], 
+  targets: {training:100, uauc:50, bbs:30}, 
+  deptTargets: {}, 
+  personTargets: {trainingHrs:10, uauc:5, bbs:3}, 
+  autoCcEmails: '' 
+};
+}
+function getAreaDetails() { return getAdminConfig().areaDetails || []; }
+function getAreaByName(name) { 
+  var details = getAreaDetails();
+  for(var i=0; i<details.length; i++) { if(details[i].area === name) return details[i]; }
+  return null; 
+}
+function saveAdminConfig(cfg) {
+  safeSetItem('sk_admin_config', JSON.stringify(cfg));
+  appState.adminConfig = cfg;
+  toast('Saving to server...', 'info');
+  callBackend('saveConfig', cfg).then(function(res) {
+    if (res.success) {
+      toast('Configuration saved permanently!', 'success');
+      if (!appState.data.Config) appState.data.Config = [];
+      appState.data.Config[0] = { ConfigData: JSON.stringify(cfg) };
+    } else {
+      toast('Failed to save to server', 'error');
+    }
+  });
+}
+function getPlants() { return getAdminConfig().plants || []; }
+function getDepts()  { return getAdminConfig().departments || []; }
+function getAreas() { 
+  var details = getAdminConfig().areaDetails || [];
+  return details.map(function(a) { return a.area; }); 
+}
+// ============================================================
+// WHATSAPP SHARE TRACKING
+// ============================================================
+function markWhatsappShared(rid) {
+  try {
+    var shared = JSON.parse(localStorage.getItem('sk_wa_shared')||'{}');
+    shared[rid] = true;
+    localStorage.setItem('sk_wa_shared', JSON.stringify(shared));
+  } catch(e) {}
+}
+function isWaShared(rid) {
+  try { return !!JSON.parse(localStorage.getItem('sk_wa_shared')||'{}')[rid]; } catch(e){ return false; }
+}
+
+function getClosureSectionHtml(prefix) {
+  return '' +
+  '<div class="form-group"><label class="form-label tr" data-hi="समापन आवश्यक">Closure Required</label>' +
+    '<select class="form-control" id="'+prefix+'-closure">' +
+      '<option value="No">No</option><option value="Yes">Yes</option>' +
+    '</select></div>' +
+  '<div id="'+prefix+'-assignee-section" style="display:none;grid-column:1/-1"><div class="form-grid" style="background:var(--surface2); padding:16px; border-radius:10px; border:1px dashed var(--border);">' +
+    '<div class="form-group form-full" style="color:var(--orange); font-weight:700; font-size:13px; margin-bottom:4px;" class="tr" data-hi="कार्रवाई असाइनमेंट विवरण">Action Assignment Details</div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="लक्ष्य तिथि">Target Date</label><input class="form-control" type="date" id="'+prefix+'-target"/></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="जिम्मेदार व्यक्ति">Responsible Person</label>' +
+      '<input class="form-control" id="'+prefix+'-resp-person" placeholder="Type name..." autocomplete="name"/>' +
+      '<div id="'+prefix+'-resp-suggestions" style="position:relative"></div></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="फोन नंबर (वैकल्पिक)">Phone (Optional)</label>' +
+      '<input class="form-control" type="tel" id="'+prefix+'-resp-phone" placeholder="Mobile Number" autocomplete="tel"/>' +
+      '<div style="font-size:11px; color:var(--text-dim); margin-top:2px;">*Tap to pick from contacts</div>' +
+    '</div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="जिम्मेदार ईमेल (वैकल्पिक)">Email (Optional)</label><input class="form-control" type="email" id="'+prefix+'-resp-email" placeholder="email@dhanuka.com" autocomplete="email"/></div>' +
+  '</div></div>';
+}
+
+function wireClosureToggle(prefix) {
+  var closureSel = document.getElementById(prefix+'-closure');
+  if(closureSel) {
+    closureSel.addEventListener('change', function() {
+      var sec = document.getElementById(prefix+'-assignee-section');
+      if(sec) sec.style.display = this.value === 'Yes' ? 'block' : 'none';
+
+      if (this.value === 'Yes') {
+         var locSel = document.getElementById(prefix+'-loc');
+         if (locSel && locSel.value) {
+            var ev = new Event('change');
+            locSel.dispatchEvent(ev);
+         }
+      }
+    });
+  }
+  var respInput = document.getElementById(prefix+'-resp-person');
+  if(respInput) {
+    respInput.addEventListener('input', function(){ showRespSuggestions(prefix, this.value); });
+  }
+}
+
+function wireLocationAutofill(locId, prefix) {
+  var locSel = document.getElementById(locId);
+  if(locSel) {
+    locSel.addEventListener('change', function() {
+      var aInfo = getAreaByName(this.value);
+      var deptEl = document.getElementById(prefix+'-dept');
+      if (deptEl) { deptEl.value = aInfo ? (aInfo.dept || '') : ''; }
+
+      var closureEl = document.getElementById(prefix+'-closure');
+      if(aInfo && closureEl && closureEl.value === 'Yes') {
+        var rp = document.getElementById(prefix+'-resp-person');
+        var re = document.getElementById(prefix+'-resp-email');
+        var rph = document.getElementById(prefix+'-resp-phone');
+
+        if(rp)  rp.value  = aInfo.areaOwner || aInfo.hod || '';
+        if(re)  re.value  = aInfo.areaOwnerEmail || aInfo.hodEmail || '';
+        if(rph) rph.value = aInfo.areaOwnerPhone || aInfo.hodPhone || '';
+      }
+    });
+  }
+}
+
+function getClosureData(prefix) {
+  var reqEl = document.getElementById(prefix+'-closure');
+  var req = reqEl ? reqEl.value : 'No';
+  if(req === 'Yes') {
+    return {
+      closureRequired: 'Yes',
+      targetDate: (document.getElementById(prefix+'-target')||{}).value || '',
+      responsiblePerson: (document.getElementById(prefix+'-resp-person')||{}).value || '',
+      responsiblePhone: (document.getElementById(prefix+'-resp-phone')||{}).value || '',
+      responsibleEmail: (document.getElementById(prefix+'-resp-email')||{}).value || ''
+    };
+  }
+  return { closureRequired: 'No', targetDate: '', responsiblePerson: '', responsiblePhone: '', responsibleEmail: '' };
+}
+
+// ============================================================
+// DASHBOARD PAGE
+// ============================================================
+function renderDashboard() {
+  var root = document.getElementById('page-root');
+  var plantOpts = getPlants().map(function(p){ return '<option>'+p+'</option>'; }).join('');
+  
+  root.innerHTML = 
+  '<div class="page">' +
+    '<div class="dash-controls" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:16px; background:var(--surface); padding:8px 12px; border-radius:8px; border:1px solid var(--border-light); box-shadow:var(--shadow-sm);">' +
+      '<select class="form-control" id="dash-plant" style="padding:6px 10px; font-size:12px; flex:1;"><option value="">All Plants</option>' + plantOpts + '</select>' +
+      '<select class="form-control" id="dash-time" style="padding:6px 10px; font-size:12px; flex:1;"><option value="all">All Time</option><option value="month">This Month</option><option value="today">Today</option></select>' +
+      '<button class="btn btn-outline btn-sm tr" data-action="refreshDashboard" data-hi="ताज़ा करें" style="padding:6px 12px; border-color:var(--border);">🔄 Refresh</button>' +
+    '</div>' +
+    
+    '<div class="grid-2" style="margin-bottom:18px">' +
+      '<div class="card"><div class="card-title tr" data-hi="शीर्ष रिपोर्टर">🏆 Top Reporters</div><div id="dash-leaderboard"></div></div>' +
+      '<div class="card"><div class="card-title tr" data-hi="मासिक उपलब्धियां">Monthly Achievements</div><div id="dash-achievements"></div></div>' +
+    '</div>' +
+    '<div class="grid-4" id="dash-kpis" style="margin-bottom:18px"><div class="loader"><div class="spinner"></div></div></div>' +
+    '<div class="grid-2" style="margin-bottom:18px">' +
+      '<div class="card"><div class="card-title tr" data-hi="विभाग सबमिशन">Department Submissions</div><div class="chart-wrap"><canvas id="chart-dept"></canvas></div></div>' +
+      '<div class="card"><div class="card-title tr" data-hi="मासिक ट्रेंड">Monthly Trend</div><div class="chart-wrap"><canvas id="chart-trend"></canvas></div></div>' +
+    '</div>' +
+    '<div class="card">' +
+      '<div class="section-header" style="flex-wrap:wrap; margin-bottom:10px;">' +
+        '<div class="card-title tr" data-hi="हालिया रिपोर्ट" style="margin-bottom:0">Reports Directory</div>' +
+        '<button class="btn btn-outline btn-sm tr" data-action="toggleFilters" data-hi="⚙️ फ़िल्टर">⚙️ Filters</button>' +
+      '</div>' +
+      
+      '<div id="filter-collapse" class="filter-collapse">' +
+        '<div class="dash-controls" style="display:flex; flex-wrap:wrap; gap:8px; align-items:center; background:var(--surface2); padding:12px; border-radius:8px; margin-bottom:12px; border:1px solid var(--border-light);">' +
+          '<select class="form-control" id="dir-date-preset" style="width:130px; padding:6px; font-size:12px;">' +
+            '<option value="all">All Time</option>' +
+            '<option value="today">Today</option>' +
+            '<option value="yesterday">Yesterday</option>' +
+            '<option value="month">This Month</option>' +
+            '<option value="custom">Custom Date Range</option>' +
+          '</select>' +
+          '<input type="date" class="form-control" id="dir-from" style="padding:6px; font-size:12px; display:none; width:120px;"/>' +
+          '<input type="date" class="form-control" id="dir-to" style="padding:6px; font-size:12px; display:none; width:120px;"/>' +
+          '<select class="form-control" id="dir-type" style="width:120px; padding:6px; font-size:12px;">' +
+            '<option value="">All Types</option>' +
+            '<option value="UA">Unsafe Act (UA)</option>' +
+            '<option value="UC">Unsafe Cond (UC)</option>' +
+            '<option value="NM">Near Miss</option>' +
+            '<option value="OBS">Observations</option>' +
+            '<option value="INC">Incidents</option>' +
+            '<option value="FAC">FAC</option>' +
+            '<option value="TRN">Training</option>' +
+            '<option value="BBS">BBS</option>' +
+          '</select>' +
+          '<input type="text" class="form-control" id="dir-search" placeholder="Search..." style="width:140px; padding:6px; font-size:12px; flex-grow:1;"/>' +
+          '<button class="btn btn-outline btn-sm tr" data-action="clearFilters" style="color:var(--text-muted);" data-hi="✖ साफ़ करें">✖ Clear</button>' +
+          '<button class="btn btn-success btn-sm tr" data-action="exportExcel" data-hi="📥 निर्यात">📥 Export</button>' +
+        '</div>' +
+      '</div>' +
+
+      '<div class="table-wrap">' +
+        '<table>' +
+         '<thead><tr><th>DATE</th><th>REPORT ID</th><th>REPORT TYPE</th><th>STATUS</th><th>AREA</th></tr></thead>' +
+          '<tbody id="dash-recent-tbody"><tr><td colspan="5" class="loader"><div class="spinner" style="margin:0 auto"></div></td></tr></tbody>' +
+        '</table>' +
+      '</div>' +
+      '<div style="text-align:center; margin-top:12px;">' +
+         '<button class="btn btn-outline btn-sm tr" id="load-all-btn" data-action="toggleAllReports" data-hi="सभी रिपोर्ट लोड करें">Load All Reports</button>' +
+      '</div>' +
+    '</div>' +
+  '</div>';
+  
+  getAllData().then(function(data) {
+    try { updateDashKPIs(data); } catch(e) { console.error(e); }
+    try { updateDashAchievements(data); } catch(e) { console.error(e); }
+    try { updateLeaderboard(data); } catch(e) { console.error(e); }
+    try { renderDeptChart(data); } catch(e) { console.error(e); }
+    try { renderTrendChart(data); } catch(e) { console.error(e); }
+    try { renderRecentTable(data); } catch(e) {
+      console.error(e);
+      var tbody = document.getElementById('dash-recent-tbody');
+      if (tbody) tbody.innerHTML = '<tr><td colspan="5">Error drawing table: ' + e.message + '</td></tr>';
+    }
+  });
+  
+  setTimeout(function() {
+    ['dir-search', 'dir-type', 'dir-from', 'dir-to', 'dir-date-preset'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if(el) el.addEventListener('input', renderRecentRows);
+    });
+    ['dash-plant', 'dash-time'].forEach(function(id) {
+      var el = document.getElementById(id);
+      if(el) el.addEventListener('change', dashFilter);
+    });
+  }, 100);
+}
+
+function toggleFilters() { 
+  var fc = document.getElementById('filter-collapse');
+  if(fc) fc.classList.toggle('show'); 
+}
+
+function clearFilters() {
+  if(document.getElementById('dir-search')) document.getElementById('dir-search').value = '';
+  if(document.getElementById('dir-type')) document.getElementById('dir-type').value = '';
+  if(document.getElementById('dir-date-preset')) document.getElementById('dir-date-preset').value = 'all';
+  if(document.getElementById('dir-from')) document.getElementById('dir-from').value = '';
+  if(document.getElementById('dir-to')) document.getElementById('dir-to').value = '';
+  renderRecentRows();
+}
+
+function refreshDashboard() { 
+  appState.data = {}; 
+  dataFetchPromise = null;
+  showGlobalLoader('Fetching Data...');
+  getAllData().then(function(){
+    renderDashboard();
+    hideGlobalLoader();
+  });
+}
+
+function dashFilter() {
+  getAllData().then(function(data) {
+    try { updateDashKPIs(data); } catch(e) {}
+    try { updateDashAchievements(data); } catch(e) {}
+    try { updateLeaderboard(data); } catch(e) {}
+    try { renderDeptChart(data); } catch(e) {}
+    try { renderTrendChart(data); } catch(e) {}
+    try { renderRecentTable(data); } catch(e) {}
+  });
+}
+
+function filterByTime(items) {
+  var tEl = document.getElementById('dash-time');
+  var t = tEl && tEl.value ? tEl.value : 'all'; 
+  if (t === 'all') return items; 
+  var now = new Date();
+  return items.filter(function(r) {
+    var ts = new Date(r.Timestamp || r['Date & Time'] || r.Date || 0);
+    if (isNaN(ts.getTime())) return true; 
+    if (t === 'today') return ts.toDateString() === now.toDateString();
+    if (t === 'month') return ts.getMonth() === now.getMonth() && ts.getFullYear() === now.getFullYear(); 
+    return true;
+  });
+}
+
+function getAllReportsList(data) {
+  var modules = ['Hazard_Reports','Observations','Incident','Training','FAC','BBS']; 
+  var all = [];
+  modules.forEach(function(m) { 
+    var arr = data[m] || [];
+    arr.forEach(function(r) { 
+      var copy = {};
+      for(var key in r) { if(r.hasOwnProperty(key)) copy[key] = r[key]; }
+      copy._module = m;
+      all.push(copy);
+    }); 
+  }); 
+  return all;
+}
+
+function updateDashKPIs(data) {
+  var filtered = filterByTime(getAllReportsList(data));
+  var open = filtered.filter(function(r){return r.Status==='Open'}).length;
+  var closed = filtered.filter(function(r){return r.Status==='Closed'}).length;
+  var incidents = filterByTime(data.Incident||[]).length;
+  var hazards = filterByTime(data.Hazard_Reports||[]).length;
+  
+  var el = document.getElementById('dash-kpis');
+  if (el) {
+    el.innerHTML = 
+      '<div class="kpi-card blue"><div class="kpi-label tr" data-hi="कुल रिपोर्ट">Total Reports</div><div class="kpi-value">' + filtered.length + '</div><div class="kpi-sub tr" data-hi="सभी मॉड्यूल">All modules</div><div class="kpi-icon">📊</div></div>' +
+      '<div class="kpi-card orange"><div class="kpi-label tr" data-hi="खुली कार्रवाई">Open Actions</div><div class="kpi-value">' + open + '</div><div class="kpi-sub tr" data-hi="लंबित">Pending closure</div><div class="kpi-icon">⚠️</div></div>' +
+      '<div class="kpi-card green"><div class="kpi-label tr" data-hi="बंद">Closed</div><div class="kpi-value">' + closed + '</div><div class="kpi-sub tr" data-hi="हल हो गया">Resolved</div><div class="kpi-icon">✅</div></div>' +
+      '<div class="kpi-card red"><div class="kpi-label tr" data-hi="घटनाएं">Incidents</div><div class="kpi-value">' + incidents + '</div><div class="kpi-sub">Hazards: ' + hazards + '</div><div class="kpi-icon">🚨</div></div>';
+  }
+  setTimeout(applyTranslations, 10);
+}
+
+function updateDashAchievements(data) {
+  var tgts = getAdminConfig().targets || {};
+  var trainHrs = 0; 
+  filterByTime(data.Training||[]).forEach(function(t) { trainHrs += (parseFloat(t.duration||0) * parseFloat(t.noOfPax||1)) / 60; });
+  var haz = filterByTime(data.Hazard_Reports||[]).length;
+  var bbs = filterByTime(data.BBS||[]).length;
+  
+  var el = document.getElementById('dash-achievements');
+  if (el) {
+    el.innerHTML = achieveBar('Training Hours', Math.round(trainHrs || 0), tgts.training||100, 'blue') + 
+                   achieveBar('UA/UC Reports', haz, tgts.uauc||50, 'orange') + 
+                   achieveBar('BBS Observations', bbs, tgts.bbs||30, 'green');
+  }
+}
+
+function achieveBar(label, actual, target, color) {
+  var pct = Math.min(100, Math.round((actual/target)*100)) || 0;
+  return '<div style="margin-bottom:14px"><div style="display:flex;justify-content:space-between;margin-bottom:5px"><span style="font-size:12px;font-weight:600;color:var(--text-muted)">' + label + '</span><span style="font-size:12px;font-weight:700;color:var(--text)">' + actual + ' / ' + target + '</span></div><div class="progress-bar"><div class="progress-fill ' + color + '" style="width:' + pct + '%"></div></div><div style="font-size:11px;color:var(--text-dim);margin-top:3px">' + pct + '% achieved</div></div>';
+}
+
+function updateLeaderboard(data) {
+  var counts = {}; 
+  filterByTime(getAllReportsList(data)).forEach(function(r) { var n = r['Reported By'] || r['Report By'] || 'Unknown'; counts[n]=(counts[n]||0)+1; });
+  var sorted = Object.keys(counts).map(function(key){ return [key, counts[key]]; }).sort(function(a,b){ return b[1]-a[1]; }).slice(0,5);
+  
+  var el = document.getElementById('dash-leaderboard');
+  if (!el) return;
+  if (!sorted.length) { el.innerHTML = '<div class="empty-state">No data yet</div>'; return; }
+  
+  el.innerHTML = sorted.map(function(item, i) {
+    var name = item[0]; var count = item[1];
+    var bg = i===0 ? '#FFD700' : i===1 ? '#BDC3C7' : i===2 ? '#CD7F32' : 'var(--surface3)';
+    var col = i<3 ? '#333' : 'var(--text-muted)';
+    return '<div class="stat-row"><div style="display:flex;align-items:center;gap:10px"><div style="width:22px;height:22px;border-radius:50%;background:' + bg + ';display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:700;color:' + col + '">' + (i+1) + '</div><span style="font-size:13px">' + name + '</span></div><span style="font-size:13px;font-weight:700;color:var(--primary-light)">' + count + '</span></div>';
+  }).join('');
+}
+
+function renderDeptChart(data) {
+  if (typeof Chart === 'undefined') return;
+  var counts = {}; 
+  filterByTime(getAllReportsList(data)).forEach(function(r) { var d = r.Department||'Unknown'; counts[d]=(counts[d]||0)+1; });
+  if (deptChart) deptChart.destroy();
+  var el = document.getElementById('chart-dept');
+  if (el) {
+    deptChart = new Chart(el, { type:'bar', data:{labels:Object.keys(counts),datasets:[{data:Object.keys(counts).map(function(k){return counts[k];}),backgroundColor:'rgba(27,107,58,0.75)',borderRadius:4}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}} });
+  }
+}
+
+function renderTrendChart(data) {
+  if (typeof Chart === 'undefined') return;
+  var monthly = {}; 
+  filterByTime(getAllReportsList(data)).forEach(function(r) { 
+    var d = new Date(r.Timestamp||r['Date & Time']||r.Date||0); 
+    if(!isNaN(d.getTime())) {
+      var key = d.getFullYear() + '-' + ('00'+(d.getMonth()+1)).slice(-2);
+      monthly[key] = (monthly[key]||0)+1; 
+    }
+  });
+  var sorted = Object.keys(monthly).sort();
+  if (trendChart) trendChart.destroy();
+  var el = document.getElementById('chart-trend');
+  if (el) {
+    trendChart = new Chart(el, { type:'line', data:{labels:sorted.map(function(k) { var p=k.split('-'); return new Date(p[0],p[1]-1,1).toLocaleDateString('en-IN',{month:'short',year:'2-digit'}); }), datasets:[{data:sorted.map(function(k){return monthly[k];}),borderColor:'#1B6B3A',backgroundColor:'rgba(27,107,58,0.08)',fill:true,tension:0.4}]}, options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{display:false}}} });
+  }
+}
+
+function renderRecentTable(data) { 
+  try {
+    allReportsData = getAllReportsList(data).sort(function(a,b) { 
+      var d1 = new Date(a.Timestamp || a['Date & Time'] || a.Date || 0).getTime();
+      var d2 = new Date(b.Timestamp || b['Date & Time'] || b.Date || 0).getTime();
+      if (isNaN(d1)) d1 = 0;
+      if (isNaN(d2)) d2 = 0;
+      return d2 - d1;
+    }); 
+    renderRecentRows(); 
+  } catch(e) {
+    document.getElementById('dash-recent-tbody').innerHTML = '<tr><td colspan="5">Sort Error: ' + e.message + '</td></tr>';
+  }
+}
+
+function renderRecentRows() {
+  try {
+    var tbody = document.getElementById('dash-recent-tbody');
+    if (!tbody) return;
+    if (!allReportsData) allReportsData = [];
+
+    var items = [];
+    for(var i=0; i<allReportsData.length; i++) items.push(allReportsData[i]);
+
+    var searchEl = document.getElementById('dir-search');
+    var q = searchEl && searchEl.value ? searchEl.value.toLowerCase() : '';
+    if (q) {
+      var filteredQ = [];
+      for(var i=0; i<items.length; i++) {
+        var r = items[i];
+        var vals = [];
+        for(var k in r) { if(r.hasOwnProperty(k)) vals.push(r[k]); }
+        if (vals.join(' ').toLowerCase().indexOf(q) !== -1) filteredQ.push(r);
+      }
+      items = filteredQ;
+    }
+
+    var typeEl = document.getElementById('dir-type');
+    var t = typeEl && typeEl.value ? typeEl.value : '';
+    if (t) {
+      var filteredT = [];
+      for(var i=0; i<items.length; i++) {
+        var r = items[i];
+        var rId = (r['Report ID']||'');
+        var rType = (r['Report Type']||'');
+        var rMod = (r._module||'');
+        if (rId.indexOf(t) !== -1 || rType.indexOf(t) !== -1 || rMod.indexOf(t) !== -1) filteredT.push(r);
+      }
+      items = filteredT;
+    }
+
+    var presetEl = document.getElementById('dir-date-preset');
+    var preset = presetEl && presetEl.value ? presetEl.value : 'all';
+    var fromEl = document.getElementById('dir-from');
+    var toEl = document.getElementById('dir-to');
+    
+    if (fromEl && toEl) {
+        fromEl.style.display = preset === 'custom' ? 'block' : 'none';
+        toEl.style.display = preset === 'custom' ? 'block' : 'none';
+    }
+
+    var now = new Date();
+    if (preset === 'today') {
+      var filteredD = [];
+      for(var i=0; i<items.length; i++) {
+        var d = new Date(items[i].Timestamp||items[i].Date); 
+        if(!isNaN(d) && d.toDateString() === now.toDateString()) filteredD.push(items[i]);
+      }
+      items = filteredD;
+    } else if (preset === 'yesterday') {
+      var yest = new Date(); yest.setDate(yest.getDate() - 1);
+      var filteredD = [];
+      for(var i=0; i<items.length; i++) {
+        var d = new Date(items[i].Timestamp||items[i].Date); 
+        if(!isNaN(d) && d.toDateString() === yest.toDateString()) filteredD.push(items[i]);
+      }
+      items = filteredD;
+    } else if (preset === 'month') {
+      var filteredD = [];
+      for(var i=0; i<items.length; i++) {
+        var d = new Date(items[i].Timestamp||items[i].Date); 
+        if(!isNaN(d) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear()) filteredD.push(items[i]);
+      }
+      items = filteredD;
+    } else if (preset === 'custom') {
+      var filteredD = [];
+      for(var i=0; i<items.length; i++) {
+        var d = new Date(items[i].Timestamp||items[i].Date); 
+        if(isNaN(d)) continue;
+        var valid = true;
+        if (fromEl && fromEl.value && d < new Date(fromEl.value)) valid = false;
+        if (toEl && toEl.value && d > new Date(toEl.value)) valid = false;
+        if(valid) filteredD.push(items[i]);
+      }
+      items = filteredD;
+    }
+
+    var displayItems = showAllReports ? items : items.slice(0, 5);
+
+    if (!displayItems.length) { 
+      tbody.innerHTML = '<tr><td colspan="5"><div class="empty-state tr" data-hi="कोई रिपोर्ट नहीं मिली">No reports match your filters</div></td></tr>'; 
+      setTimeout(applyTranslations, 10);
+      return; 
+    }
+
+    var htmlRows = [];
+    for(var i = 0; i < displayItems.length; i++) {
+      var r = displayItems[i];
+      var waIcon = isWaShared(r['Report ID']) ? '<svg width="12" height="12" viewBox="0 0 24 24" fill="#25D366" style="margin-left:4px"><path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.116 1.534 5.845L.057 23.083a.75.75 0 00.92.92l5.238-1.477A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg>' : '';
+      var specificType = r['Report Type'] || r['Incident Type'] || r['Category'];
+      var typeStr = specificType ? specificType : ((r._module||'').replace('_',' ').replace('Reports','').trim());
+      
+      var dateStr = formatDate(r.Timestamp||r.Date);
+      var statStr = getStatusBadge(r.Status);
+      var areaStr = r.Location || r.location || '—';
+      var rIdStr = r['Report ID']||'—';
+
+      var rowHtml = '<tr data-action="viewReport" data-rid="' + r['Report ID'] + '" data-mod="' + r._module + '" style="cursor:pointer;" class="hover-row">'+
+        '<td class="col-date">📅 ' + dateStr + '</td>'+
+        '<td class="col-id"><span style="font-family:monospace;">' + rIdStr + waIcon + '</span></td>'+
+        '<td class="col-type">' + typeStr + '</td>'+
+        '<td class="col-stat">' + statStr + '</td>'+
+        '<td class="col-area">📍 ' + areaStr + '</td>'+
+        '<td class="col-hidden-mobile" style="display:none">' + (r['Reported By']||r['Report By']||'—') + '</td>'+
+        '</tr>';
+      htmlRows.push(rowHtml);
+    }
+    
+    tbody.innerHTML = htmlRows.join('');
+    setTimeout(applyTranslations, 10);
+  } catch(e) {
+    document.getElementById('dash-recent-tbody').innerHTML = '<tr><td colspan="5">Render Error: ' + e.message + '</td></tr>';
+  }
+}
+
+function toggleAllReports() { 
+  showAllReports = !showAllReports; 
+  var btn = document.getElementById('load-all-btn');
+  if(btn) {
+    btn.textContent = showAllReports ? 'Show Less' : 'Load All Reports'; 
+    btn.dataset.hi = showAllReports ? 'कम दिखाएं' : 'सभी रिपोर्ट लोड करें';
+  }
+  renderRecentRows(); 
+}
+
+function exportExcel() {
+  var items = [];
+  for(var i=0; i<allReportsData.length; i++) items.push(allReportsData[i]);
+  
+  var searchEl = document.getElementById('dir-search');
+  var q = searchEl && searchEl.value ? searchEl.value.toLowerCase() : '';
+  if (q) items = items.filter(function(r){ return JSON.stringify(Object.keys(r).map(function(k){return r[k];})).toLowerCase().indexOf(q) !== -1; });
+  
+  var typeEl = document.getElementById('dir-type');
+  var t = typeEl && typeEl.value ? typeEl.value : '';
+  if (t) items = items.filter(function(r){ return (r['Report ID']||'').indexOf(t) !== -1 || (r['Report Type']||'').indexOf(t) !== -1 || (r._module||'').indexOf(t) !== -1; });
+  
+  var presetEl = document.getElementById('dir-date-preset');
+  var preset = presetEl && presetEl.value ? presetEl.value : 'all';
+  var fromEl = document.getElementById('dir-from');
+  var toEl = document.getElementById('dir-to');
+  var now = new Date();
+  
+  if (preset === 'today') {
+    items = items.filter(function(r){ var d=new Date(r.Timestamp||r.Date); return !isNaN(d) && d.toDateString() === now.toDateString(); });
+  } else if (preset === 'yesterday') {
+    var yest = new Date(); yest.setDate(yest.getDate() - 1);
+    items = items.filter(function(r){ var d=new Date(r.Timestamp||r.Date); return !isNaN(d) && d.toDateString() === yest.toDateString(); });
+  } else if (preset === 'month') {
+    items = items.filter(function(r){ var d=new Date(r.Timestamp||r.Date); return !isNaN(d) && d.getMonth() === now.getMonth() && d.getFullYear() === now.getFullYear(); });
+  } else if (preset === 'custom') {
+    if (fromEl && fromEl.value) items = items.filter(function(r){ var d=new Date(r.Timestamp||r.Date); return !isNaN(d) && d >= new Date(fromEl.value); });
+    if (toEl && toEl.value) items = items.filter(function(r){ var d=new Date(r.Timestamp||r.Date); return !isNaN(d) && d <= new Date(toEl.value); });
+  }
+
+  if (!items.length) { toast('No data to export', 'error'); return; }
+
+  var headerSet = {};
+  items.forEach(function(r) { Object.keys(r).forEach(function(k) { if(k.indexOf('_') !== 0) headerSet[k] = true; }); });
+  var headers = Object.keys(headerSet);
+
+  var csv = headers.join(',') + '\n';
+  items.forEach(function(row) {
+    csv += headers.map(function(h) {
+      var val = row[h] ? String(row[h]).replace(/"/g, '""') : '';
+      return '"' + val + '"';
+    }).join(',') + '\n';
+  });
+
+  var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+  var link = document.createElement("a");
+  var url = URL.createObjectURL(blob);
+  link.setAttribute("href", url);
+  link.setAttribute("download", "Safety_Reports_Export.csv");
+  link.style.visibility = 'hidden';
+  document.body.appendChild(link);
+  link.click();
+  document.body.removeChild(link);
+  toast('Exported to CSV!', 'success');
+}
+
+function viewReport(rJson) {
+  var r = JSON.parse(decodeURIComponent(rJson));
+  var mod = r._module || 'Report';
+
+  var fieldSets = {
+    'Hazard_Reports': ['Report ID','Status','Report Type','Date','Time','Department','Location','Sub Area','Reported By','Emp ID','Category','Hazard Details','Severity','Likelihood','Risk Score','Risk Level','Root Cause','Immediate Action','Corrective Action Desc','Responsible Person','Responsible Phone','Responsible Email','Target Date','Closure Remarks','Closed By','Closure Date'],
+    'Observations':   ['Report ID','Status','Department','Location','Observation Details','Category','Reported By','Closure Required','Responsible Person','Responsible Phone','Responsible Email','Target Date','Closed By'],
+    'Incident':       ['Report ID','Status','Incident Type','Date & Time','Department','Location','Injured Person','Emp ID','Description','Root Cause','Immediate Action','Investigation Status','Reported By','Closure Required','Responsible Person','Responsible Phone','Responsible Email'],
+    'Training':       ['Report ID','Status','Department','Topic','Type','Date','Duration','Trainer','No of Pax','Reported By'],
+    'FAC':            ['Report ID','Status','Patient Name','Department','Injury Description','Treatment Given','Date','Reported By','Closure Required','Responsible Person','Responsible Phone','Responsible Email'],
+    'BBS':            ['Report ID','Status','Date','Time','Shift','Department','Location','Activity','Observer Name','Safe %','Score','Root Cause','Corrective Action','Recommendation']
+  };
+
+  var fields = fieldSets[mod] || Object.keys(r).filter(function(k){ return k.indexOf('_') !== 0; });
+  var detailsHtml = '<div style="display:flex; flex-direction:column; gap:0;">';
+  fields.forEach(function(k) {
+    var v = r[k];
+    if (v === undefined || v === null || v === '') return;
+    var displayKey = k === 'Location' ? 'Location/Area' : k;
+    
+    // --- AUTO-FORMAT DATES AND TIMES ---
+    if (k === 'Date & Time' || k === 'Timestamp') {
+      v = formatDate(v) + ' ' + formatTime(v);
+    } else if (k.indexOf('Date') !== -1) {
+      v = formatDate(v);
+    } else if (k === 'Time') {
+      v = formatTime(v);
+    }
+    // -----------------------------------
+    
+    detailsHtml += '<div class="detail-row"><div class="detail-key">' + displayKey + '</div><div class="detail-val">' + (v||'—') + '</div></div>';
+  });
+  detailsHtml += '</div>';
+
+  var photoUrl = r['Photo URL'] || r['Evidence Photo'] || r['photo_url'] || '';
+  if (photoUrl) detailsHtml += '<div style="margin-top:12px"><img src="' + photoUrl + '" class="photo-preview" style="display:block"/></div>';
+  if (photoUrl && photoUrl.indexOf('drive.google.com/uc?id=') !== -1) {
+    photoUrl = photoUrl.replace('uc?id=', 'thumbnail?id=') + '&sz=w800';
+  }
+
+  var specificType = r['Report Type'] || r['Incident Type'] || r['Category'];
+  var displayType = specificType ? specificType : mod.replace('_', ' ').replace('Reports', '').trim();
+
+  var waMsg = '🚨 *SAFETY ALERT* 🚨\n\n' +
+    '🏷️ *ID:* ' + (r['Report ID'] || '') + '\n' +
+    '📋 *Type:* ' + displayType + '\n' +
+    '🏢 *Department:* ' + (r.Department || '') + '\n' +
+    '📍 *Location/Area:* ' + (r.Location || r.location || '—') + '\n' +
+    '🗺️ *Sub Area:* ' + (r['Sub Area'] || r.Activity || '—') + '\n' +
+    '📌 *Status:* ' + (r.Status || 'Open') + '\n' +
+    '👤 *Reported By:* ' + (r['Reported By'] || r['Report By'] || '') + '\n\n' +
+    '📝 *Details:*\n_' + (r['Hazard Details'] || r['Observation Details'] || r.Description || 'No details provided') + '_\n';
+
+  if (photoUrl) { 
+      var driveLinkWa = photoUrl.replace('thumbnail?id=', 'file/d/').replace('&sz=w800', '/view');
+      waMsg += '\n📸 *View Evidence Photo:*\n' + driveLinkWa; 
+  }
+
+  var waEncoded = encodeURIComponent(waMsg);
+  
+  var footer = '<button class="btn btn-whatsapp btn-share" data-action="shareWhatsapp" data-msg="' + waEncoded + '" title="Share via WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right:6px"><path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.116 1.534 5.845L.057 23.083a.75.75 0 00.92.92l5.238-1.477A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg><span class="hide-mobile">WhatsApp</span></button>';
+
+  var targetPhone = r['Responsible Phone'] || '';
+  if(!targetPhone && (r.Location || r.location)) {
+    var aInfoVr = getAreaByName(r.Location || r.location);
+    if(aInfoVr && aInfoVr.areaOwnerPhone) targetPhone = aInfoVr.areaOwnerPhone;
+  }
+  
+  if (targetPhone) {
+      var ownerWaUrl = 'https://wa.me/91' + targetPhone.replace(/\D/g, '') + '?text=' + waEncoded;
+      footer += ' <a href="' + ownerWaUrl + '" target="_blank" class="btn btn-whatsapp btn-share" style="background:#128C7E;text-decoration:none" title="Action Owner WhatsApp"><svg viewBox="0 0 24 24" width="16" height="16" fill="currentColor" style="margin-right:6px"><path d="M12 0C5.373 0 0 5.373 0 12c0 2.125.558 4.116 1.534 5.845L.057 23.083a.75.75 0 00.92.92l5.238-1.477A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0z"/></svg><span class="hide-mobile">Action Owner</span></a>';
+  }
+
+  var targetEmail = r['Responsible Email'] || r['Secondary Assignee Email'] || '';
+  if(!targetEmail && (r.Location || r.location)) {
+    var aInfoE = getAreaByName(r.Location || r.location);
+    if(aInfoE && aInfoE.hodEmail) targetEmail = aInfoE.hodEmail;
+  }
+
+  if(targetEmail) {
+      var emailSubj = encodeURIComponent('Action Required: Safety Report ' + (r['Report ID'] || ''));
+      
+      var emailBodyText = 'A safety report has been assigned to you. Please find the details below:\n\n' +
+                          '------------------------------------------\n' +
+                          'REPORT SUMMARY\n' +
+                          '------------------------------------------\n' +
+                          'Report ID: '      + (r['Report ID'] || '—') + '\n' +
+                          'Report Type: '    + displayType + '\n' +
+                          'Status: '         + (r['Status'] || 'Open') + '\n' +
+                          'Date & Time: '    + formatDate(r.Timestamp || r.Date) + ' ' + (r.Time || '') + '\n\n' +
+                          
+                          'LOCATION & OWNER\n' +
+                          'Department: '     + (r['Department'] || '—') + '\n' +
+                          'Location/Area: '  + (r['Location'] || r.location || '—') + '\n' +
+                          'Sub Area: '       + (r['Sub Area'] || r.Activity || '—') + '\n' +
+                          'Responsible: '    + (r['Responsible Person'] || '—') + '\n\n' +
+                          
+                          'REPORTED BY\n' +
+                          'Name: '           + (r['Reported By'] || r['Report By'] || '—') + '\n' +
+                          'Emp ID: '         + (r['Emp ID'] || '—') + '\n\n' +
+                          
+                          'HAZARD DETAILS\n' +
+                          'Details: '        + (r['Hazard Details'] || r['Observation Details'] || r.Description || '—') + '\n\n';
+
+      var rawPhoto = r['Photo URL'] || r['Evidence Photo'] || '';
+      if (rawPhoto) {
+          var driveLink = rawPhoto.replace('thumbnail?id=', 'file/d/').replace('&sz=w800', '/view');
+          emailBodyText += 'EVIDENCE PHOTO:\n' + driveLink + '\n\n';
+      }
+      
+      emailBodyText += 'Regards,\nDhanuka Safety Kavach';
+
+      var emailBodyEnc = encodeURIComponent(emailBodyText.replace(/\n/g, '\r\n'));
+      var mailtoUrl = 'mailto:' + targetEmail + '?subject=' + emailSubj + '&body=' + emailBodyEnc;
+      footer += ' <a href="' + mailtoUrl + '" class="btn btn-primary btn-share" style="text-decoration:none; background:#D44638; border:none;" title="Email Assignee"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" style="margin-right:6px"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg><span class="hide-mobile">Email Assignee</span></a>';
+  }
+
+  var closureForm = '';
+  if ((r.Status||'').toLowerCase() === 'open' && mod !== 'BBS') {
+    closureForm = '<div class="card" style="margin-top:16px;background:var(--surface2)"><div class="card-title" style="color:var(--orange)">Close This Report</div><div class="form-grid"><div class="form-group form-full"><label class="form-label">Closure Remarks *</label><textarea class="form-control" id="cl-remarks" rows="3"></textarea></div><div class="form-group form-full"><label class="form-label">Evidence Photo</label><input type="file" class="form-control" id="cl-photo" accept="image/*"/></div></div></div>';
+    footer += '<button class="btn btn-success" data-action="closeReportModal" data-rid="' + r['Report ID'] + '" data-mod="' + mod + '">✅ Close Report</button>';
+  }
+  footer += '<button class="btn btn-outline" data-action="closeModal">Close</button>';
+
+  openModal(mod.replace('_',' ') + ' — ' + (r['Report ID']||'Report'), detailsHtml + closureForm, footer);
+}
+
+function closeReport(reportId, module) {
+  var remarksEl = document.getElementById('cl-remarks');
+  var remarks = remarksEl ? remarksEl.value : ''; 
+  var photoInput = document.getElementById('cl-photo');
+  if (!remarks) { toast('Please enter closure remarks', 'error'); return; }
+  
+  showGlobalLoader('Closing Report & Saving Evidence...');
+  
+  var doUpload = function(photoData) {
+    callBackend('closeReport', { reportId: reportId, module: module, remarks: remarks, closedBy: appState.userProfile.name || 'Unknown', photoData: photoData||'' }).then(function(res) {
+      if (res.success) { 
+        toast('Report closed successfully!', 'success'); 
+        
+        var closureMailSubject = encodeURIComponent('COMPLETED: Safety Report ' + reportId);
+        var closureMailBody = 'The following safety report has been CLOSED and rectified:\n\n' +
+                              '------------------------------------------\n' +
+                              'CLOSURE DETAILS\n' +
+                              '------------------------------------------\n' +
+                              'Report ID: '      + reportId + '\n' +
+                              'Module: '         + module.replace('_', ' ') + '\n' +
+                              'Status: '         + 'CLOSED\n' +
+                              'Closure Date: '   + new Date().toLocaleDateString('en-IN') + '\n' +
+                              'Closed By: '      + (appState.userProfile.name || 'Unknown') + '\n' +
+                              'Closure Remarks: ' + remarks + '\n\n';
+
+        if (photoData) closureMailBody += 'Evidence: Closure photo has been uploaded to the EHS database.\n\n';
+        closureMailBody += 'Regards,\nEHS Management System';
+        
+        var mailtoLink = 'mailto:?cc=bhanupratap@dhanuka.com&subject=' + closureMailSubject + '&body=' + encodeURIComponent(closureMailBody.replace(/\n/g, '\r\n'));
+        window.location.href = mailtoLink;
+
+        closeModal(); 
+        var pctText = document.getElementById('action-progress-text');
+        var barFill = document.getElementById('action-progress-bar');
+        if (pctText && barFill) {
+            clearInterval(progressInterval);
+            pctText.textContent = '100%';
+            pctText.style.color = '#27AE60';
+            barFill.style.animation = 'none';
+            barFill.style.width = '100%';
+        }
+
+        setTimeout(function() {
+            showGlobalLoader('Fetching Data...');
+            appState.data = {}; 
+            dataFetchPromise = null; 
+            getAllData().then(function() {
+                hideGlobalLoader();
+                navigate('dashboard'); 
+            });
+        }, 500);
+
+      } else {
+        hideGlobalLoader();
+        toast(res.error, 'error');
+      }
+    });
+  };
+
+  if (photoInput && photoInput.files && photoInput.files[0]) {
+    compressImageAsync(photoInput.files[0]).then(doUpload);
+  } else {
+    doUpload(null);
+  }
+}
+
+// ============================================================
+// MY ZONE PAGE
+// ============================================================
+function renderMyZone() {
+  var p = appState.userProfile; 
+  var root = document.getElementById('page-root');
+  
+  var deptOpts = getDepts().map(function(d){ return '<option ' + (d===p.dept?'selected':'') + '>' + d + '</option>'; }).join('');
+  var plantOpts = getPlants().map(function(d){ return '<option ' + (d===p.plant?'selected':'') + '>' + d + '</option>'; }).join('');
+
+  root.innerHTML = 
+  '<div class="page">' +
+    '<div class="tab-bar">' +
+      '<div class="tab active tr" data-action="switchTab" data-tab="tab-profile" data-hi="👤 प्रोफ़ाइल">👤 Profile</div>' +
+      '<div class="tab tr" data-action="switchTab" data-tab="tab-actions" data-hi="⚡ लंबित कार्रवाई">⚡ Pending Actions</div>' +
+      '<div class="tab tr" data-action="switchTab" data-tab="tab-targets" data-hi="🎯 मेरे लक्ष्य">🎯 My Targets</div>' +
+      '<div class="tab tr" data-action="switchTab" data-tab="tab-submissions" data-hi="📋 मेरी सबमिशन">📋 My Submissions</div>' +
+    '</div>' +
+    '<div id="tab-profile" class="tab-content active">' +
+      '<div class="card" style="max-width:520px">' +
+        '<div class="card-title tr" data-hi="प्रोफ़ाइल सेटिंग">Profile Settings</div>' +
+        '<div class="form-grid">' +
+          '<div class="form-group"><label class="form-label tr" data-hi="पूरा नाम">Full Name</label><input class="form-control" id="p-name" value="' + (p.name||'') + '"/></div>' +
+          '<div class="form-group"><label class="form-label tr" data-hi="कर्मचारी आईडी">Employee ID</label><input class="form-control" id="p-empid" value="' + (p.empId||'') + '"/></div>' +
+          '<div class="form-group"><label class="form-label tr" data-hi="ईमेल">Email</label><input class="form-control" type="email" id="p-email" value="' + (p.email||'') + '"/></div>' +
+          '<div class="form-group"><label class="form-label tr" data-hi="विभाग">Department</label><select class="form-control" id="p-dept"><option value="">Select</option>' + deptOpts + '</select></div>' +
+          '<div class="form-group"><label class="form-label tr" data-hi="संयंत्र">Plant</label><select class="form-control" id="p-plant"><option value="">Select</option>' + plantOpts + '</select></div>' +
+        '</div>' +
+        '<div style="margin-top:16px"><button class="btn btn-primary tr" data-action="saveUserProfile" data-hi="प्रोफ़ाइल सहेजें">Save Profile</button></div>' +
+      '</div>' +
+    '</div>' +
+    '<div id="tab-actions" class="tab-content"><div id="pending-actions-container"><div class="loader"><div class="spinner"></div></div></div></div>' +
+    '<div id="tab-targets" class="tab-content"><div id="targets-container"><div class="loader"><div class="spinner"></div></div></div></div>' +
+    '<div id="tab-submissions" class="tab-content"><div id="submissions-container"><div class="loader"><div class="spinner"></div></div></div></div>' +
+  '</div>';
+  
+  setTimeout(applyTranslations, 10);
+}
+function switchTab(tabId, btnId, clickedEl) {
+  document.querySelectorAll('.tab-content').forEach(function(t){ t.classList.remove('active'); }); 
+  document.querySelectorAll('.tab').forEach(function(t){ t.classList.remove('active'); });
+  document.getElementById(tabId).classList.add('active'); 
+  clickedEl.classList.add('active');
+  
+  if (tabId === 'tab-actions') loadPendingActions(); 
+  if (tabId === 'tab-targets') loadMyTargets(); 
+  if (tabId === 'tab-submissions') loadMySubmissions();
+}
+function saveUserProfile() {
+  saveProfile({ 
+    name: document.getElementById('p-name').value, 
+    empId: document.getElementById('p-empid').value, 
+    email: document.getElementById('p-email').value, 
+    dept: document.getElementById('p-dept').value, 
+    plant: document.getElementById('p-plant').value 
+  });
+  toast('Profile saved!', 'success');
+}
+function loadPendingActions() {
+  var container = document.getElementById('pending-actions-container'); 
+  getAllData().then(function(data) {
+    var user = appState.userProfile;
+    var pending = getAllReportsList(data).filter(function(r) {
+      return r.Status === 'Open' && 
+        (((r['Responsible Email']||'').toLowerCase() === (user.email||'').toLowerCase()) || 
+         ((r['Secondary Assignee Email']||'').toLowerCase() === (user.email||'').toLowerCase()) || 
+         ((r['Reported By']||'').toLowerCase() === (user.name||'').toLowerCase()));
+    });
+    if (!pending.length) { 
+      container.innerHTML = '<div class="empty-state tr" data-hi="कोई लंबित कार्रवाई नहीं!">No pending actions!</div>'; 
+      setTimeout(applyTranslations, 10); 
+      return; 
+    }
+    container.innerHTML = '<div style="display:flex;flex-direction:column;gap:10px">' + 
+      pending.map(function(r) {
+        return '<div class="action-card" data-action="viewReport" data-rid="' + r['Report ID'] + '" data-mod="' + r._module + '">' +
+          '<div style="font-weight:700">' + (r['Report ID']||'Report') + '</div>' +
+          '<div style="font-size:13px;color:var(--text-muted)">' + (r._module||'') + ' • ' + (r.Department||'') + ' • ' + formatDate(r.Timestamp) + '</div>' +
+          '</div>';
+      }).join('') + '</div>';
+  });
+}
+function loadMyTargets() {
+  var container = document.getElementById('targets-container'); 
+  getAllData().then(function(data) {
+    var pTargets = getAdminConfig().personTargets || {};
+    var trainHrs = 0; 
+    (data.Training||[]).filter(function(t){ return t['Reported By']===appState.userProfile.name; }).forEach(function(t) { 
+      trainHrs += (parseFloat(t.duration||0)*parseFloat(t.noOfPax||1))/60; 
+    });
+    
+    var uaucCount = (data.Hazard_Reports||[]).filter(function(r){ return r['Reported By']===appState.userProfile.name; }).length;
+    var bbsCount = (data.BBS||[]).filter(function(r){ return r['Report By']===appState.userProfile.name; }).length;
+    
+    container.innerHTML = '<div class="card"><div class="card-title tr" data-hi="मेरी प्रगति">My Progress</div>' +
+      achieveBar('Training Hours', Math.round(trainHrs || 0), pTargets.trainingHrs||10, 'blue') +
+      achieveBar('UA/UC Reports', uaucCount, pTargets.uauc||5, 'orange') +
+      achieveBar('BBS Observations', bbsCount, pTargets.bbs||3, 'green') +
+      '</div>';
+    setTimeout(applyTranslations, 10);
+  });
+}
+function loadMySubmissions() {
+  var container = document.getElementById('submissions-container'); 
+  getAllData().then(function(data) {
+    var all = getAllReportsList(data).filter(function(r){ return (r['Reported By']||r['Report By']||'').toLowerCase() === (appState.userProfile.name||'').toLowerCase(); }).slice(0,10);
+    if (!all.length) { 
+      container.innerHTML = '<div class="empty-state tr" data-hi="अभी तक कोई सबमिशन नहीं।">No submissions yet.</div>'; 
+      setTimeout(applyTranslations, 10); 
+      return; 
+    }
+    container.innerHTML = '<div class="table-wrap"><table><thead><tr><th>Module</th><th>ID</th><th>Status</th></tr></thead><tbody>' + 
+      all.map(function(r) { return '<tr><td>' + r._module + '</td><td>' + r['Report ID'] + '</td><td>' + getStatusBadge(r.Status) + '</td></tr>'; }).join('') + 
+      '</tbody></table></div>';
+  });
+}
+
+// ============================================================
+// ANALYTICS PAGE
+// ============================================================
+function renderAnalytics() {
+  var root = document.getElementById('page-root');
+  root.innerHTML = '<div class="page"><div class="card"><div class="card-title tr" data-hi="स्थिति वितरण">Status Distribution</div><div class="chart-wrap"><canvas id="an-status-chart"></canvas></div></div></div>';
+  
+  getAllData().then(function(data) {
+    if (typeof Chart === 'undefined') return;
+    var all = getAllReportsList(data);
+    var openCount = all.filter(function(r){ return r.Status==='Open'; }).length;
+    var closedCount = all.filter(function(r){ return r.Status==='Closed' || r.Status==='Submitted'; }).length;
+    
+    new Chart(document.getElementById('an-status-chart'), { 
+      type:'doughnut', 
+      data:{ labels:['Open','Closed'], datasets:[{data:[openCount, closedCount],backgroundColor:['#F57F17','#2E7D32']}] }, 
+      options:{responsive:true,maintainAspectRatio:false} 
+    });
+    setTimeout(applyTranslations, 10);
+  });
+}
+
+// ============================================================
+// FORMS (Hazard, BBS, Incident, etc.)
+// ============================================================
+function renderHazardForm() {
+  var areas = getAreas().map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
+  
+  document.getElementById('page-root').innerHTML =
+  '<div class="page">' +
+  
+  // BIG QUICK REPORT BUTTON
+  '<button class="quick-report-btn" onclick="openWizard()" style="margin: 0 auto 20px; max-width:860px;">' +
+    '<span style="font-size:36px; margin-right:14px;">🚨</span>' +
+    '<div style="text-align:left;">QUICK REPORT WIZARD<br><span style="font-size:14px; font-weight:500; font-family:\'Noto Sans\'">Tap to Report Hazard in Seconds</span></div>' +
+  '</button>' +
+
+  '<div class="card" style="max-width:860px">' +
+  '<div class="card-title tr" data-hi="UA / UC रिपोर्ट">UA / UC Reporting</div>' +
+  '<div class="form-grid">' +
+    '<div class="form-group"><label class="form-label tr" data-hi="रिपोर्ट का प्रकार *">Report Type *</label>' +
+      '<select class="form-control" id="hz-type">' +
+        '<option value="">Select...</option><option>Unsafe Act</option><option>Unsafe Condition</option>' +
+      '</select></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="तारीख *">Date *</label><input class="form-control" type="date" id="hz-date" value="'+new Date().toISOString().slice(0,10)+'"/></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="समय *">Time *</label><input class="form-control" type="time" id="hz-time" value="'+new Date().toTimeString().slice(0,5)+'"/></div>' +
+    
+    '<div class="form-group"><label class="form-label tr" data-hi="स्थान / क्षेत्र *">Location / Area *</label><select class="form-control" id="hz-loc"><option value="">Select...</option>'+areas+'</select></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="विभाग *">Department *</label><input class="form-control" id="hz-dept" readonly placeholder="Auto-fills automatically" style="background:var(--surface2); cursor:not-allowed;"/></div>' +
+    
+    '<div class="form-group"><label class="form-label tr" data-hi="उप-क्षेत्र">Sub Area</label><input class="form-control" id="hz-subarea"/></div>' +
+    
+    '<div class="form-group"><label class="form-label tr" data-hi="श्रेणी *">Category *</label><select class="form-control" id="hz-cat"><option value="">Select Type First...</option></select></div>' +
+    '<div class="form-group" id="hz-other-cat-group" style="display:none;"><label class="form-label tr" data-hi="अन्य श्रेणी">Other Category</label><input class="form-control" id="hz-other-cat"></div>' +
+    
+    '<div class="form-group form-full"><label class="form-label tr" data-hi="खतरे का विवरण *">Hazard Details *</label><textarea class="form-control" id="hz-details" rows="3"></textarea></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="गंभीरता (1-5)">Severity (1-5)</label><select class="form-control" id="hz-sev"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="संभावना (1-5)">Likelihood (1-5)</label><select class="form-control" id="hz-lik"><option>1</option><option>2</option><option>3</option><option>4</option><option>5</option></select></div>' +
+    '<div class="form-group form-full"><div id="hz-risk-display" style="padding:10px;border-radius:8px;background:var(--surface2);font-size:13px;color:var(--text-muted)">Risk Score: — (select severity & likelihood)</div></div>' +
+    '<div class="form-group form-full"><label class="form-label tr" data-hi="तुरंत की गई कार्रवाई">Immediate Action Taken</label><textarea class="form-control" id="hz-action" rows="2"></textarea></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="द्वारा रिपोर्ट किया गया *">Reported By *</label><input class="form-control" id="hz-reporter" value="'+(appState.userProfile.name||'')+'"/></div>' +
+    '<div class="form-group"><label class="form-label tr" data-hi="कर्मचारी आईडी">Employee ID</label><input class="form-control" id="hz-empid" value="'+(appState.userProfile.empId||'')+'"/></div>' +
+    
+    getClosureSectionHtml('hz') +
+    
+    '<div class="form-group form-full"><label class="form-label tr" data-hi="साक्ष्य फोटो">Evidence Photo</label><input type="file" class="form-control" id="hz-photo" accept="image/*"/><img id="hz-photo-preview" class="photo-preview" style="display:none"/></div>' +
+  '</div>' +
+  '<button class="btn btn-primary tr" style="margin-top:16px" data-action="submitHazard" data-hi="🚀 रिपोर्ट जमा करें">🚀 Submit Report</button>' +
+  '</div></div>';
+
+  var typeEl = document.getElementById('hz-type');
+  if(typeEl) {
+    typeEl.addEventListener('change', function() {
+      var catEl = document.getElementById('hz-cat');
+      var val = this.value;
+      if(val === 'Unsafe Act') {
+          catEl.innerHTML = '<option value="">Select...</option>' + ['Working without PPE', 'Working without Permit', 'Horseplay / Carelessness', 'Improper Use of Tools', 'Damage to Property', 'Bypassing Safety Devices', 'Operating at Unsafe Speed', 'Improper Lifting/Handling', 'Other'].map(function(c){return '<option value="'+c+'">'+c+'</option>'}).join('');
+      } else if(val === 'Unsafe Condition') {
+          catEl.innerHTML = '<option value="">Select...</option>' + ['Housekeeping / Clutter', 'Electrical Hazard', 'Wet/Slippery Floor', 'Improper Stacking', 'Mechanical Hazard', 'Missing/Damaged Guards', 'Poor Lighting', 'Fire Hazard', 'Other'].map(function(c){return '<option value="'+c+'">'+c+'</option>'}).join('');
+      } else {
+          catEl.innerHTML = '<option value="">Select Type First...</option>';
+      }
+      document.getElementById('hz-other-cat-group').style.display = 'none';
+    });
+  }
+
+  var catEl = document.getElementById('hz-cat');
+  if(catEl) {
+    catEl.addEventListener('change', function() {
+      var val = this.value;
+      document.getElementById('hz-other-cat-group').style.display = (val.includes('Other') || val.includes('अन्य')) ? 'block' : 'none';
+    });
+  }
+
+  ['hz-sev','hz-lik'].forEach(function(id){ var el = document.getElementById(id); if(el) el.addEventListener('change', updateHzRisk); });
+  
+  wireClosureToggle('hz');
+  wireLocationAutofill('hz-loc', 'hz');
+
+  var photoInput = document.getElementById('hz-photo');
+  if(photoInput) photoInput.addEventListener('change', function(){ if(this.files[0]){ var prev=document.getElementById('hz-photo-preview'); prev.src=URL.createObjectURL(this.files[0]); prev.style.display='block'; } });
+}
+
+function updateHzRisk(){
+  var s=parseInt(document.getElementById('hz-sev').value)||1;
+  var l=parseInt(document.getElementById('hz-lik').value)||1;
+  var score=s*l, level='Low', color='var(--primary)';
+  if(score>12){level='Critical';color='var(--red)';} else if(score>=9){level='High';color='var(--red)';} else if(score>=5){level='Medium';color='var(--orange)';}
+  var d=document.getElementById('hz-risk-display');
+  if(d) d.innerHTML='<strong>Risk Score: '+score+'</strong> — <span style="color:'+color+';font-weight:700">'+level+'</span>';
+}
+
+function showRespSuggestions(prefix, query) {
+  var container = document.getElementById(prefix+'-resp-suggestions');
+  if(!container) return;
+  if(!query || query.length < 2){ container.innerHTML=''; return; }
+  var q = query.toLowerCase();
+  var suggestions = [];
+  getAreaDetails().forEach(function(a){
+    if(a.areaOwner && a.areaOwner.toLowerCase().indexOf(q) !== -1) suggestions.push({name:a.areaOwner, email:a.hodEmail||'', phone:a.areaOwnerPhone||'', role:'Area Owner — '+a.area});
+    if(a.hod && a.hod.toLowerCase().indexOf(q) !== -1 && !suggestions.find(function(s){return s.name===a.hod;})) suggestions.push({name:a.hod, email:a.hodEmail||'', phone:'', role:'HOD — '+a.dept});
+  });
+  var users = (appState.data && appState.data.Users) || [];
+  users.forEach(function(u){
+    var n = u['Name']||u['Full Name']||'';
+    if(n && n.toLowerCase().indexOf(q) !== -1 && !suggestions.find(function(s){return s.name===n;})) suggestions.push({name:n, email:u['Email']||'', phone:'', role:(u['Department']||'')+' — '+(u['Designation']||'User')});
+  });
+  if(!suggestions.length){ container.innerHTML=''; return; }
+  var html2 = '<div style="position:absolute;background:#fff;border:1.5px solid var(--border);border-radius:8px;z-index:500;width:100%;max-height:180px;overflow-y:auto;box-shadow:var(--shadow)">';
+  suggestions.slice(0,6).forEach(function(s){
+    html2 += '<div style="padding:8px 12px;cursor:pointer;border-bottom:1px solid var(--border-light)" data-action="pickSuggestion" data-prefix="'+prefix+'" data-name="'+s.name+'" data-email="'+s.email+'" data-phone="'+s.phone+'"><div style="font-weight:600;font-size:13px">'+s.name+'</div><div style="font-size:11px;color:var(--text-muted)">'+s.role+(s.email?' • '+s.email:'')+'</div></div>';
+  });
+  html2 += '</div>';
+  container.innerHTML = html2;
+}
+
+function submitHazard() {
+  var type=document.getElementById('hz-type').value;
+  var dept=document.getElementById('hz-dept').value;
+  var loc=document.getElementById('hz-loc').value;
+  var subarea=document.getElementById('hz-subarea').value;
+  var cat=document.getElementById('hz-cat').value;
+  var otherCat=(document.getElementById('hz-other-cat')||{}).value||'';
+  var details=document.getElementById('hz-details').value;
+  var reporter=document.getElementById('hz-reporter').value;
+  
+  if(!type||!dept||!cat||!details||!reporter){ toast('Fill all required fields','error'); return; }
+  
+  showGlobalLoader('Submitting Report securely...');
+  var cData = getClosureData('hz');
+  var aInfo = getAreaByName(loc) || {};
+  var defaultOwnerEmail = aInfo.areaOwnerEmail || aInfo.hodEmail || '';
+  var ccEmails = getAdminConfig().autoCcEmails || '';
+
+  var processSubmit = function(photoData) {
+    var s=parseInt(document.getElementById('hz-sev').value)||1, l=parseInt(document.getElementById('hz-lik').value)||1, score=s*l;
+    var level=score>12?'Critical':score>=9?'High':score>=5?'Medium':'Low';
+    var rid=generateReportId(getTypeCode(type));
+    
+    callBackend('submitHazard',{data:JSON.stringify({
+      reportId:rid, timestamp:new Date().toISOString(), status:'Open', reportType:type, date:document.getElementById('hz-date').value,
+      time:document.getElementById('hz-time').value, department:dept, location:loc, activity:subarea,
+      reportedBy:reporter, empId:document.getElementById('hz-empid').value, anonymous:'No', category:cat, categoryOther:otherCat,
+      hazardDetails:details, hazardDetailsOther:'', severity:s, likelihood:l, riskScore:score, riskLevel:level,
+      rootCause:'', immediateAction:document.getElementById('hz-action').value, correctiveAction:'', 
+      responsiblePerson:cData.responsiblePerson, responsiblePhone:cData.responsiblePhone, responsibleEmail:cData.responsibleEmail, 
+      targetDate:cData.targetDate, rectificationRequired:cData.closureRequired, photoData: photoData||'',
+      defaultOwnerEmail: defaultOwnerEmail, ccEmails: ccEmails
+    })}).then(function(res) {
+      hideGlobalLoader();
+      if(res.success){ 
+        var lastData = { type: type, dept: dept, loc: loc, closure: cData.closureRequired, respPerson: cData.responsiblePerson, respPhone: cData.responsiblePhone, respEmail: cData.responsibleEmail, targetDate: cData.targetDate };
+        
+        // NEW: Grab the server-generated ID to show in the success popup
+        var finalId = res.reportId || rid; 
+        
+        askSubmitAnother('UA / UC Report', 'hazard', lastData, finalId);
+      } else { toast('Submission failed','error'); }
+    });
+  };
+
+  var photoInput = document.getElementById('hz-photo');
+  if(photoInput && photoInput.files && photoInput.files[0]){
+    compressImageAsync(photoInput.files[0]).then(processSubmit);
+  } else {
+    processSubmit('');
+  }
+}
+
+function renderObservationForm() {
+  var depts = getDepts().map(function(d){ return '<option>'+d+'</option>'; }).join('');
+  var areas = getAreas().map(function(a){ return '<option>'+a+'</option>'; }).join('');
+  document.getElementById('page-root').innerHTML = 
+  '<div class="page"><div class="card" style="max-width:800px">' +
+    '<div class="card-title tr" data-hi="सुरक्षा अवलोकन रिपोर्ट">Safety Observation Report</div>' +
+    '<div class="form-grid">' +
+      '<div class="form-group"><label class="form-label tr" data-hi="विभाग *">Department *</label><select class="form-control" id="obs-dept"><option value="">Select...</option>' + depts + '</select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="स्थान *">Location *</label><select class="form-control" id="obs-loc"><option value="">Select...</option>' + areas + '</select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="श्रेणी *">Category *</label><select class="form-control" id="obs-cat"><option value="">Select...</option><option>Safe Act</option><option>Unsafe Act</option><option>Safe Condition</option><option>Unsafe Condition</option><option>Good Practice</option></select></div>' +
+      
+      getClosureSectionHtml('obs') +
+
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="अवलोकन विवरण *">Observation Details *</label><textarea class="form-control" id="obs-details" rows="3"></textarea></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="द्वारा रिपोर्ट किया गया *">Reported By *</label><input class="form-control" id="obs-reporter" value="' + (appState.userProfile.name||'') + '"/></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="साक्ष्य फोटो">Evidence Photo</label><input type="file" class="form-control" id="obs-photo" accept="image/*"/></div>' +
+    '</div>' +
+    '<button class="btn btn-primary tr" style="margin-top:16px" data-action="submitObservation" data-hi="अवलोकन जमा करें">Submit Observation</button>' +
+  '</div></div>';
+
+  wireClosureToggle('obs');
+  wireLocationAutofill('obs-loc', 'obs');
+}
+
+function submitObservation() {
+  var dept=document.getElementById('obs-dept').value, loc=document.getElementById('obs-loc').value, cat=document.getElementById('obs-cat').value, details=document.getElementById('obs-details').value, reporter=document.getElementById('obs-reporter').value;
+  if (!dept||!cat||!details||!reporter) { toast('Fill all required fields','error'); return; }
+  
+  showGlobalLoader('Submitting Observation...');
+  var cData = getClosureData('obs');
+  var aInfo = getAreaByName(loc) || {};
+  var defaultOwnerEmail = aInfo.areaOwnerEmail || aInfo.hodEmail || '';
+  var ccEmails = getAdminConfig().autoCcEmails || '';
+
+  var processSubmit = function(photoData) {
+    var rid = generateReportId('OBS');
+    callBackend('submitObservations', {data: JSON.stringify([{
+      reportId:rid, timestamp:new Date().toISOString(), status:'Open', department:dept, location:loc, observationDetails:details, category:cat,
+      reportedBy:reporter, closureRequired:cData.closureRequired, responsiblePerson:cData.responsiblePerson, responsiblePhone:cData.responsiblePhone, 
+      responsibleEmail:cData.responsibleEmail, targetDate:cData.targetDate, photoData: photoData||'',
+      defaultOwnerEmail: defaultOwnerEmail, ccEmails: ccEmails
+    }])}).then(function(res) {
+      hideGlobalLoader();
+      if (res.success) { 
+        var lastData = { dept: dept, loc: loc, cat: cat, closure: cData.closureRequired, respPerson: cData.responsiblePerson, respPhone: cData.responsiblePhone, respEmail: cData.responsibleEmail, targetDate: cData.targetDate };
+        var finalId = res.reportId || rid; // <-- Grab server ID
+        askSubmitAnother('Safety Observation', 'observation', lastData, finalId);
+      } else toast('Submission failed','error');
+    });
+  };
+
+  var photoInput = document.getElementById('obs-photo');
+  if (photoInput && photoInput.files && photoInput.files[0]) {
+    compressImageAsync(photoInput.files[0]).then(processSubmit);
+  } else {
+    processSubmit('');
+  }
+}
+
+function renderIncidentForm() {
+  var depts = getDepts().map(function(d){ return '<option>'+d+'</option>'; }).join('');
+  document.getElementById('page-root').innerHTML = 
+  '<div class="page"><div class="card" style="max-width:800px">' +
+    '<div class="card-title tr" data-hi="घटना रिपोर्ट">Incident Report</div>' +
+    '<div class="form-grid">' +
+      '<div class="form-group"><label class="form-label tr" data-hi="घटना का प्रकार *">Incident Type *</label><select class="form-control" id="inc-type"><option value="">Select...</option><option>Near Miss</option><option>First Aid Case</option><option>Medical Treatment Case</option><option>Lost Time Injury</option><option>Property Damage</option><option>Environmental</option></select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="तारीख और समय *">Date & Time *</label><input class="form-control" type="datetime-local" id="inc-datetime"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="विभाग *">Department *</label><select class="form-control" id="inc-dept"><option value="">Select...</option>' + depts + '</select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="स्थान *">Location *</label><input class="form-control" id="inc-loc"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="घायल व्यक्ति">Injured Person</label><input class="form-control" id="inc-injured"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="कर्मचारी आईडी">Employee ID</label><input class="form-control" id="inc-empid"/></div>' +
+      
+      getClosureSectionHtml('inc') +
+
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="विवरण *">Description *</label><textarea class="form-control" id="inc-desc" rows="3"></textarea></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="मूल कारण">Root Cause</label><textarea class="form-control" id="inc-cause" rows="2"></textarea></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="तुरंत की गई कार्रवाई">Immediate Action Taken</label><textarea class="form-control" id="inc-action" rows="2"></textarea></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="द्वारा रिपोर्ट किया गया *">Reported By *</label><input class="form-control" id="inc-reporter" value="' + (appState.userProfile.name||'') + '"/></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="साक्ष्य फोटो">Evidence Photo</label><input type="file" class="form-control" id="inc-photo" accept="image/*"/></div>' +
+    '</div>' +
+    '<button class="btn btn-primary tr" style="margin-top:16px" data-action="submitIncident" data-hi="रिपोर्ट जमा करें">Submit Report</button>' +
+  '</div></div>';
+
+  wireClosureToggle('inc');
+}
+
+function submitIncident() {
+  var type=document.getElementById('inc-type').value, dt=document.getElementById('inc-datetime').value, dept=document.getElementById('inc-dept').value, desc=document.getElementById('inc-desc').value, reporter=document.getElementById('inc-reporter').value;
+  var loc=document.getElementById('inc-loc').value;
+  if (!type||!dt||!dept||!desc||!reporter) { toast('Fill all required fields','error'); return; }
+  
+  showGlobalLoader('Submitting Incident Report...');
+  var cData = getClosureData('inc');
+  var aInfo = getAreaByName(loc) || {};
+  var defaultOwnerEmail = aInfo.areaOwnerEmail || aInfo.hodEmail || '';
+  var ccEmails = getAdminConfig().autoCcEmails || '';
+  
+  var processSubmit = function(photoData) {
+    var rid=generateReportId('INC');
+    callBackend('submitIncident',{data:JSON.stringify({
+      reportId:rid, timestamp:new Date().toISOString(), status:'Open', incidentType:type, dateTime:dt, department:dept, location:loc,
+      injuredPerson:document.getElementById('inc-injured').value, empId:document.getElementById('inc-empid').value, description:desc, rootCause:document.getElementById('inc-cause').value,
+      immediateAction:document.getElementById('inc-action').value, reportedBy:reporter, closureRequired:cData.closureRequired, responsiblePerson:cData.responsiblePerson, 
+      responsiblePhone:cData.responsiblePhone, responsibleEmail:cData.responsibleEmail, investigationStatus:'Pending', photoData: photoData||'',
+      defaultOwnerEmail: defaultOwnerEmail, ccEmails: ccEmails
+    })}).then(function(res) {
+      hideGlobalLoader();
+      if (res.success) { 
+        var lastData = { dept: dept, loc: loc, type: type, closure: cData.closureRequired, respPerson: cData.responsiblePerson, respPhone: cData.responsiblePhone, respEmail: cData.responsibleEmail, targetDate: cData.targetDate };
+        var finalId = res.reportId || rid; // <-- Grab server ID
+        askSubmitAnother('Incident Report', 'incident', lastData, finalId);
+      } else toast('Failed','error');
+    });
+  };
+
+  var photoInput = document.getElementById('inc-photo');
+  if (photoInput && photoInput.files && photoInput.files[0]) {
+    compressImageAsync(photoInput.files[0]).then(processSubmit);
+  } else {
+    processSubmit('');
+  }
+}
+
+function renderTrainingForm() {
+  var depts = getDepts().map(function(d){ return '<option>'+d+'</option>'; }).join('');
+  document.getElementById('page-root').innerHTML = 
+  '<div class="page"><div class="card" style="max-width:800px">' +
+    '<div class="card-title tr" data-hi="प्रशिक्षण रिकॉर्ड">Training Record</div>' +
+    '<div class="form-grid">' +
+      '<div class="form-group"><label class="form-label tr" data-hi="विभाग *">Department *</label><select class="form-control" id="trn-dept"><option value="">Select...</option>' + depts + '</select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="प्रशिक्षण तिथि *">Training Date *</label><input class="form-control" type="date" id="trn-date"/></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="विषय *">Topic *</label><input class="form-control" id="trn-topic"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="प्रकार">Type</label><select class="form-control" id="trn-type"><option>Induction</option><option>Toolbox Talk</option><option>Safety Training</option><option>Fire Drill</option><option>Emergency Response</option><option>PPE</option><option>Other</option></select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="अवधि (मिनट) *">Duration (mins) *</label><input class="form-control" type="number" id="trn-dur" min="1"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="प्रशिक्षक का नाम *">Trainer Name *</label><input class="form-control" id="trn-trainer"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="प्रतिभागियों की संख्या *">No. of Participants *</label><input class="form-control" type="number" id="trn-pax" min="1"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="द्वारा रिपोर्ट किया गया *">Reported By *</label><input class="form-control" id="trn-reporter" value="' + (appState.userProfile.name||'') + '"/></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="प्रशिक्षण फोटो">Training Photo</label><input type="file" class="form-control" id="trn-photo" accept="image/*"/></div>' +
+    '</div>' +
+    '<button class="btn btn-primary tr" style="margin-top:16px" data-action="submitTraining" data-hi="रिकॉर्ड जमा करें">Submit Record</button>' +
+  '</div></div>';
+}
+
+function submitTraining() {
+  var dept=document.getElementById('trn-dept').value, topic=document.getElementById('trn-topic').value, dur=document.getElementById('trn-dur').value, trainer=document.getElementById('trn-trainer').value, pax=document.getElementById('trn-pax').value, reporter=document.getElementById('trn-reporter').value, date=document.getElementById('trn-date').value;
+  if (!dept||!topic||!dur||!trainer||!pax||!reporter||!date) { toast('Fill all required fields','error'); return; }
+  showGlobalLoader('Saving Training Record...');
+  
+  var ccEmails = getAdminConfig().autoCcEmails || '';
+  
+  var processSubmit = function(photoData) {
+    var rid=generateReportId('TRN');
+    callBackend('submitTraining',{data:JSON.stringify({
+      reportId:rid, timestamp:new Date().toISOString(), status:'Completed', department:dept, topic:topic, type:document.getElementById('trn-type').value,
+      date:date, duration:dur, trainer:trainer, noOfPax:pax, reportedBy:reporter, photoData: photoData||'', ccEmails: ccEmails
+    })}).then(function(res) {
+      hideGlobalLoader();
+      if (res.success) { 
+        var lastData = { dept: dept, type: document.getElementById('trn-type').value, topic: topic };
+        var finalId = res.reportId || rid; // <-- Grab server ID
+        askSubmitAnother('Training Record', 'training', lastData, finalId);
+      } else toast('Failed','error');
+    });
+  };
+  var photoInput = document.getElementById('trn-photo');
+  if (photoInput && photoInput.files && photoInput.files[0]) {
+    compressImageAsync(photoInput.files[0]).then(processSubmit);
+  } else {
+    processSubmit('');
+  }
+}
+
+function renderFACForm() {
+  var depts = getDepts().map(function(d){ return '<option>'+d+'</option>'; }).join('');
+  document.getElementById('page-root').innerHTML = 
+  '<div class="page"><div class="card" style="max-width:800px">' +
+    '<div class="card-title tr" data-hi="प्राथमिक चिकित्सा केस (FAC) रिकॉर्ड">First Aid Case (FAC) Record</div>' +
+    '<div class="form-grid">' +
+      '<div class="form-group"><label class="form-label tr" data-hi="मरीज का नाम *">Patient Name *</label><input class="form-control" id="fac-patient"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="विभाग *">Department *</label><select class="form-control" id="fac-dept"><option value="">Select...</option>' + depts + '</select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="तारीख *">Date *</label><input class="form-control" type="date" id="fac-date"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="द्वारा रिपोर्ट किया गया *">Reported By *</label><input class="form-control" id="fac-reporter" value="' + (appState.userProfile.name||'') + '"/></div>' +
+      
+      getClosureSectionHtml('fac') +
+
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="चोट का विवरण *">Injury Description *</label><textarea class="form-control" id="fac-injury" rows="3"></textarea></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="दिया गया उपचार *">Treatment Given *</label><textarea class="form-control" id="fac-treatment" rows="3"></textarea></div>' +
+    '</div>' +
+    '<button class="btn btn-primary tr" style="margin-top:16px" data-action="submitFAC" data-hi="FAC रिकॉर्ड जमा करें">Submit FAC Record</button>' +
+  '</div></div>';
+
+  wireClosureToggle('fac');
+}
+
+function submitFAC() {
+  var patient=document.getElementById('fac-patient').value, dept=document.getElementById('fac-dept').value, injury=document.getElementById('fac-injury').value, treatment=document.getElementById('fac-treatment').value, reporter=document.getElementById('fac-reporter').value, date=document.getElementById('fac-date').value;
+  if (!patient||!dept||!injury||!treatment||!reporter||!date) { toast('Fill all required fields','error'); return; }
+  
+  showGlobalLoader('Saving FAC Record...');
+  var cData = getClosureData('fac');
+  var ccEmails = getAdminConfig().autoCcEmails || '';
+  
+  var rid=generateReportId('FAC');
+  callBackend('submitFAC',{data:JSON.stringify({
+    reportId:rid, timestamp:new Date().toISOString(), status:'Open', patientName:patient, department:dept, injuryDescription:injury,
+    treatmentGiven:treatment, date:date, reportedBy:reporter, closureRequired:cData.closureRequired, responsiblePerson:cData.responsiblePerson, 
+    responsiblePhone:cData.responsiblePhone, responsibleEmail:cData.responsibleEmail, ccEmails: ccEmails
+  })}).then(function(res) {
+    hideGlobalLoader();
+    if (res.success) { 
+      var lastData = { dept: dept, closure: cData.closureRequired, respPerson: cData.responsiblePerson, respPhone: cData.responsiblePhone, respEmail: cData.responsibleEmail, targetDate: cData.targetDate };
+      var finalId = res.reportId || rid; // <-- Grab server ID
+      askSubmitAnother('FAC Record', 'fac', lastData, finalId);
+    } else toast('Failed','error');
+  });
+}
+
+var bbsCategories = ['PPE Compliance','Tools & Equipment','Work at Height','Electrical Safety','Confined Space','Lifting & Rigging','Housekeeping','Fire & Emergency','Vehicle & Traffic','Permit Compliance','Safe Work Practices','Behavioral Attitude'];
+var bbsScores = {};
+
+function renderBBSForm() {
+  var depts = getDepts().map(function(d){ return '<option>'+d+'</option>'; }).join('');
+  var areas = getAreas().map(function(a){ return '<option>'+a+'</option>'; }).join('');
+  bbsScores = {};
+  var catCards = bbsCategories.map(function(cat) {
+    var key = cat.replace(/[^a-z]/gi,'_');
+    return '<div class="bbs-cat-card" id="bbs-cat-' + key + '">' +
+      '<div class="bbs-cat-name">' + cat + '</div>' +
+      '<div class="bbs-radio-group">' +
+      '<div class="bbs-radio-btn" data-action="bbsSelect" data-cat="' + cat + '" data-val="Safe">✅ Safe</div>' +
+      '<div class="bbs-radio-btn" data-action="bbsSelect" data-cat="' + cat + '" data-val="Unsafe">⚠️ Unsafe</div>' +
+      '<div class="bbs-radio-btn" data-action="bbsSelect" data-cat="' + cat + '" data-val="NA">N/A</div>' +
+      '</div></div>';
+  }).join('');
+  document.getElementById('page-root').innerHTML = 
+  '<div class="page"><div class="card" style="max-width:900px">' +
+    '<div class="card-title tr" data-hi="बीबीएस अवलोकन">BBS Observation</div>' +
+    '<div class="form-grid">' +
+      '<div class="form-group"><label class="form-label tr" data-hi="तारीख *">Date *</label><input class="form-control" type="date" id="bbs-date"/></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="शिफ्ट">Shift</label><select class="form-control" id="bbs-shift"><option>Morning</option><option>Afternoon</option><option>Night</option></select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="विभाग *">Department *</label><select class="form-control" id="bbs-dept"><option value="">Select...</option>' + depts + '</select></div>' +
+      '<div class="form-group"><label class="form-label tr" data-hi="स्थान">Location</label><select class="form-control" id="bbs-loc"><option value="">Select...</option>' + areas + '</select></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="पर्यवेक्षक का नाम *">Observer Name *</label><input class="form-control" id="bbs-observer" value="' + (appState.userProfile.name||'') + '"/></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="गतिविधि">Activity</label><input class="form-control" id="bbs-activity"/></div>' +
+    '</div>' +
+    '<div style="margin:20px 0 10px;font-weight:700;color:var(--primary)" class="tr" data-hi="व्यवहार श्रेणियाँ">Behaviour Categories</div>' +
+    '<div class="bbs-category-grid">' + catCards + '</div>' +
+    '<div id="bbs-score-display" style="margin:16px 0;padding:12px;background:var(--surface2);border-radius:8px;font-weight:600;color:var(--primary)">Safe Score: —</div>' +
+    '<div class="form-grid" style="margin-top:8px">' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="असुरक्षित व्यवहार विवरण">Unsafe Behaviour Details</label><textarea class="form-control" id="bbs-unsafe-details" rows="2"></textarea></div>' +
+      '<div class="form-group form-full"><label class="form-label tr" data-hi="सुधारात्मक कार्रवाई / टिप्पणी">Corrective Action / Remarks</label><textarea class="form-control" id="bbs-remarks" rows="2"></textarea></div>' +
+    '</div>' +
+    '<button class="btn btn-primary tr" style="margin-top:16px" data-action="submitBBS" data-hi="बीबीएस अवलोकन जमा करें">Submit BBS Observation</button>' +
+  '</div></div>';
+}
+
+function bbsSelect(cat, val, el) {
+  bbsScores[cat] = val;
+  var parent = el.parentElement;
+  parent.querySelectorAll('.bbs-radio-btn').forEach(function(b){ b.className='bbs-radio-btn'; });
+  el.className = 'bbs-radio-btn ' + (val==='Safe'?'selected-safe':val==='Unsafe'?'selected-unsafe':'selected-na');
+  var keys = Object.keys(bbsScores);
+  var safe = keys.filter(function(k){ return bbsScores[k]==='Safe'; }).length;
+  var rated = keys.filter(function(k){ return bbsScores[k]!=='NA'; }).length;
+  var pct = rated>0 ? Math.round((safe/rated)*100) : 0;
+  var d = document.getElementById('bbs-score-display');
+  if (d) d.innerHTML = 'Safe Score: <span style="color:'+(pct>=80?'var(--primary)':pct>=60?'var(--orange)':'var(--red)')+'">'+pct+'%</span> ('+safe+'/'+rated+' rated)';
+}
+
+function submitBBS() {
+  var date=document.getElementById('bbs-date').value, dept=document.getElementById('bbs-dept').value, observer=document.getElementById('bbs-observer').value;
+  var loc=document.getElementById('bbs-loc').value;
+  if (!date||!dept||!observer) { toast('Fill all required fields','error'); return; }
+  if (Object.keys(bbsScores).length === 0) { toast('Please rate at least one behaviour category','error'); return; }
+  showGlobalLoader('Submitting BBS Observation...');
+  
+  var safe=Object.keys(bbsScores).map(function(k){return bbsScores[k]}).filter(function(v){return v==='Safe';}).length;
+  var rated=Object.keys(bbsScores).map(function(k){return bbsScores[k]}).filter(function(v){return v!=='NA';}).length;
+  var pct=rated>0?Math.round((safe/rated)*100):0;
+  var rid=generateReportId('BBS');
+  
+  var aInfo = getAreaByName(loc) || {};
+  var defaultOwnerEmail = aInfo.areaOwnerEmail || aInfo.hodEmail || '';
+  var ccEmails = getAdminConfig().autoCcEmails || '';
+
+  var payload = {
+    reportId:rid, timestamp:new Date().toISOString(), status:'Submitted', date:date, time:new Date().toTimeString().slice(0,5),
+    shift:document.getElementById('bbs-shift').value, department:dept, location:loc,
+    activity:document.getElementById('bbs-activity').value, observerName:observer, employeeName:'',
+    unsafeSubDetails:document.getElementById('bbs-unsafe-details').value, remarks:document.getElementById('bbs-remarks').value,
+    rootCause:'', correctiveAction:'', recommendation:'', safePct:pct, score:safe, photoData: '',
+    reportBy:observer, empId:appState.userProfile.empId||'', defaultOwnerEmail: defaultOwnerEmail, ccEmails: ccEmails
+  };
+  bbsCategories.forEach(function(cat){ payload[cat] = bbsScores[cat]||'NA'; });
+  
+  callBackend('submitBBS',{data:JSON.stringify(payload)}).then(function(res) {
+    hideGlobalLoader();
+    if (res.success) { 
+      var lastData = { dept: dept, loc: loc, shift: document.getElementById('bbs-shift').value };
+      var finalId = res.reportId || rid; // <-- Grab server ID
+      askSubmitAnother('BBS Observation', 'bbs', lastData, finalId); 
+    } 
+    else toast('Failed','error');
+  });
+}
+
+// ── ADMIN CONFIG ─────────────────────────────────────────────────────────────
+var ADMIN_PASSWORD = 'Dhanuka#321';
+
+function renderAdmin() {
+  if (!adminUnlocked) {
+    document.getElementById('page-root').innerHTML =
+      '<div class="page"><div class="card" style="max-width:400px;margin:40px auto;text-align:center">' +
+        '<div style="font-size:40px;margin-bottom:12px">🔐</div>' +
+        '<div class="card-title">Admin Access</div>' +
+        '<p style="color:var(--text-muted);margin-bottom:20px;font-size:13px">This section is password protected.</p>' +
+        '<div class="form-group" style="margin-bottom:14px">' +
+          '<input class="form-control" type="password" id="adm-password" placeholder="Enter admin password" style="text-align:center"/>' +
+        '</div>' +
+        '<button class="btn btn-primary" style="width:100%" data-action="checkAdminPwd">Unlock Admin</button>' +
+        '<div style="text-align:center; font-size:11px; color:var(--text-dim); margin-top:24px; padding-top:16px; border-top:1px dashed var(--border-light); line-height:1.6;">' +
+          'Developed By - <b style="color:var(--primary);">Bhanu Pratap Singh</b><br>' +
+          'Email - <a href="mailto:bhanupratap@dhanuka.com" style="color:var(--primary-light); text-decoration:none;">bhanupratap@dhanuka.com</a>' +
+        '</div>' +
+      '</div></div>';
+    var pwdInput = document.getElementById('adm-password');
+    if(pwdInput) pwdInput.addEventListener('keydown', function(e){ if(e.key==='Enter') checkAdminPwd(); });
+    return;
+  }
+  renderAdminPanel();
+}
+
+function checkAdminPwd() {
+  var val = document.getElementById('adm-password') ? document.getElementById('adm-password').value : '';
+  if(val === ADMIN_PASSWORD){ adminUnlocked=true; renderAdminPanel(); }
+  else { toast('Incorrect password','error'); var el=document.getElementById('adm-password'); if(el){el.style.borderColor='var(--red)';setTimeout(function(){el.style.borderColor='';},1000);} }
+}
+
+function renderAdminPanel() {
+  var cfg = getAdminConfig();
+  var areaRows = (cfg.areaDetails||[]).map(function(a,i){
+    return '<tr>' +
+      '<td>'+a.area+'</td><td>'+a.dept+'</td>' +
+      '<td>'+(a.hod||'')+'<br><small style="color:var(--text-muted)">'+(a.hodPhone||'')+'</small></td>' +
+      '<td>'+(a.areaOwner||'')+'<br><small style="color:var(--text-muted)">'+(a.areaOwnerPhone||'')+'</small></td>' +
+      '<td>' +
+        '<button class="btn btn-outline btn-sm" style="margin-right:6px; padding:4px 8px;" data-action="editArea" data-idx="'+i+'">✎</button>' +
+        '<button class="btn btn-danger btn-sm" style="padding:4px 8px;" data-action="deleteArea" data-idx="'+i+'">✕</button>' +
+      '</td>' +
+    '</tr>';
+  }).join('');
+
+  document.getElementById('page-root').innerHTML =
+    '<div class="page">' +
+    '<div class="card" style="max-width:900px;margin-bottom:18px">' +
+      '<div class="card-title">📧 Email Notifications</div>' +
+      '<div class="form-group"><label class="form-label">Global CC Emails (comma separated)</label><input class="form-control" id="adm-cc-emails" value="'+(cfg.autoCcEmails||'')+'" placeholder="e.g. safety@dhanuka.com, manager@dhanuka.com"/></div>' +
+      '<div style="font-size:12px; color:var(--text-dim); margin-top:4px;">These emails will automatically receive a copy of EVERY report submitted.</div>' +
+    '</div>' +
+    '<div class="card" style="max-width:900px;margin-bottom:18px">' +
+      '<div class="card-title">🏭 Plants / Sites</div>' +
+      '<textarea class="form-control" id="adm-plants" rows="3" style="font-family:monospace">'+cfg.plants.join('\n')+'</textarea>' +
+    '</div>' +
+    '<div class="card" style="max-width:900px;margin-bottom:18px">' +
+      '<div class="card-title">🏢 Departments</div>' +
+      '<textarea class="form-control" id="adm-depts" rows="5" style="font-family:monospace">'+cfg.departments.join('\n')+'</textarea>' +
+    '</div>' +
+    '<div class="card" style="max-width:900px;margin-bottom:18px">' +
+      '<div class="card-title">📍 Area / Location Management</div>' +
+      '<div class="form-grid" style="margin-bottom:14px">' +
+        '<div class="form-group"><label class="form-label">Area / Location Name *</label><input class="form-control" id="adm-area-name" placeholder="e.g. Gate, Plant Floor"/></div>' +
+        '<div class="form-group"><label class="form-label">Department *</label><select class="form-control" id="adm-area-dept"><option value="">Select...</option>'+cfg.departments.map(function(d){return '<option>'+d+'</option>';}).join('')+'</select></div>' +
+        '<div class="form-group"><label class="form-label">HOD Name *</label><input class="form-control" id="adm-area-hod" placeholder="Head of Department name"/></div>' +
+        '<div class="form-group"><label class="form-label">HOD Email</label><input class="form-control" type="email" id="adm-area-hod-email" placeholder="hod@dhanuka.com"/></div>' +
+        '<div class="form-group"><label class="form-label">HOD Phone</label><input class="form-control" type="tel" id="adm-area-hod-phone" placeholder="HOD phone number"/></div>' +
+        '<div class="form-group"><label class="form-label">Area Owner Name</label><input class="form-control" id="adm-area-owner" placeholder="Location / Area owner name"/></div>' +
+        '<div class="form-group"><label class="form-label">Area Owner Email</label><input class="form-control" type="email" id="adm-area-owner-email" placeholder="owner@dhanuka.com"/></div>' +
+        '<div class="form-group"><label class="form-label">Area Owner Phone</label><input class="form-control" type="tel" id="adm-area-owner-phone" placeholder="e.g. 9876543210"/></div>' +
+      '</div>' +
+      '<button class="btn btn-success btn-sm" data-action="addAreaDetail">+ Add Area</button>' +
+      (areaRows ? '<div class="table-wrap" style="margin-top:16px"><table><thead><tr><th>Area</th><th>Dept</th><th>HOD</th><th>Area Owner</th><th>Actions</th></tr></thead><tbody id="adm-area-tbody">'+areaRows+'</tbody></table></div>' : '<div id="adm-area-tbody-wrap" style="margin-top:12px;color:var(--text-dim);font-size:13px">No areas added yet.</div>') +
+    '</div>' +
+    '<div class="card" style="max-width:900px;margin-bottom:18px">' +
+      '<div class="card-title">🎯 Monthly Targets</div>' +
+      '<div class="form-grid">' +
+        '<div class="form-group"><label class="form-label">Training Hours</label><input class="form-control" type="number" id="adm-t-training" value="'+(cfg.targets.training||100)+'"/></div>' +
+        '<div class="form-group"><label class="form-label">UA/UC Reports</label><input class="form-control" type="number" id="adm-t-uauc" value="'+(cfg.targets.uauc||50)+'"/></div>' +
+        '<div class="form-group"><label class="form-label">BBS Observations</label><input class="form-control" type="number" id="adm-t-bbs" value="'+(cfg.targets.bbs||30)+'"/></div>' +
+      '</div>' +
+    '</div>' +
+    '<div style="display:flex;gap:10px">' +
+      '<button class="btn btn-primary" data-action="saveAdminCfg">💾 Save All Configuration</button>' +
+      '<button class="btn btn-outline" data-action="lockAdmin">🔒 Lock Admin</button>' +
+    '</div>' +
+    '</div>';
+
+    var deptSel = document.getElementById('adm-area-dept');
+    if (deptSel) {
+        deptSel.addEventListener('change', function() {
+            var selectedDept = this.value;
+            if (!selectedDept) return;
+            var currentCfg = getAdminConfig();
+            var existing = currentCfg.areaDetails.find(function(a) { return a.dept === selectedDept && a.hod; });
+            if (existing) {
+                document.getElementById('adm-area-hod').value = existing.hod || '';
+                document.getElementById('adm-area-hod-email').value = existing.hodEmail || '';
+                document.getElementById('adm-area-hod-phone').value = existing.hodPhone || '';
+            }
+        });
+    }
+}
+
+function addAreaDetail() {
+  var name   = (document.getElementById('adm-area-name')||{}).value||'';
+  var dept   = (document.getElementById('adm-area-dept')||{}).value||'';
+  var hod    = (document.getElementById('adm-area-hod')||{}).value||'';
+  var hodE   = (document.getElementById('adm-area-hod-email')||{}).value||'';
+  var hodP   = (document.getElementById('adm-area-hod-phone')||{}).value||'';
+  var owner  = (document.getElementById('adm-area-owner')||{}).value||'';
+  var ownerE = (document.getElementById('adm-area-owner-email')||{}).value||'';
+  var phone  = (document.getElementById('adm-area-owner-phone')||{}).value||'';
+
+  if(!name||!dept||!hod){ toast('Area name, dept, and HOD name are required','error'); return; }
+
+  var cfg = getAdminConfig(); 
+  if(!cfg.areaDetails) cfg.areaDetails=[];
+
+  var btn = document.querySelector('[data-action="addAreaDetail"]');
+  var editIdx = btn ? btn.getAttribute('data-edit-idx') : null;
+
+  if (editIdx !== null && editIdx !== "") {
+      cfg.areaDetails[parseInt(editIdx)] = {area:name, dept:dept, hod:hod, hodEmail:hodE, hodPhone:hodP, areaOwner:owner, areaOwnerEmail:ownerE, areaOwnerPhone:phone};
+      btn.removeAttribute('data-edit-idx');
+      btn.textContent = "+ Add Area";
+      btn.className = "btn btn-success btn-sm";
+      toast('Area updated successfully!', 'success');
+  } else {
+      if(cfg.areaDetails.find(function(a){return a.area===name;})){ toast('Area already exists','error'); return; }
+      cfg.areaDetails.push({area:name, dept:dept, hod:hod, hodEmail:hodE, hodPhone:hodP, areaOwner:owner, areaOwnerEmail:ownerE, areaOwnerPhone:phone});
+      if(!cfg.subAreas.includes(name)) cfg.subAreas.push(name);
+      toast('Area added successfully!', 'success');
+  }
+
+  saveAdminConfig(cfg); 
+  renderAdminPanel();
+}
+
+function deleteArea(idx) {
+  if(!confirm('Are you sure you want to delete this area?')) return;
+  var cfg = getAdminConfig();
+  if(cfg.areaDetails && cfg.areaDetails[idx]) {
+    cfg.areaDetails.splice(idx, 1);
+    saveAdminConfig(cfg);
+    renderAdminPanel();
+    toast('Area deleted', 'success');
+  }
+}
+
+function saveAdminCfg() {
+  var cfg = getAdminConfig();
+  cfg.autoCcEmails = document.getElementById('adm-cc-emails').value || '';
+  cfg.plants = (document.getElementById('adm-plants').value||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  cfg.departments = (document.getElementById('adm-depts').value||'').split('\n').map(function(s){return s.trim();}).filter(Boolean);
+  cfg.targets.training = parseInt(document.getElementById('adm-t-training').value)||100;
+  cfg.targets.uauc = parseInt(document.getElementById('adm-t-uauc').value)||50;
+  cfg.targets.bbs = parseInt(document.getElementById('adm-t-bbs').value)||30;
+  saveAdminConfig(cfg);
+  toast('Admin configuration saved!','success');
+}
+
+function lockAdmin() {
+  adminUnlocked = false;
+  renderAdmin();
+  toast('Admin locked','success');
+}
+
+function handleClick(e) {
+  var el = e.target;
+  while (el && el !== document.body) {
+    if (!el.getAttribute) { el = el.parentElement; continue; } 
+    
+    var action = el.getAttribute('data-action');
+    if (action) {
+      e.preventDefault();
+      switch(action) {
+        case 'closeSidebar':    closeSidebar(); break;
+        case 'toggleSidebar':   toggleSidebar(); break;
+        case 'toggleLang':      toggleLang(); break;
+        case 'closeModal':      closeModal(); break;
+        case 'refreshDashboard': refreshDashboard(); break;
+        case 'toggleAllReports': toggleAllReports(); break;
+        case 'toggleFilters':   toggleFilters(); break;
+        case 'clearFilters':    clearFilters(); break;
+        case 'exportExcel':     exportExcel(); break;
+        case 'saveUserProfile': saveUserProfile(); break;
+        case 'submitHazard':    submitHazard(); break;
+        case 'logoutUser':      logoutUser(); break;
+        case 'executeLogout':   executeLogout(); break;
+        case 'enterPortal':     doLogin(); break;
+        case 'goDashboardFetch':
+          closeModal();
+          showGlobalLoader('Fetching Data...');
+          appState.data = {}; dataFetchPromise = null;
+          getAllData().then(function() {
+            navigate('dashboard');
+            hideGlobalLoader();
+          });
+          break;
+        case 'submitAnother':
+          var page = el.getAttribute('data-page');
+          closeModal();
+          showGlobalLoader('Preparing form...');
+          appState.data = {}; dataFetchPromise = null;
+          getAllData().then(function() {
+            hideGlobalLoader();
+            navigate(page);
+            setTimeout(function() { restoreLastFormData(page, appState.tempLastData); }, 150);
+          });
+          break;
+        case 'navigate':
+          var pg = el.getAttribute('data-page');
+          if (pg) navigate(pg);
+          break;
+        case 'switchTab':
+          var tab = el.getAttribute('data-tab');
+          if (tab) switchTab(tab, null, el);
+          break;
+        case 'viewReport':
+          var rdata = el.getAttribute('data-report');
+          if (rdata) {
+            viewReport(rdata);
+          } else {
+            var rid = el.getAttribute('data-rid');
+            var mod = el.getAttribute('data-mod');
+            if (rid && mod && appState.data[mod]) {
+              var found = appState.data[mod].find(function(x) { return x['Report ID'] === rid; });
+              if (found) {
+                found._module = mod;
+                viewReport(encodeURIComponent(JSON.stringify(found)));
+              }
+            }
+          }
+          break;
+        case 'closeReportModal':
+          var rid = el.getAttribute('data-rid');
+          var mod = el.getAttribute('data-mod');
+          if (rid && mod) closeReport(rid, mod);
+          break;
+        case 'shareWhatsapp':
+          var wmsg = el.getAttribute('data-msg');
+          if (wmsg) window.open('https://wa.me/?text=' + wmsg, '_blank');
+          break;
+        case 'submitObservation': submitObservation(); break;
+        case 'submitIncident':    submitIncident();    break;
+        case 'submitTraining':    submitTraining();    break;
+        case 'submitFAC':         submitFAC();         break;
+        case 'submitBBS':         submitBBS();         break;
+        case 'saveAdminCfg':      saveAdminCfg();      break;
+        case 'checkAdminPwd':     checkAdminPwd();     break;
+        case 'lockAdmin':         lockAdmin();         break;
+        case 'addAreaDetail':     addAreaDetail();     break;
+        case 'deleteArea':
+          var aidx = parseInt(el.getAttribute('data-idx'));
+          if(!isNaN(aidx)) deleteArea(aidx);
+          break;
+        case 'editArea':
+          var eidx = parseInt(el.getAttribute('data-idx'));
+          if(!isNaN(eidx)) {
+             var cfg = getAdminConfig();
+             var a = cfg.areaDetails[eidx];
+             if(a) {
+                document.getElementById('adm-area-name').value = a.area || '';
+                document.getElementById('adm-area-dept').value = a.dept || '';
+                document.getElementById('adm-area-hod').value = a.hod || '';
+                document.getElementById('adm-area-hod-email').value = a.hodEmail || '';
+                document.getElementById('adm-area-hod-phone').value = a.hodPhone || '';
+                document.getElementById('adm-area-owner').value = a.areaOwner || '';
+                document.getElementById('adm-area-owner-email').value = a.areaOwnerEmail || '';
+                document.getElementById('adm-area-owner-phone').value = a.areaOwnerPhone || '';
+
+                var btn = document.querySelector('[data-action="addAreaDetail"]');
+                if(btn) {
+                   btn.setAttribute('data-edit-idx', eidx);
+                   btn.innerHTML = "✎ Update Area";
+                   btn.className = "btn btn-primary btn-sm";
+                }
+                document.getElementById('adm-area-name').scrollIntoView({behavior: 'smooth', block: 'center'});
+             }
+          }
+          break;
+        case 'closeModalAndNav':
+          var cnp = el.getAttribute('data-page');
+          closeModal();
+          if(cnp) navigate(cnp);
+          break;
+        case 'markWaShared':
+          var waRid = el.getAttribute('data-rid');
+          if(waRid){ markWhatsappShared(waRid); }
+          break;
+        case 'pickSuggestion':
+          var pfx = el.getAttribute('data-prefix');
+          var sname = el.getAttribute('data-name');
+          var semail = el.getAttribute('data-email');
+          var sphone = el.getAttribute('data-phone');
+          if(pfx){
+            var pinput = document.getElementById(pfx+'-resp-person');
+            var pemail = document.getElementById(pfx+'-resp-email');
+            var pphone = document.getElementById(pfx+'-resp-phone');
+            if(pinput) pinput.value = sname||'';
+            if(pemail) pemail.value = semail||'';
+            if(pphone) pphone.value = sphone||'';
+            var sbox = document.getElementById(pfx+'-resp-suggestions');
+            if(sbox) sbox.innerHTML='';
+          }
+          break;
+        case 'bbsSelect':
+          var bcat = el.getAttribute('data-cat');
+          var bval = el.getAttribute('data-val');
+          if (bcat && bval) bbsSelect(bcat, bval, el);
+          break;
+      }
+      return;
+    }
+    el = el.parentElement;
+  }
+}
+
+// ============================================================
+// MOBILE QUICK REPORT WIZARD LOGIC
+// ============================================================
+var wizLang = 'en';
+var wizStep = 0;
+var wizSelectedType = '';
+var wizTotalSteps = 6;
+
+var wizTexts = {
+  en: {
+    title: "Report Hazard",
+    stepTitles: ["", "What are you reporting?", "Where is it?", "What happened?", "Assess the Risk", "Action Taken", "Final Evidence"],
+    actBtn: "🚨 Someone is doing a dangerous job<br><span style='font-size:14px;font-weight:500;color:var(--text-muted)'>(Unsafe Act)</span>",
+    condBtn: "⚠️ A condition that could cause an accident<br><span style='font-size:14px;font-weight:500;color:var(--text-muted)'>(Unsafe Condition)</span>",
+    area: "Select Area *", subarea: "Write Sub Area / Location Name *",
+    cat: "What kind of hazard is this? (Category) *",
+    otherCat: "Specify Other Category *",
+    details: "Provide full details of the hazard *",
+    sev: "Severity (1-5) *", lik: "Likelihood (1-5) *",
+    action: "What immediate action did you take?",
+    closure: "Is someone else needed to fix this permanently? (Closure Required)", yes: "Yes", no: "No",
+    photo: "Take or Upload Photo",
+    assignTitle: "Action Assignment Details", target: "Target Date", resp: "Responsible Person", phone: "Phone (Optional)", email: "Email (Optional)",
+    btnNext: "Next ➡️", btnBack: "⬅️ Back", btnSubmit: "🚀 Submit Report",
+    
+    lblInfoType: "What's the difference?",
+    lblInfoRisk: "How to score this?",
+    
+    actCats: ["Working without PPE", "Working without Permit", "Horseplay / Carelessness", "Improper Use of Tools", "Damage to Property", "Bypassing Safety Devices", "Operating at Unsafe Speed", "Improper Lifting/Handling", "Other"],
+    condCats: ["Housekeeping / Clutter", "Electrical Hazard", "Wet/Slippery Floor", "Improper Stacking", "Mechanical Hazard", "Missing/Damaged Guards", "Poor Lighting", "Fire Hazard", "Other"],
+    sevOpts: ["1 - Minor (Scratch / First Aid)", "2 - Low (Minor Injury)", "3 - Medium (Lost Time)", "4 - High (Severe Injury)", "5 - Critical (Fatal / Massive)"],
+    likOpts: ["1 - Rare (Almost never)", "2 - Unlikely", "3 - Possible", "4 - Likely", "5 - Certain (Will happen)"],
+
+    infoTypeTitle: "Understanding Hazard Types",
+    infoTypeAct: "An action or behavior by a person that may lead to an accident. <i>Examples: Not wearing safety gear, joking around, or ignoring safety rules.</i>",
+    infoTypeCond: "A physical hazard or environmental condition that could cause an accident. <i>Examples: Broken tools, wet floors, or exposed wires.</i>",
+    infoRiskTitle: "Understanding Risk Scoring",
+    infoRiskSev: "How bad could the injury or damage be if an accident happens? <i>(1 = Just a minor scratch, 5 = Fatal or massive destruction).</i>",
+    infoRiskLik: "What are the chances of this accident actually happening? <i>(1 = Almost never, 5 = It will definitely happen very soon).</i>",
+
+    successTitle: "Submitted Successfully!",
+    successDesc: "Do you want to submit another report?",
+    btnGoDash: "No",
+    btnSubmitAnother: "Yes, Another"
+  },
+  hi: {
+    title: "खतरा रिपोर्ट करें",
+    stepTitles: ["", "आप क्या रिपोर्ट कर रहे हैं?", "यह कहाँ है?", "क्या हुआ है?", "खतरे का आकलन (Risk)", "आपकी कार्रवाई", "फोटो और सबमिट"],
+    actBtn: "🚨 कोई व्यक्ति खतरनाक काम कर रहा है?<br><span style='font-size:14px;font-weight:500;color:var(--text-muted)'>(Unsafe Act)</span>",
+    condBtn: "⚠️ ऐसी स्थिति जिससे हादसा हो सकता है?<br><span style='font-size:14px;font-weight:500;color:var(--text-muted)'>(Unsafe Condition)</span>",
+    area: "क्षेत्र चुनें (Area) *", subarea: "उप-क्षेत्र / जगह का नाम लिखें (Sub Area) *",
+    cat: "खतरा किस प्रकार का है? (Category) *",
+    otherCat: "अन्य खतरा लिखें (Specify Other) *",
+    details: "खतरे की पूरी जानकारी दें (Hazard Details) *",
+    sev: "गंभीरता (Severity 1-5) *", lik: "संभावना (Likelihood 1-5) *",
+    action: "आपने तुरंत क्या बचाव किया? (Immediate Action)",
+    closure: "क्या इसे स्थायी रूप से ठीक करने के लिए किसी अन्य की जरुरत है? (Closure Required)", yes: "हाँ (Yes)", no: "नहीं (No)",
+    photo: "फोटो खींचें या अपलोड करें (Evidence Photo)",
+    assignTitle: "कार्रवाई असाइनमेंट विवरण", target: "लक्ष्य तिथि (Target Date)", resp: "जिम्मेदार व्यक्ति (Person)", phone: "फोन नंबर (Phone)", email: "ईमेल (Email)",
+    btnNext: "आगे बढ़ें ➡️", btnBack: "⬅️ पीछे", btnSubmit: "🚀 रिपोर्ट जमा करें",
+    
+    lblInfoType: "इनमें क्या अंतर है?",
+    lblInfoRisk: "स्कोर कैसे चुनें?",
+
+    actCats: ["पीपीई (PPE) के बिना काम करना", "परमिट के बिना काम करना", "लापरवाही / मजाक करना", "औजारों का गलत इस्तेमाल", "संपत्ति को नुकसान पहुंचाना", "सुरक्षा उपकरणों से छेड़छाड़", "असुरक्षित गति से काम करना", "गलत तरीके से वजन उठाना", "अन्य (Other)"],
+    condCats: ["खराब हाउसकीपिंग / कचरा", "बिजली का खतरा (Electrical)", "गीला/फिसलन भरा फर्श", "गलत तरीके से सामान रखना", "मशीनी खतरा (Mechanical)", "मशीन गार्ड का न होना", "कम रोशनी (Poor Lighting)", "आग लगने का खतरा", "अन्य (Other)"],
+    sevOpts: ["1 - मामूली (Minor)", "2 - कम (Low)", "3 - मध्यम (Medium)", "4 - उच्च (High)", "5 - गंभीर (Critical)"],
+    likOpts: ["1 - दुर्लभ (Rare)", "2 - शायद ही (Unlikely)", "3 - संभव (Possible)", "4 - अक्सर (Likely)", "5 - निश्चित (Certain)"],
+
+    infoTypeTitle: "खतरे के प्रकार (Hazard Types)",
+    infoTypeAct: "किसी व्यक्ति द्वारा की गई कोई लापरवाही या गलती जिससे हादसा हो सकता है। <i>जैसे: बिना हेलमेट/जूते काम करना, मशीन को गलत तरीके से चलाना, या काम के दौरान मजाक करना।</i>",
+    infoTypeCond: "कार्यस्थल पर कोई ऐसी खराबी या भौतिक स्थिति जिससे चोट लग सकती है। <i>जैसे: फर्श पर तेल/पानी गिरना, कटी हुई बिजली की तार, या बिना गार्ड की मशीन।</i>",
+    infoRiskTitle: "खतरे का आकलन (Risk Scoring)",
+    infoRiskSev: "अगर हादसा होता है, तो नुकसान कितना बड़ा होगा? <i>(1 = बस छोटी-सी खरोंच, 5 = मौत या बहुत बड़ा नुकसान)</i>",
+    infoRiskLik: "यह हादसा होने के कितने चांस (संभावना) हैं? <i>(1 = शायद ही कभी हो, 5 = यह बहुत जल्द और पक्का होगा)</i>",
+
+    successTitle: "सफलतापूर्वक जमा हो गई!",
+    successDesc: "क्या आप एक और रिपोर्ट दर्ज करना चाहते हैं?",
+    btnGoDash: "नहीं",
+    btnSubmitAnother: "हाँ, एक और"
+  }
+};
+
+function openWizard() {
+  document.getElementById('wizardOverlay').style.display = 'flex';
+  wizStep = 0; wizSelectedType = '';
+  document.getElementById('wiz-footer').style.display = 'none';
+  
+  var areaSelect = document.getElementById('wiz-area');
+  areaSelect.innerHTML = '<option value="">-- Select --</option>' + getAreas().map(function(a){ return '<option value="'+a+'">'+a+'</option>'; }).join('');
+  
+  wizUpdateView();
+}
+function closeWizard() { document.getElementById('wizardOverlay').style.display = 'none'; }
+
+function wizShowInfo(topic) { 
+  const t = wizTexts[wizLang];
+  let title = '', html = '';
+
+  if (topic === 'type') {
+    title = t.infoTypeTitle;
+    html = '<h4><span class="tag tag-act">Unsafe Act</span></h4><p>' + t.infoTypeAct + '</p><h4><span class="tag tag-cond">Unsafe Condition</span></h4><p>' + t.infoTypeCond + '</p>';
+
+  } else if (topic === 'category') {   // ✔ changed condition
+    title = t.infoTypeTitle;
+    html = '<h4><span class="tag tag-act">Unsafe Act</span></h4><p>' + t.infoTypeAct + '</p><h4><span class="tag tag-cond">Unsafe Condition</span></h4><p>' + t.infoTypeCond + '</p>';
+
+  } else if (topic === 'risk') {
+    title = t.infoRiskTitle;
+    html = '<h4>Severity (गंभीरता)</h4><p>' + t.infoRiskSev + '</p><h4>Likelihood (संभावना)</h4><p>' + t.infoRiskLik + '</p>';
+  }
+
+  document.getElementById('wizInfoModalTitle').innerText = title;
+  document.getElementById('wizInfoModalBody').innerHTML = html;
+  document.getElementById('wizInfoOverlay').style.display = 'flex';
+}
+function wizCloseInfo() { document.getElementById('wizInfoOverlay').style.display = 'none'; }
+
+function wizSetLang(lang) {
+  wizLang = lang;
+  wizApplyTranslations();
+  wizNextStep();
+}
+
+function wizApplyTranslations() {
+  const t = wizTexts[wizLang];
+  document.getElementById('wizModalTitle').innerText = t.title;
+  
+  for(let i=1; i<=6; i++) { document.getElementById('wiz-title-'+i).innerText = t.stepTitles[i]; }
+  document.getElementById('wiz-lbl-info-type').innerText = t.lblInfoType;
+  document.getElementById('wiz-lbl-info-risk').innerText = t.lblInfoRisk;
+
+  document.getElementById('wiz-btn-act').innerHTML = t.actBtn;
+  document.getElementById('wiz-btn-cond').innerHTML = t.condBtn;
+  document.getElementById('wiz-lbl-area').innerText = t.area;
+  document.getElementById('wiz-lbl-subarea').innerText = t.subarea;
+  document.getElementById('wiz-lbl-cat').innerText = t.cat;
+  document.getElementById('wiz-lbl-other-cat').innerText = t.otherCat;
+  document.getElementById('wiz-lbl-details').innerText = t.details;
+  document.getElementById('wiz-lbl-sev').innerText = t.sev;
+  document.getElementById('wiz-lbl-lik').innerText = t.lik;
+  document.getElementById('wiz-lbl-action').innerText = t.action;
+  document.getElementById('wiz-lbl-closure').innerText = t.closure;
+  document.getElementById('wiz-opt-yes').innerText = t.yes;
+  document.getElementById('wiz-opt-no').innerText = t.no;
+  document.getElementById('wiz-lbl-photo').innerText = t.photo;
+  document.getElementById('wiz-lbl-assign-title').innerText = t.assignTitle;
+  document.getElementById('wiz-lbl-target').innerText = t.target;
+  document.getElementById('wiz-lbl-resp').innerText = t.resp;
+  document.getElementById('wiz-lbl-phone').innerText = t.phone;
+  document.getElementById('wiz-lbl-email').innerText = t.email;
+  
+  document.getElementById('wiz-sev').innerHTML = '<option value="">-- Select --</option>' + t.sevOpts.map(function(opt){ return '<option value="'+opt+'">'+opt+'</option>'; }).join('');
+  document.getElementById('wiz-lik').innerHTML = '<option value="">-- Select --</option>' + t.likOpts.map(function(opt){ return '<option value="'+opt+'">'+opt+'</option>'; }).join('');
+
+  document.getElementById('wizSuccessTitle').innerText = t.successTitle;
+  document.getElementById('wizSuccessDesc').innerText = t.successDesc;
+  document.getElementById('wizBtnGoDash').innerText = t.btnGoDash;
+  document.getElementById('wizBtnSubmitAnother').innerText = t.btnSubmitAnother;
+
+  document.getElementById('wizBtnBack').innerText = t.btnBack;
+  wizUpdateNextButtonText();
+
+  if(wizSelectedType) wizPopulateCategories();
+}
+
+function wizSetType(type) {
+  wizSelectedType = type;
+  wizPopulateCategories();
+  wizNextStep();
+}
+
+function wizPopulateCategories() {
+  const t = wizTexts[wizLang];
+  const catSelect = document.getElementById('wiz-cat');
+  const options = wizSelectedType === 'Unsafe Act' ? t.actCats : t.condCats;
+  catSelect.innerHTML = '<option value="">-- Select --</option>' + options.map(function(opt){ return '<option value="'+opt+'">'+opt+'</option>'; }).join('');
+  wizToggleOtherCat();
+}
+
+function wizToggleOtherCat() {
+  const val = document.getElementById('wiz-cat').value;
+  const isOther = val.includes('Other') || val.includes('अन्य');
+  document.getElementById('wiz-other-cat-group').style.display = isOther ? 'block' : 'none';
+}
+
+function wizNextStep() {
+  if (wizStep === 2 && (!document.getElementById('wiz-area').value || !document.getElementById('wiz-subarea').value)) {
+    alert(wizLang === 'hi' ? 'कृपया क्षेत्र और उप-क्षेत्र भरें' : 'Please select Area and Sub Area');
+    return;
+  }
+  if (wizStep === 3) {
+    if (!document.getElementById('wiz-cat').value) { alert(wizLang === 'hi' ? 'कृपया श्रेणी चुनें' : 'Please select a Category'); return; }
+    if (!document.getElementById('wiz-details').value) { alert(wizLang === 'hi' ? 'कृपया खतरे का विवरण दें' : 'Please provide hazard details'); return; }
+  }
+  if (wizStep === 4) {
+    if (!document.getElementById('wiz-sev').value || !document.getElementById('wiz-lik').value) { alert(wizLang === 'hi' ? 'कृपया गंभीरता और संभावना दोनों चुनें' : 'Please select both Severity and Likelihood'); return; }
+  }
+
+  if (wizStep === wizTotalSteps) {
+    wizSubmitReport();
+    return;
+  }
+  wizStep++;
+  wizUpdateView();
+}
+
+function wizPrevStep() {
+  if (wizStep > 0) { wizStep--; wizUpdateView(); }
+}
+
+function wizUpdateView() {
+  document.querySelectorAll('.wiz-step').forEach(function(el){ el.classList.remove('active'); });
+  document.getElementById('wiz-step-' + wizStep).classList.add('active');
+
+  const footer = document.getElementById('wiz-footer');
+  footer.style.display = (wizStep === 0 || wizStep === 1) ? 'none' : 'flex';
+
+  document.getElementById('wizProgressBar').style.width = ((wizStep / wizTotalSteps) * 100) + '%';
+  wizUpdateNextButtonText();
+  document.getElementById('wizModalBody').scrollTop = 0;
+}
+
+function wizUpdateNextButtonText() {
+  const btnNext = document.getElementById('wizBtnNext');
+  if (!btnNext) return;
+  const t = wizTexts[wizLang];
+  if (wizStep === wizTotalSteps) {
+    btnNext.innerText = t.btnSubmit;
+    btnNext.className = 'wiz-btn-nav wiz-btn-submit';
+  } else {
+    btnNext.innerText = t.btnNext;
+    btnNext.className = 'wiz-btn-nav wiz-btn-next';
+  }
+}
+
+function wizSubmitReport() {
+  showGlobalLoader(wizLang === 'hi' ? 'रिपोर्ट जमा हो रही है...' : 'Submitting Report securely...');
+  
+  var type = wizSelectedType;
+  var area = document.getElementById('wiz-area').value;
+  var subarea = document.getElementById('wiz-subarea').value;
+  var cat = document.getElementById('wiz-cat').value;
+  var otherCat = document.getElementById('wiz-other-cat').value;
+  var details = document.getElementById('wiz-details').value;
+  var sev = parseInt(document.getElementById('wiz-sev').value) || 1;
+  var lik = parseInt(document.getElementById('wiz-lik').value) || 1;
+  var action = document.getElementById('wiz-action').value;
+  var closure = document.getElementById('wiz-closure').value;
+  
+  var aInfo = getAreaByName(area) || {};
+  var dept = aInfo.dept || '';
+  
+  // --- ADD THESE LINES TO GRAB THE NEW FIELDS ---
+  var targetDate = closure === 'Yes' ? document.getElementById('wiz-target').value : '';
+  var rp = closure === 'Yes' ? document.getElementById('wiz-resp-person').value : '';
+  var re = closure === 'Yes' ? document.getElementById('wiz-resp-email').value : '';
+  var rph = closure === 'Yes' ? document.getElementById('wiz-resp-phone').value : '';
+  // ----------------------------------------------
+  
+  var score = sev * lik;
+  var level = score > 12 ? 'Critical' : score >= 9 ? 'High' : score >= 5 ? 'Medium' : 'Low';
+  var rid = generateReportId(getTypeCode(type));
+  var defaultOwnerEmail = aInfo.areaOwnerEmail || aInfo.hodEmail || '';
+  var ccEmails = getAdminConfig().autoCcEmails || '';
+  
+  var processSubmit = function(photoData) {
+    callBackend('submitHazard',{data:JSON.stringify({
+      reportId:rid, timestamp:new Date().toISOString(), status:'Open', reportType:type, 
+      date:new Date().toISOString().slice(0,10), time:new Date().toTimeString().slice(0,5), 
+      department:dept, location:area, activity:subarea,
+      reportedBy:(appState.userProfile.name||''), empId:(appState.userProfile.empId||''), anonymous:'No', 
+      category:cat, categoryOther:otherCat,
+      hazardDetails:details, hazardDetailsOther:'', severity:sev, likelihood:lik, riskScore:score, riskLevel:level,
+      rootCause:'', immediateAction:action, correctiveAction:'', 
+      responsiblePerson:rp, responsiblePhone:rph, responsibleEmail:re, 
+      targetDate:targetDate, rectificationRequired:closure, photoData: photoData||'',
+      defaultOwnerEmail: defaultOwnerEmail, ccEmails: ccEmails
+    })}).then(function(res) {
+      hideGlobalLoader();
+      if(res.success){ 
+        document.getElementById('wizSuccessOverlay').style.display = 'flex';
+      } else { toast('Submission failed','error'); }
+    });
+  };
+
+  var photoInput = document.getElementById('wiz-photo');
+  if(photoInput && photoInput.files && photoInput.files[0]){
+    compressImageAsync(photoInput.files[0]).then(processSubmit);
+  } else {
+    processSubmit('');
+  }
+}
+function wizGoDashboard() {
+  document.getElementById('wizSuccessOverlay').style.display = 'none';
+  closeWizard();
+  showGlobalLoader('Fetching Data...');
+  appState.data = {}; dataFetchPromise = null;
+  getAllData().then(function() {
+    navigate('dashboard');
+    hideGlobalLoader();
+  });
+}
+
+function wizSubmitAnother() {
+  const prevArea = document.getElementById('wiz-area').value;
+  document.getElementById('wiz-subarea').value = '';
+  document.getElementById('wiz-cat').value = '';
+  document.getElementById('wiz-other-cat').value = '';
+  document.getElementById('wiz-other-cat-group').style.display = 'none';
+  document.getElementById('wiz-details').value = '';
+  document.getElementById('wiz-sev').value = '';
+  document.getElementById('wiz-lik').value = '';
+  document.getElementById('wiz-action').value = '';
+  document.getElementById('wiz-closure').value = 'No';
+  document.getElementById('wiz-photo').value = ''; 
+  document.getElementById('wiz-target').value = '';
+  document.getElementById('wiz-resp-person').value = '';
+  document.getElementById('wiz-resp-phone').value = '';
+  document.getElementById('wiz-resp-email').value = '';
+  document.getElementById('wiz-assignee-section').style.display = 'none';
+  
+  document.getElementById('wiz-area').value = prevArea;
+  document.getElementById('wizSuccessOverlay').style.display = 'none';
+  
+  wizStep = 2; // Jump back to Location step
+  wizUpdateView();
+}
+
+// ============================================================
+// EVENT DELEGATION (CRITICAL FOR BUTTON CLICKS)
+// ============================================================
+function handleClick(e) {
+  var el = e.target;
+  while (el && el !== document.body) {
+    if (!el.getAttribute) { el = el.parentElement; continue; } 
+    
+    var action = el.getAttribute('data-action');
+    if (action) {
+      e.preventDefault();
+      switch(action) {
+        case 'closeSidebar':    closeSidebar(); break;
+        case 'toggleSidebar':   toggleSidebar(); break;
+        case 'toggleLang':      toggleLang(); break;
+        case 'closeModal':      closeModal(); break;
+        case 'refreshDashboard': refreshDashboard(); break;
+        case 'toggleAllReports': toggleAllReports(); break;
+        case 'toggleFilters':   toggleFilters(); break;
+        case 'clearFilters':    clearFilters(); break;
+        case 'exportExcel':     exportExcel(); break;
+        case 'saveUserProfile': saveUserProfile(); break;
+        case 'submitHazard':    submitHazard(); break;
+        case 'logoutUser':      logoutUser(); break;
+        case 'executeLogout':   executeLogout(); break;
+        case 'enterPortal':     doLogin(); break;
+        case 'goDashboardFetch':
+          closeModal();
+          showGlobalLoader('Fetching Data...');
+          appState.data = {}; dataFetchPromise = null;
+          getAllData().then(function() {
+            navigate('dashboard');
+            hideGlobalLoader();
+          });
+          break;
+        case 'submitAnother':
+          var page = el.getAttribute('data-page');
+          closeModal();
+          showGlobalLoader('Preparing form...');
+          appState.data = {}; dataFetchPromise = null;
+          getAllData().then(function() {
+            hideGlobalLoader();
+            navigate(page);
+            setTimeout(function() { restoreLastFormData(page, appState.tempLastData); }, 150);
+          });
+          break;
+        case 'navigate':
+          var pg = el.getAttribute('data-page');
+          if (pg) navigate(pg);
+          break;
+        case 'switchTab':
+          var tab = el.getAttribute('data-tab');
+          if (tab) switchTab(tab, null, el);
+          break;
+        case 'viewReport':
+          var rdata = el.getAttribute('data-report');
+          if (rdata) {
+            viewReport(rdata);
+          } else {
+            var rid = el.getAttribute('data-rid');
+            var mod = el.getAttribute('data-mod');
+            if (rid && mod && appState.data[mod]) {
+              var found = appState.data[mod].find(function(x) { return x['Report ID'] === rid; });
+              if (found) {
+                found._module = mod;
+                viewReport(encodeURIComponent(JSON.stringify(found)));
+              }
+            }
+          }
+          break;
+        case 'closeReportModal':
+          var rid = el.getAttribute('data-rid');
+          var mod = el.getAttribute('data-mod');
+          if (rid && mod) closeReport(rid, mod);
+          break;
+        case 'shareWhatsapp':
+          var wmsg = el.getAttribute('data-msg');
+          if (wmsg) window.open('https://wa.me/?text=' + wmsg, '_blank');
+          break;
+        case 'submitObservation': submitObservation(); break;
+        case 'submitIncident':    submitIncident();    break;
+        case 'submitTraining':    submitTraining();    break;
+        case 'submitFAC':         submitFAC();         break;
+        case 'submitBBS':         submitBBS();         break;
+        case 'saveAdminCfg':      saveAdminCfg();      break;
+        case 'checkAdminPwd':     checkAdminPwd();     break;
+        case 'lockAdmin':         lockAdmin();         break;
+        case 'addAreaDetail':     addAreaDetail();     break;
+        case 'deleteArea':
+          var aidx = parseInt(el.getAttribute('data-idx'));
+          if(!isNaN(aidx)) deleteArea(aidx);
+          break;
+        case 'editArea':
+          var eidx = parseInt(el.getAttribute('data-idx'));
+          if(!isNaN(eidx)) {
+             var cfg = getAdminConfig();
+             var a = cfg.areaDetails[eidx];
+             if(a) {
+                document.getElementById('adm-area-name').value = a.area || '';
+                document.getElementById('adm-area-dept').value = a.dept || '';
+                document.getElementById('adm-area-hod').value = a.hod || '';
+                document.getElementById('adm-area-hod-email').value = a.hodEmail || '';
+                document.getElementById('adm-area-hod-phone').value = a.hodPhone || '';
+                document.getElementById('adm-area-owner').value = a.areaOwner || '';
+                document.getElementById('adm-area-owner-email').value = a.areaOwnerEmail || '';
+                document.getElementById('adm-area-owner-phone').value = a.areaOwnerPhone || '';
+
+                var btn = document.querySelector('[data-action="addAreaDetail"]');
+                if(btn) {
+                   btn.setAttribute('data-edit-idx', eidx);
+                   btn.innerHTML = "✎ Update Area";
+                   btn.className = "btn btn-primary btn-sm";
+                }
+                document.getElementById('adm-area-name').scrollIntoView({behavior: 'smooth', block: 'center'});
+             }
+          }
+          break;
+        case 'closeModalAndNav':
+          var cnp = el.getAttribute('data-page');
+          closeModal();
+          if(cnp) navigate(cnp);
+          break;
+        case 'markWaShared':
+          var waRid = el.getAttribute('data-rid');
+          if(waRid){ markWhatsappShared(waRid); }
+          break;
+        case 'pickSuggestion':
+          var pfx = el.getAttribute('data-prefix');
+          var sname = el.getAttribute('data-name');
+          var semail = el.getAttribute('data-email');
+          var sphone = el.getAttribute('data-phone');
+          if(pfx){
+            var pinput = document.getElementById(pfx+'-resp-person');
+            var pemail = document.getElementById(pfx+'-resp-email');
+            var pphone = document.getElementById(pfx+'-resp-phone');
+            if(pinput) pinput.value = sname||'';
+            if(pemail) pemail.value = semail||'';
+            if(pphone) pphone.value = sphone||'';
+            var sbox = document.getElementById(pfx+'-resp-suggestions');
+            if(sbox) sbox.innerHTML='';
+          }
+          break;
+        case 'bbsSelect':
+          var bcat = el.getAttribute('data-cat');
+          var bval = el.getAttribute('data-val');
+          if (bcat && bval) bbsSelect(bcat, bval, el);
+          break;
+      }
+      return;
+    }
+    el = el.parentElement;
+  }
+}
+
+// ============================================================
+// INITIALIZATION AND LOGIN LOGIC
+// ============================================================
+function showLogin() {
+  var bs = document.getElementById('boot-screen');
+  if(bs) { bs.style.opacity = '0'; setTimeout(function(){bs.style.display='none';}, 300); }
+  document.getElementById('login-screen').style.display = 'flex';
+  document.getElementById('app').style.display = 'none';
+  var fab = document.getElementById('fabQuickReport');
+  if(fab) fab.style.display = 'none';
+}
+
+function showApp() {
+  var bs = document.getElementById('boot-screen');
+  if(bs) { bs.style.opacity = '0'; setTimeout(function(){bs.style.display='none';}, 300); }
+  document.getElementById('login-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'flex';
+}
+
+function logoutUser() {
+  var body = '<div style="font-size:15px; text-align:center; padding:20px 0;" class="tr" data-hi="क्या आप वाकई लॉग आउट करना चाहते हैं?">Are you sure you want to log out?</div>';
+  var footer = '<button class="btn btn-outline tr" data-action="closeModal" data-hi="रद्द करें">Cancel</button>' +
+               '<button class="btn btn-danger tr" data-action="executeLogout" data-hi="लॉग आउट">Log Out</button>';
+  openModal('Confirm Logout', body, footer);
+  setTimeout(applyTranslations, 10);
+}
+
+function executeLogout() {
+  closeModal();
+  safeRemoveItem('sk_profile');
+  appState.userProfile = {}; appState.data = {};
+  var ids = ['login-name','login-email','login-empid'];
+  for (var i=0;i<ids.length;i++){var el=document.getElementById(ids[i]);if(el)el.value='';}
+  var ds=document.getElementById('login-dept'); if(ds) ds.value='';
+  var ps=document.getElementById('login-plant'); if(ps) ps.value='';
+  showLogin();
+}
+
+function populateLoginDropdowns() {
+  try {
+    var cfg = getAdminConfig();
+    var depts = cfg.departments;
+    var plants = cfg.plants;
+    var deptSel = document.getElementById('login-dept');
+    var plantSel = document.getElementById('login-plant');
+    if (depts && depts.length > 0 && deptSel) {
+      if (JSON.stringify(depts) !== JSON.stringify(['Production','Maintenance','Safety','QA','HR','Logistics','Stores'])) {
+        deptSel.innerHTML = '<option value="">Select Department...</option>';
+        depts.forEach(function(d){ var o=document.createElement('option'); o.value=o.textContent=d; deptSel.appendChild(o); });
+      }
+    }
+    if (plants && plants.length > 0 && plantSel) {
+      if (JSON.stringify(plants) !== JSON.stringify(['Plant A','Plant B','Plant C'])) {
+        plantSel.innerHTML = '<option value="">Select Plant/Site...</option>';
+        plants.forEach(function(p){ var o=document.createElement('option'); o.value=o.textContent=p; plantSel.appendChild(o); });
+      }
+    }
+  } catch(err) { console.error('Dropdown error:', err); }
+}
+
+function doLogin() {
+  var nameVal  = document.getElementById('login-name')  ? document.getElementById('login-name').value.trim()  : '';
+  var emailVal = document.getElementById('login-email') ? document.getElementById('login-email').value.trim() : '';
+  var deptVal  = document.getElementById('login-dept')  ? document.getElementById('login-dept').value          : '';
+  var plantVal = document.getElementById('login-plant') ? document.getElementById('login-plant').value         : '';
+  var empIdVal = document.getElementById('login-empid') ? document.getElementById('login-empid').value.trim()  : '';
+
+  if (!nameVal)  { shakeLoginField('login-name',  'Please enter your name');  return; }
+  if (!emailVal) { shakeLoginField('login-email', 'Please enter your email'); return; }
+  if (!deptVal)  { shakeLoginField('login-dept',  'Please select a department'); return; }
+  if (!plantVal) { shakeLoginField('login-plant', 'Please select a plant'); return; }
+
+  appState.userProfile = { name: nameVal, email: emailVal, dept: deptVal, plant: plantVal, empId: empIdVal };
+  safeSetItem('sk_profile', JSON.stringify(appState.userProfile));
+  
+  updateHeaderUser();
+  showApp();
+  
+  showGlobalLoader('Fetching Data...');
+  getAllData().then(function() {
+    navigate('dashboard');
+    hideGlobalLoader();
+  });
+}
+
+function shakeLoginField(id, msg) {
+  var el = document.getElementById(id);
+  if (!el) return;
+  el.style.borderColor = '#C0392B';
+  el.style.animation = 'loginShake 0.4s ease';
+  setTimeout(function(){ el.style.animation=''; el.style.borderColor=''; }, 600);
+  toast(msg, 'error');
+}
+
+function initApp() {
+  try {
+    document.addEventListener('click', handleClick);
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') {
+        var ls = document.getElementById('login-screen');
+        if (ls && ls.style.display !== 'none') doLogin();
+      }
+    });
+
+    var loginBtn = document.getElementById('btn-enter-portal');
+    if (loginBtn) loginBtn.addEventListener('click', function(e) { e.stopPropagation(); doLogin(); });
+
+    var bg = document.getElementById('modal-overlay');
+    if (bg) { bg.addEventListener('click', function(e) { if (e.target === bg) closeModal(); }); }
+
+    // --- WIZARD EVENT LISTENERS MOVED HERE FOR SAFETY ---
+    var wClosure = document.getElementById('wiz-closure');
+    if (wClosure) {
+      wClosure.addEventListener('change', function() {
+        var sec = document.getElementById('wiz-assignee-section');
+        if(sec) sec.style.display = this.value === 'Yes' ? 'block' : 'none';
+        if (this.value === 'Yes') {
+          var locSel = document.getElementById('wiz-area');
+          if (locSel && locSel.value) locSel.dispatchEvent(new Event('change'));
+        }
+      });
+    }
+
+    var wArea = document.getElementById('wiz-area');
+    if(wArea) {
+      wArea.addEventListener('change', function() {
+        var aInfo = getAreaByName(this.value);
+        var closureEl = document.getElementById('wiz-closure');
+        if(aInfo && closureEl && closureEl.value === 'Yes') {
+          var rp = document.getElementById('wiz-resp-person');
+          var re = document.getElementById('wiz-resp-email');
+          var rph = document.getElementById('wiz-resp-phone');
+          if(rp) rp.value = aInfo.areaOwner || aInfo.hod || '';
+          if(re) re.value = aInfo.areaOwnerEmail || aInfo.hodEmail || '';
+          if(rph) rph.value = aInfo.areaOwnerPhone || aInfo.hodPhone || '';
+        }
+      });
+    }
+
+    var wRespPerson = document.getElementById('wiz-resp-person');
+    if(wRespPerson) {
+      wRespPerson.addEventListener('input', function(){ showRespSuggestions('wiz', this.value); });
+    }
+    // ----------------------------------------------------
+
+    loadProfile();
+    var p = appState.userProfile;
+
+    if (p && p.name && p.email && p.dept) {
+      showApp();
+      showGlobalLoader('Fetching Data...');
+      getAllData().then(function() { 
+        populateLoginDropdowns();
+        navigate('dashboard');
+        hideGlobalLoader();
+      });
+    } else {
+      getAllData().then(function() { 
+        populateLoginDropdowns(); 
+      });
+      showLogin();
+    }
+    
+  } catch(err) {
+    console.error('Init Error:', err);
+    showLogin();
+  }
+}
+
+window.addEventListener('load', initApp);
+</script>
+</body>
+</html>
