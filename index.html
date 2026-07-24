@@ -706,8 +706,8 @@ function normalizeFreq(raw){
 // after sharing the file elsewhere. (Settings saved via the modal on
 // a given browser will still override these for that browser only.)
 const DEFAULT_GSHEET = {
-  sheetId:   'PASTE_YOUR_GOOGLE_SHEET_ID_HERE',
-  webAppUrl: 'PASTE_YOUR_CODE17_SHEET_SYNC_EXEC_URL_HERE',
+  sheetId:   '1HdjwtUOtQ_14NzWP6UOwZ12hZLGnOvjwuGRbcnEGqA0',
+  webAppUrl: 'https://script.google.com/macros/s/AKfycbxzCYz8dDzkRZCOlF3aaHmwXmj5elgBACGx80-hg73ElzRFWIKcbnd-mQlvkMrcQGBJ/exec',
   kavachUrl: 'https://script.google.com/macros/s/AKfycbzr7RvqlFn-tOUVQ52ilnVymchWbC5yBVAlkn81YovIinHMwkdGLVEgHtEhaX0h7uij/exec'
 };
 // ─────────────────────────────────────────────────────────────────
@@ -790,6 +790,7 @@ window.onload=function(){
   qsRenderDateTiles();
   qsUpdatePumpStatus();
   qsRefreshTemplateStatus();
+  qsFetchPortal(); // auto-fetch for the default selected date; ⬇ Fetch button still works for manual re-fetch
   restoreImportedTemplate().then(qsRefreshTemplateStatus); // pulls back last-imported Excel template, if any, so Export works right away
   // Show startup modal
   document.getElementById('startupModal').classList.add('open');
@@ -840,6 +841,7 @@ function qsSelectDate(iso){
   document.getElementById('startupDate').value=iso;
   qsRenderDateTiles();
   qsUpdatePumpStatus();
+  qsFetchPortal();
 }
 function qsSelectCustomDate(iso){
   if(!iso) return;
@@ -2008,15 +2010,86 @@ async function persistImportedTemplate(){
     // already configured in 🔗 Google Sheet Sync. Works across ANY device/browser.
     if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl){
       try{
-        await fetch(S.gsheet.webAppUrl, {
+        const res=await fetch(S.gsheet.webAppUrl, {
           method:'POST',
           headers:{'Content-Type':'text/plain;charset=utf-8'},
           body:JSON.stringify({sheetId:S.gsheet.sheetId, action:'saveTemplate', base64, fileName: importedSheet.name}),
         });
-      }catch(e){ console.error('[Template] Drive save failed (kept local copy):', e); }
+        const json=await res.json();
+        if(!json || json.ok===false){
+          console.error('[Template] Drive save rejected by backend:', json && json.error);
+          toast('⚠ Template Drive save failed: '+((json&&json.error)||'unknown error'), true);
+        }else{
+          console.log('[Template] Saved to Drive OK');
+        }
+      }catch(e){
+        console.error('[Template] Drive save network/JS error:', e);
+        toast('⚠ Template Drive save failed: '+e.message, true);
+      }
     }
   }catch(e){ console.error('[Template] persist failed:', e); }
 }
+// Extracts MTD/YTD base values + fire/pump inspection dates from an already-
+// loaded workbook, and applies them to app state S. This is the piece that
+// a plain "Fetched ✅" template restore was missing — restoring the file
+// alone doesn't repopulate these derived values, only a real Import did.
+function applyTemplateBaseToState(wb, ws, targetDate){
+  try{
+    function cellVal(row,col){
+      const c=ws.getRow(row).getCell(col);
+      if(!c||c.value===null||c.value===undefined) return null;
+      if(c.type===ExcelJS.ValueType.Formula) return c.result;
+      if(c.value&&typeof c.value==='object'&&c.value.richText) return c.value.richText.map(r=>r.text).join('');
+      return c.value;
+    }
+    function cellNum(row,col){ const v=cellVal(row,col); return typeof v==='number'?v:(parseFloat(String(v||'').replace(/,/g,''))||0); }
+    function cellStr(row,col){ const v=cellVal(row,col); if(v===null||v===undefined) return ''; if(v instanceof Date) return v.toISOString().split('T')[0]; return String(v).trim(); }
+    function cellDate(row,col){
+      const v=cellVal(row,col);
+      if(!v) return '';
+      if(v instanceof Date) return v.toISOString().split('T')[0];
+      if(typeof v==='number'&&v>40000){ const d=new Date(Math.round((v-25569)*86400*1000)); return d.toISOString().split('T')[0]; }
+      const s=String(v).trim();
+      const m=s.match(/^(\d{1,2})[.\/-](\d{1,2})[.\/-](\d{2,4})$/);
+      if(m){ const yr=m[3].length===2?'20'+m[3]:m[3]; return `${yr}-${m[2].padStart(2,'0')}-${m[1].padStart(2,'0')}`; }
+      const d=new Date(s); if(!isNaN(d)) return d.toISOString().split('T')[0];
+      return s;
+    }
+
+    const impMTD={}, impYTD={};
+    Object.entries(ROW_MAP).forEach(([ri,key])=>{
+      const r=parseInt(ri);
+      if(key==='safetyOath') return; // no MTD/YTD column for this row
+      impMTD[key]=cellNum(r,4);
+      impYTD[key]=cellNum(r,5);
+    });
+    S.importedBaseMTD=impMTD;
+    S.importedBaseYTD=impYTD;
+
+    FIRE_ROW_KEYS.forEach((k,idx)=>{
+      const r=38+idx;
+      if(!S.fireEquip[k]) S.fireEquip[k]={};
+      S.fireEquip[k].nos=cellStr(r,3)||S.fireEquip[k].nos||'';
+      S.fireEquip[k].lastDate=S.fireEquip[k].lastDate||cellDate(r,4)||'';
+      S.fireEquip[k].nextDate=S.fireEquip[k].nextDate||cellDate(r,5)||'';
+      S.fireEquip[k].comments=S.fireEquip[k].comments||cellStr(r,6)||'';
+    });
+    PUMP_ROW_KEYS.forEach((k,idx)=>{
+      const r=46+idx;
+      if(!S.pumps[k]) S.pumps[k]={};
+      S.pumps[k].mode=S.pumps[k].mode||cellStr(r,3)||'Auto';
+      S.pumps[k].lastDate=S.pumps[k].lastDate||cellDate(r,5)||'';
+      S.pumps[k].comments=S.pumps[k].comments||cellStr(r,6)||'';
+    });
+
+    save();
+    populateFire(); populatePumps();
+    if(targetDate) computeBase(targetDate);
+    liveCalc();
+    checkAlerts();
+  }catch(e){ console.error('[Template] applying base values to state failed:', e); }
+}
+
 async function restoreImportedTemplate(){
   // 1) Try the Drive backend first — this is what makes the template
   //    available on ANY device/browser, not just this one.
@@ -2034,8 +2107,11 @@ async function restoreImportedTemplate(){
         await wb.xlsx.load(buffer);
         const ws=wb.worksheets.find(s=>s.name===json.fileName)||wb.worksheets[0];
         importedWorkbook=wb; importedSheet=ws;
+        applyTemplateBaseToState(wb, ws, document.getElementById('entryDate').value);
         try{ localStorage.setItem('ehs_v3_template', JSON.stringify({sheetName:ws.name, base64:json.base64})); }catch(e){}
         return;
+      }else{
+        console.warn('[Template] Drive restore: backend said', json && json.error);
       }
     }catch(e){ console.error('[Template] Drive restore failed, falling back to local cache:', e); }
   }
@@ -2049,6 +2125,7 @@ async function restoreImportedTemplate(){
     await wb.xlsx.load(buffer);
     const ws=wb.worksheets.find(s=>s.name===sheetName)||wb.worksheets[0];
     importedWorkbook=wb; importedSheet=ws;
+    applyTemplateBaseToState(wb, ws, document.getElementById('entryDate').value);
   }catch(e){ console.error('[Template] local restore failed:', e); }
 }
 
