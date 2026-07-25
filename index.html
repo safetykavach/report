@@ -372,6 +372,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- HISTORY VIEW MODAL -->
+<div class="modal-bg" id="historyViewModal">
+  <div class="modal" style="max-width:560px">
+    <h3 id="historyViewTitle">📄 History</h3>
+    <div id="historyViewBody" style="max-height:55vh;overflow-y:auto;margin:12px 0"></div>
+    <div id="historyViewFooter" style="display:flex;justify-content:space-between;gap:8px"></div>
+  </div>
+</div>
+
 <!-- ADD INCIDENT MODAL -->
 <div class="modal-bg" id="incModal">
   <div class="modal">
@@ -591,7 +600,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 <div class="view-inner">
   <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:16px;flex-wrap:wrap;gap:10px">
     <h2 style="font-family:'Rajdhani',sans-serif;font-size:20px;color:var(--navy)">📅 Entry History</h2>
-    <button class="btn btn-red" style="font-size:12px" onclick="clearHistory()">🗑 Clear All</button>
+    <div style="display:flex;gap:8px">
+      <button class="btn btn-outline" style="font-size:12px" onclick="fetchAllEntriesFromSheet(true)">🔄 Refresh from Sheet</button>
+      <button class="btn btn-red" style="font-size:12px" onclick="clearHistory()">🗑 Clear All</button>
+    </div>
   </div>
   <div class="section-card" style="overflow:auto">
     <table class="hist-tbl">
@@ -792,6 +804,7 @@ window.onload=function(){
   qsRefreshTemplateStatus();
   qsFetchPortal(); // auto-fetch for the default selected date; ⬇ Fetch button still works for manual re-fetch
   restoreImportedTemplate().then(qsRefreshTemplateStatus); // pulls back last-imported Excel template, if any, so Export works right away
+  fetchAllEntriesFromSheet(false); // pulls in entries saved from OTHER devices too
   // Show startup modal
   document.getElementById('startupModal').classList.add('open');
 };
@@ -1580,6 +1593,39 @@ function liveCalc(){
 // ═══════════════════════════════════════════════════════════════
 // COMPUTE BASE
 // ═══════════════════════════════════════════════════════════════
+// ═══════════════════════════════════════════════════════════════
+// PER-ENTRY MTD/YTD SNAPSHOTS — used by History View/Edit/Export so
+// each saved record can carry its own frozen MTD/YTD, independent of
+// today's live form calculation.
+// ═══════════════════════════════════════════════════════════════
+function computeSnapshotForDate(date, entryOverride){
+  const ym=date.substring(0,7);
+  const fy=getFY(date);
+  const impMTD=S.importedBaseMTD||{};
+  const impYTD=S.importedBaseYTD||{};
+  const mtd={}, ytd={};
+  numFields().forEach(f=>{ mtd[f.k]=impMTD[f.k]||0; ytd[f.k]=impYTD[f.k]||0; });
+  Object.values(S.entries).forEach(e=>{
+    if(!e.date||e.date>date) return; // only entries up to & including this date
+    const eym=e.date.substring(0,7);
+    const efy=getFY(e.date);
+    const src=(e.date===date&&entryOverride)?entryOverride:e;
+    numFields().forEach(f=>{
+      const v=parseFloat(src[f.k])||0;
+      if(eym===ym) mtd[f.k]=(mtd[f.k]||0)+v;
+      if(efy===fy) ytd[f.k]=(ytd[f.k]||0)+v;
+    });
+  });
+  return {mtd, ytd};
+}
+function recalcAllSnapshots(){
+  Object.keys(S.entries).sort().forEach(d=>{
+    const e=S.entries[d];
+    const snap=computeSnapshotForDate(d, e);
+    e._mtd=snap.mtd; e._ytd=snap.ytd;
+  });
+}
+
 function computeBase(excludeDate){
   const curMonth=S.currentMonth;
   const curFY=S.currentFY;
@@ -1719,20 +1765,43 @@ function getForm(){
   return data;
 }
 
-function saveEntry(){
+function saveEntry(skipCascadeCheck){
   const date=document.getElementById('entryDate').value;
   if(!date){toast('Select a date first!',true);return;}
   const data=getForm(); data.date=date;
   const ym=date.substring(0,7);
   if(!S.currentMonth||S.currentMonth!==ym){ S.currentMonth=ym; S.currentFY=getFY(date); }
   const isEdit=!!S.entries[date];
+
+  if(isEdit && !skipCascadeCheck){
+    const updateAll=confirm(
+      `You're updating a previously saved entry (${date}).\n\n`+
+      `Update MTD & YTD across ALL saved entries to reflect this change?\n\n`+
+      `OK  = Yes, update everywhere\n`+
+      `Cancel = No, only update THIS entry's own MTD/YTD (for its own export) — other saved entries stay as they were`
+    );
+    finalizeSaveEntry(date, data, updateAll);
+    return;
+  }
+  finalizeSaveEntry(date, data, true);
+}
+function finalizeSaveEntry(date, data, cascade){
+  const isEdit=!!S.entries[date];
   S.entries[date]=data;
+
+  if(cascade){
+    recalcAllSnapshots();
+  }else{
+    const snap=computeSnapshotForDate(date, data);
+    data._mtd=snap.mtd; data._ytd=snap.ytd;
+  }
+
   save();
   computeBase(date);
   liveCalc();
   renderHistory();
   document.getElementById('datebarInfo').textContent=`✅ Saved for ${date}`;
-  toast(isEdit?`✏ Updated entry for ${date}`:`✅ Saved entry for ${date}`);
+  toast(isEdit?(cascade?`✏ Updated ${date} — MTD/YTD refreshed for all entries`:`✏ Updated ${date} — MTD/YTD changed for this entry's export only`):`✅ Saved entry for ${date}`);
 }
 
 // Merged action: Save the entry, export the Excel file, and (if configured)
@@ -2165,17 +2234,31 @@ function buildBlankWorkbook(){
 // ═══════════════════════════════════════════════════════════════
 // EXPORT EXCEL — updates C16 (row 16 col 3) plus all existing cells
 // ═══════════════════════════════════════════════════════════════
-async function exportExcel(){
-  const date=document.getElementById('entryDate').value||new Date().toISOString().split('T')[0];
+async function exportExcel(historicalDate){
+  const isHistorical=!!historicalDate;
+  const date=historicalDate||document.getElementById('entryDate').value||new Date().toISOString().split('T')[0];
   const entry=S.entries[date]||{};
 
-  const get24=k=>{ const el=document.getElementById('i-'+k); if(!el) return entry[k]||0; return el.tagName==='SELECT'?el.value:(parseFloat(el.value)||0); };
-  const getMTD=k=>parseFloat(document.getElementById('m-'+k)?.textContent)||0;
-  const getYTD=k=>parseFloat(document.getElementById('y-'+k)?.textContent)||0;
-  const getComm=k=>document.getElementById('c-'+k)?.value||entry['c_'+k]||'';
-  const getAction=k=>document.getElementById('a-'+k)?.value||entry['a_'+k]||'';
-  const getFE=k=>({ nos:document.getElementById('fe-nos-'+k)?.value||S.fireEquip[k]?.nos||'', last:document.getElementById('fe-last-'+k)?.value||S.fireEquip[k]?.lastDate||'', next:document.getElementById('fe-next-'+k)?.value||S.fireEquip[k]?.nextDate||'', com:document.getElementById('fe-com-'+k)?.value||S.fireEquip[k]?.comments||'' });
-  const getPump=k=>({ mode:document.getElementById('pu-mode-'+k)?.value||S.pumps[k]?.mode||'', date:document.getElementById('pu-date-'+k)?.value||S.pumps[k]?.lastDate||'', com:document.getElementById('pu-com-'+k)?.value||S.pumps[k]?.comments||'' });
+  let mtdSnap={}, ytdSnap={};
+  if(isHistorical){
+    if(entry._mtd&&entry._ytd){ mtdSnap=entry._mtd; ytdSnap=entry._ytd; }
+    else { const snap=computeSnapshotForDate(date, entry); mtdSnap=snap.mtd; ytdSnap=snap.ytd; }
+  }
+
+  const get24=k=>{
+    if(isHistorical) return entry[k]||0;
+    const el=document.getElementById('i-'+k); if(!el) return entry[k]||0; return el.tagName==='SELECT'?el.value:(parseFloat(el.value)||0);
+  };
+  const getMTD=k=> isHistorical ? (mtdSnap[k]||0) : (parseFloat(document.getElementById('m-'+k)?.textContent)||0);
+  const getYTD=k=> isHistorical ? (ytdSnap[k]||0) : (parseFloat(document.getElementById('y-'+k)?.textContent)||0);
+  const getComm=k=> isHistorical ? (entry['c_'+k]||'') : (document.getElementById('c-'+k)?.value||entry['c_'+k]||'');
+  const getAction=k=> isHistorical ? (entry['a_'+k]||'') : (document.getElementById('a-'+k)?.value||entry['a_'+k]||'');
+  const getFE=k=> isHistorical
+    ? { nos:S.fireEquip[k]?.nos||'', last:S.fireEquip[k]?.lastDate||'', next:S.fireEquip[k]?.nextDate||'', com:S.fireEquip[k]?.comments||'' }
+    : { nos:document.getElementById('fe-nos-'+k)?.value||S.fireEquip[k]?.nos||'', last:document.getElementById('fe-last-'+k)?.value||S.fireEquip[k]?.lastDate||'', next:document.getElementById('fe-next-'+k)?.value||S.fireEquip[k]?.nextDate||'', com:document.getElementById('fe-com-'+k)?.value||S.fireEquip[k]?.comments||'' };
+  const getPump=k=> isHistorical
+    ? { mode:S.pumps[k]?.mode||'', date:S.pumps[k]?.lastDate||'', com:S.pumps[k]?.comments||'' }
+    : { mode:document.getElementById('pu-mode-'+k)?.value||S.pumps[k]?.mode||'', date:document.getElementById('pu-date-'+k)?.value||S.pumps[k]?.lastDate||'', com:document.getElementById('pu-com-'+k)?.value||S.pumps[k]?.comments||'' };
 
   if(!importedWorkbook||!importedSheet){
     const built=buildBlankWorkbook();
@@ -2210,10 +2293,10 @@ async function exportExcel(){
   });
 
   // ── Row 16: EHS Trainings ──
-  const trainSel=document.getElementById('i-ehsTraining')?.value||'No';
-  const trainName=document.getElementById('trainingName')?.value||'';
-  const trainMTD=parseInt(document.getElementById('m-ehsTraining')?.textContent)||0;
-  const trainYTD=parseInt(document.getElementById('y-ehsTraining')?.textContent)||0;
+  const trainSel=isHistorical ? (entry.ehsTraining||'No') : (document.getElementById('i-ehsTraining')?.value||'No');
+  const trainName=isHistorical ? (entry.trainingName||'') : (document.getElementById('trainingName')?.value||'');
+  const trainMTD=isHistorical ? (mtdSnap.ehsTraining||0) : (parseInt(document.getElementById('m-ehsTraining')?.textContent)||0);
+  const trainYTD=isHistorical ? (ytdSnap.ehsTraining||0) : (parseInt(document.getElementById('y-ehsTraining')?.textContent)||0);
   // B16 = New?(Yes/No), C16 = training name
   setStr(16,2,trainSel);
   setStr(16,3,trainSel==='Yes'?trainName:(trainName||''));
@@ -2221,7 +2304,7 @@ async function exportExcel(){
   setNum(16,5,trainYTD);
 
   // ── Row 17: Safety Oath ──
-  setStr(17,3,document.getElementById('i-safetyOath')?.value||'Yes');
+  setStr(17,3,isHistorical ? (entry.safetyOath||'Yes') : (document.getElementById('i-safetyOath')?.value||'Yes'));
 
   // ── Rows 18-21: Training ──
   [[18,'toolboxTalks'],[19,'siteRounds'],[20,'mockDrill'],[21,'fireDrill']].forEach(([r,k])=>{
@@ -2230,7 +2313,7 @@ async function exportExcel(){
   });
 
   // ── Row 30: PTW compliance ──
-  setStr(30,2,document.getElementById('i-ptwCompliance')?.value||'No');
+  setStr(30,2,isHistorical ? (entry.ptwCompliance||'No') : (document.getElementById('i-ptwCompliance')?.value||'No'));
 
   // ── Rows 24-29: PTW ──
   [[24,'ptwGeneral'],[25,'ptwHot'],[26,'ptwHeight'],[27,'ptwConfined'],[28,'ptwHT'],[29,'ptwOther']].forEach(([r,k])=>{
@@ -2338,6 +2421,52 @@ function buildMailClientsList(){
 // ═══════════════════════════════════════════════════════════════
 // HISTORY & INCIDENTS
 // ═══════════════════════════════════════════════════════════════
+async function fetchAllEntriesFromSheet(manual){
+  if(!(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl)){
+    if(manual) toast('⚠ Configure Google Sheet Sync first',true);
+    return;
+  }
+  try{
+    const res=await fetch(S.gsheet.webAppUrl,{
+      method:'POST',
+      headers:{'Content-Type':'text/plain;charset=utf-8'},
+      body:JSON.stringify({sheetId:S.gsheet.sheetId, action:'getAllEntries'}),
+    });
+    const json=await res.json();
+    if(!json||json.ok===false||!json.rows){
+      if(manual) toast('❌ Could not fetch entries: '+((json&&json.error)||'unknown error'),true);
+      return;
+    }
+    let added=0;
+    json.rows.forEach(row=>{
+      const date=row['Date'];
+      if(!date) return;
+      if(S.entries[date]) return; // never overwrite a local (possibly unsynced) entry
+      const entry={date};
+      const mtd={}, ytd={};
+      [...INC,...TRAIN.filter(f=>!f.train),...PTW,...OBS].forEach(f=>{
+        const k=f.k;
+        entry[k]=parseFloat(row[k+'_24h'])||0;
+        entry['c_'+k]=row[k+'_comments']||'';
+        entry['a_'+k]=row[k+'_action']||'';
+        mtd[k]=parseFloat(row[k+'_mtd'])||0;
+        ytd[k]=parseFloat(row[k+'_ytd'])||0;
+      });
+      entry.ehsTraining=row.ehsTraining||'No';
+      entry.trainingName=row.trainingName||'';
+      entry.ptwCompliance=row.ptwCompliance||'No';
+      entry._mtd=mtd; entry._ytd=ytd;
+      S.entries[date]=entry;
+      added++;
+    });
+    if(added){ save(); renderHistory(); }
+    if(manual) toast(added?`🔄 Pulled ${added} entr${added===1?'y':'ies'} from Sheet`:'✅ Already up to date');
+  }catch(e){
+    console.error('[History] fetch from sheet failed:', e);
+    if(manual) toast('❌ Fetch failed: '+e.message,true);
+  }
+}
+
 function renderHistory(){
   const tbody=document.getElementById('histBody');
   const dates=Object.keys(S.entries).sort().reverse();
@@ -2358,12 +2487,160 @@ function renderHistory(){
       <td style="text-align:center">${e.toolboxTalks||0}</td>
       <td style="text-align:center">${ptw}</td>
       <td>
+        <button class="link-btn" onclick="viewHistoryRecord('${d}')">👁 View</button>
         <button class="link-btn" onclick="loadDateEntry('${d}')">✏ Edit</button>
         <button class="link-btn link-red" onclick="delEntry('${d}')">🗑</button>
       </td>
     </tr>`;
   }).join('');
 }
+function viewHistoryRecord(date){
+  window._historyViewDate=date;
+  renderHistoryViewStatic(date);
+  document.getElementById('historyViewModal').classList.add('open');
+}
+function renderHistoryViewStatic(date){
+  const e=S.entries[date];
+  if(!e) return;
+  let mtd=e._mtd, ytd=e._ytd;
+  if(!mtd||!ytd){ const snap=computeSnapshotForDate(date,e); mtd=snap.mtd; ytd=snap.ytd; }
+
+  let rows='';
+  numFields().forEach(f=>{
+    const v=parseFloat(e[f.k])||0;
+    rows+=`<tr>
+      <td style="padding:6px 10px;border:1px solid var(--border)">${f.l||f.k}</td>
+      <td style="padding:6px 10px;border:1px solid var(--border);text-align:center;font-weight:700">${v}</td>
+      <td style="padding:6px 10px;border:1px solid var(--border);text-align:center">${mtd[f.k]||0}</td>
+      <td style="padding:6px 10px;border:1px solid var(--border);text-align:center">${ytd[f.k]||0}</td>
+    </tr>`;
+  });
+
+  document.getElementById('historyViewTitle').textContent='📄 '+date;
+  document.getElementById('historyViewBody').innerHTML=
+    `<table style="width:100%;border-collapse:collapse;font-size:12.5px">
+      <tr style="background:var(--navy);color:#fff">
+        <th style="padding:7px 10px;text-align:left">Parameter</th>
+        <th style="padding:7px 10px">24 Hrs</th>
+        <th style="padding:7px 10px">MTD</th>
+        <th style="padding:7px 10px">YTD</th>
+      </tr>${rows}</table>`;
+  document.getElementById('historyViewFooter').innerHTML=
+    `<button class="btn btn-outline" onclick="document.getElementById('historyViewModal').classList.remove('open')">Close</button>
+     <div style="display:flex;gap:8px">
+       <button class="btn btn-outline" onclick="historyViewEdit()">✏ Edit</button>
+       <button class="btn btn-gold" onclick="historyViewExport()">⬇ Export</button>
+     </div>`;
+}
+function historyViewEdit(){
+  const date=window._historyViewDate;
+  const e=S.entries[date];
+  if(!e) return;
+
+  // Base MTD/YTD = everything EXCEPT this entry's own contribution, so we
+  // can live-preview "base + whatever's currently typed" as the user edits.
+  const zeroOverride={};
+  numFields().forEach(f=>{ zeroOverride[f.k]=0; });
+  const baseSnap=computeSnapshotForDate(date, zeroOverride);
+  window._hvBaseMTD=baseSnap.mtd;
+  window._hvBaseYTD=baseSnap.ytd;
+
+  let rows='';
+  numFields().forEach(f=>{
+    const v=e[f.k]||0;
+    const c=e['c_'+f.k]||'';
+    rows+=`<tr>
+      <td style="padding:6px 8px;border:1px solid var(--border);font-size:12px">${f.l||f.k}</td>
+      <td style="padding:4px 8px;border:1px solid var(--border)"><input type="number" id="hv-i-${f.k}" value="${v}" oninput="hvLiveCalc()" style="width:60px;padding:5px;border:1px solid var(--border);border-radius:6px;font-size:12.5px"></td>
+      <td style="padding:4px 8px;border:1px solid var(--border);text-align:center;font-weight:700;color:var(--navy)" id="hv-m-${f.k}">0</td>
+      <td style="padding:4px 8px;border:1px solid var(--border);text-align:center;font-weight:700;color:var(--navy)" id="hv-y-${f.k}">0</td>
+      <td style="padding:4px 8px;border:1px solid var(--border)"><input type="text" id="hv-c-${f.k}" value="${(c+'').replace(/"/g,'&quot;')}" placeholder="Comments" style="width:100%;padding:5px;border:1px solid var(--border);border-radius:6px;font-size:12.5px"></td>
+    </tr>`;
+  });
+
+  const trainSel=e.ehsTraining||'No';
+  const trainName=e.trainingName||'';
+  const safetyOath=e.safetyOath||'Yes';
+  const ptwCompliance=e.ptwCompliance||'No';
+
+  document.getElementById('historyViewBody').innerHTML=
+    `<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:12px">
+      <tr style="background:var(--navy);color:#fff">
+        <th style="padding:7px 8px;text-align:left">Parameter</th>
+        <th style="padding:7px 8px">24 Hrs</th>
+        <th style="padding:7px 8px">MTD</th>
+        <th style="padding:7px 8px">YTD</th>
+        <th style="padding:7px 8px;text-align:left">Comments</th>
+      </tr>${rows}</table>
+    <div style="display:flex;flex-wrap:wrap;gap:10px;font-size:12.5px">
+      <label>EHS Training:
+        <select id="hv-ehsTraining" style="padding:5px;border:1px solid var(--border);border-radius:6px">
+          <option value="No" ${trainSel==='No'?'selected':''}>No</option>
+          <option value="Yes" ${trainSel==='Yes'?'selected':''}>Yes</option>
+        </select>
+      </label>
+      <input type="text" id="hv-trainingName" value="${trainName.replace(/"/g,'&quot;')}" placeholder="Training name" style="padding:5px;border:1px solid var(--border);border-radius:6px;flex:1;min-width:140px">
+      <label>Safety Oath:
+        <select id="hv-safetyOath" style="padding:5px;border:1px solid var(--border);border-radius:6px">
+          <option value="Yes" ${safetyOath==='Yes'?'selected':''}>Yes</option>
+          <option value="No" ${safetyOath==='No'?'selected':''}>No</option>
+        </select>
+      </label>
+      <label>PTW Compliance:
+        <select id="hv-ptwCompliance" style="padding:5px;border:1px solid var(--border);border-radius:6px">
+          <option value="No" ${ptwCompliance==='No'?'selected':''}>No</option>
+          <option value="Yes" ${ptwCompliance==='Yes'?'selected':''}>Yes</option>
+        </select>
+      </label>
+    </div>`;
+  hvLiveCalc();
+  document.getElementById('historyViewFooter').innerHTML=
+    `<button class="btn btn-outline" onclick="renderHistoryViewStatic('${date}')">✖ Cancel</button>
+     <button class="btn btn-gold" onclick="historyViewSaveEdit()">💾 Save Changes</button>`;
+}
+function hvLiveCalc(){
+  numFields().forEach(f=>{
+    const iEl=document.getElementById('hv-i-'+f.k);
+    if(!iEl) return;
+    const v=parseFloat(iEl.value)||0;
+    const mEl=document.getElementById('hv-m-'+f.k);
+    const yEl=document.getElementById('hv-y-'+f.k);
+    if(mEl) mEl.textContent=(window._hvBaseMTD[f.k]||0)+v;
+    if(yEl) yEl.textContent=(window._hvBaseYTD[f.k]||0)+v;
+  });
+}
+function historyViewSaveEdit(){
+  const date=window._historyViewDate;
+  const old=S.entries[date]||{};
+  const data={...old, date};
+
+  numFields().forEach(f=>{
+    const iEl=document.getElementById('hv-i-'+f.k);
+    const cEl=document.getElementById('hv-c-'+f.k);
+    if(iEl) data[f.k]=parseFloat(iEl.value)||0;
+    if(cEl) data['c_'+f.k]=cEl.value||'';
+  });
+  data.ehsTraining=document.getElementById('hv-ehsTraining')?.value||'No';
+  data.trainingName=document.getElementById('hv-trainingName')?.value||'';
+  data.safetyOath=document.getElementById('hv-safetyOath')?.value||'Yes';
+  data.ptwCompliance=document.getElementById('hv-ptwCompliance')?.value||'No';
+
+  const updateAll=confirm(
+    `You're updating a previously saved entry (${date}).\n\n`+
+    `Update MTD & YTD across ALL saved entries to reflect this change?\n\n`+
+    `OK  = Yes, update everywhere\n`+
+    `Cancel = No, only update THIS entry's own MTD/YTD (for its own export) — other saved entries stay as they were`
+  );
+  finalizeSaveEntry(date, data, updateAll);
+  renderHistoryViewStatic(date);
+  // Also refresh the live dashboard if this date happens to be the one currently loaded there
+  if(document.getElementById('entryDate').value===date) onDateChange();
+}
+async function historyViewExport(){
+  const date=window._historyViewDate;
+  await exportExcel(date);
+}
+
 function loadDateEntry(date){
   document.getElementById('entryDate').value=date;
   switchView('entry',document.getElementById('nav-entry'));
