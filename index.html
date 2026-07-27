@@ -884,7 +884,7 @@ async function qsFetchPortal(){
     const res=await fetch(kavachUrl,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'getDigestMetricsForDate', data:JSON.stringify({date:dateVal})}),
+      body:JSON.stringify({action:'getDigestMetricsForDate', data:{date:dateVal}}),
     });
     const json=await res.json();
     if(!json||json.success===false){
@@ -1117,7 +1117,7 @@ async function fetchMailDataFromPortal(){
     const res=await fetch(kavachUrl,{
       method:'POST',
       headers:{'Content-Type':'text/plain;charset=utf-8'},
-      body:JSON.stringify({action:'getDigestMetricsForDate', data:JSON.stringify({date:dateVal})}),
+      body:JSON.stringify({action:'getDigestMetricsForDate', data:{date:dateVal}}),
     });
     const json=await res.json();
     if(!json||json.success===false){
