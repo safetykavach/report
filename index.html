@@ -2192,8 +2192,23 @@ function doImport(){
       S.importedBaseDate=date; // Track exactly when the import happened
       
       S.entries[date]=entryForStorage;
+      
+      // Push this base to Google Sheets so Incognito/other devices can use it
+      if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl) {
+        fetch(S.gsheet.webAppUrl, {
+          method: 'POST',
+          headers: {'Content-Type': 'text/plain;charset=utf-8'},
+          body: JSON.stringify({
+            sheetId: S.gsheet.sheetId,
+            action: 'saveImportedBase',
+            importedBaseMTD: impMTD,
+            importedBaseYTD: impYTD,
+            importedBaseDate: date
+          })
+        }).catch(console.error);
+      }
 
-  if(date){
+      if(date){
     document.getElementById('entryDate').value=date;
     const ym=date.substring(0,7);
     S.currentMonth=ym; S.currentFY=getFY(date);
@@ -2605,6 +2620,15 @@ async function fetchAllEntriesFromSheet(manual){
       if(manual) toast('❌ Could not fetch entries: '+((json&&json.error)||'unknown error'),true);
       return;
     }
+    
+    // If the sheet has saved base data from an Excel import, apply it to local storage
+    if (json.baseData) {
+      S.importedBaseMTD = json.baseData.importedBaseMTD || {};
+      S.importedBaseYTD = json.baseData.importedBaseYTD || {};
+      S.importedBaseDate = json.baseData.importedBaseDate || '';
+      save();
+    }
+
     let added=0;
     json.rows.forEach(row=>{
       const date=row['Date'];
@@ -2627,7 +2651,12 @@ async function fetchAllEntriesFromSheet(manual){
       S.entries[date]=entry;
       added++;
     });
-    if(added){ save(); renderHistory(); }
+    if(added || json.baseData){ 
+      save(); 
+      renderHistory(); 
+      computeBase(document.getElementById('entryDate').value);
+      liveCalc();
+    }
     if(manual) toast(added?`🔄 Pulled ${added} entr${added===1?'y':'ies'} from Sheet`:'✅ Already up to date');
   }catch(e){
     console.error('[History] fetch from sheet failed:', e);
@@ -2894,6 +2923,21 @@ function doReset(){
   }
   save(); computeBase(document.getElementById('entryDate').value);
   liveCalc(); renderHistory();
+  
+  if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl) {
+    fetch(S.gsheet.webAppUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({
+        sheetId: S.gsheet.sheetId,
+        action: 'saveImportedBase',
+        importedBaseMTD: S.importedBaseMTD || {},
+        importedBaseYTD: S.importedBaseYTD || {},
+        importedBaseDate: S.importedBaseDate || ''
+      })
+    }).catch(console.error);
+  }
+
   closeModal('resetModal');
 }
 
