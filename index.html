@@ -407,9 +407,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <label>Email Alert To</label>
       <input type="email" id="cl-email" placeholder="safety.team@example.com">
     </div>
+    <div class="fg">
+      <label>Checklist File Attachment (Optional)</label>
+      <input type="file" id="cl-file" style="background:#fff">
+      <div id="cl-existing-file" style="font-size:11.5px;color:var(--navy);margin-top:4px;display:none;"></div>
+    </div>
+    <input type="hidden" id="cl-edit-index" value="-1">
     <div class="modal-footer">
       <button class="btn btn-outline" onclick="closeModal('checklistModal')">Cancel</button>
-      <button class="btn btn-green" onclick="saveChecklistToSheet()">✅ Save Tracker</button>
+      <button class="btn btn-green" onclick="saveChecklistToSheet()" id="btn-save-checklist">✅ Save Tracker</button>
     </div>
   </div>
 </div>
@@ -516,6 +522,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <label>Safety Kavach Portal URL (for ⬇ Fetch from Portal)</label>
       <input type="text" id="gs-kavachUrl" placeholder="https://script.google.com/macros/s/.../exec">
       <span style="font-size:11px;color:var(--muted)">Your Safety Kavach portal's own Web App /exec URL. Separate from the Sheet Sync URL above — only used to fetch daily digest data in Step ②.</span>
+    </div>
+    <div class="fg" style="margin-bottom:14px">
+      <label>Default Alert Email (For Checklists)</label>
+      <input type="email" id="gs-defaultEmail" placeholder="safety.team@example.com">
+      <span style="font-size:11px;color:var(--muted)">This email will auto-fill whenever you add a new Checklist Tracker.</span>
     </div>
     <div id="gsTestResult" style="font-size:12.5px;margin-bottom:10px"></div>
     <div class="modal-footer">
@@ -646,7 +657,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="section-head" style="background:#004D40"><span>📝 Saved Checklists</span><span style="font-size:11px;font-weight:400;opacity:.8">🔴=Overdue 🟠=Due≤7d 🟢=OK</span></div>
   <div style="overflow-x:auto">
     <table class="ehs-table">
-      <thead><tr><th>Checklist Name</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>Email Alert To</th><th>Action</th></tr></thead>
+      <thead><tr><th>Checklist Name</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>Email Alert To</th><th>File</th><th>Action</th></tr></thead>
       <tbody id="checklistBody"></tbody>
     </table>
   </div>
@@ -2870,6 +2881,7 @@ function openSheetSyncModal(){
   document.getElementById('gs-sheetId').value=S.gsheet?.sheetId||'';
   document.getElementById('gs-webAppUrl').value=S.gsheet?.webAppUrl||'';
   document.getElementById('gs-kavachUrl').value=S.gsheet?.kavachUrl||'';
+  document.getElementById('gs-defaultEmail').value=S.gsheet?.defaultEmail||'';
   document.getElementById('gsTestResult').innerHTML='';
   document.getElementById('sheetSyncModal').classList.add('open');
 }
@@ -2877,7 +2889,8 @@ function saveSheetSyncConfig(){
   const sheetId=document.getElementById('gs-sheetId').value.trim();
   const webAppUrl=document.getElementById('gs-webAppUrl').value.trim();
   const kavachUrl=document.getElementById('gs-kavachUrl').value.trim();
-  S.gsheet={sheetId, webAppUrl, kavachUrl};
+  const defaultEmail=document.getElementById('gs-defaultEmail').value.trim();
+  S.gsheet={sheetId, webAppUrl, kavachUrl, defaultEmail};
   save();
   updateSyncBadge();
   toast('✅ Google Sheet Sync settings saved');
@@ -2983,7 +2996,7 @@ function renderChecklistTable() {
   const tbody = document.getElementById('checklistBody');
   if (!tbody) return;
   if (!S.checklists || S.checklists.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
     return;
   }
   
@@ -3001,6 +3014,8 @@ function renderChecklistTable() {
       else statusHtml = `<span class="due-ok">🟢 OK (${diff}d)</span>`;
     }
     
+    let fileHtml = cl.fileUrl ? `<a href="${cl.fileUrl}" target="_blank" class="btn btn-navy" style="padding:4px 8px;font-size:10.5px">📎 File</a>` : `<span style="color:var(--muted);font-size:11px">No file</span>`;
+    
     return `<tr>
       <td style="font-weight:600">${cl.name}</td>
       <td><span style="text-transform:capitalize">${cl.frequency.replace('_', ' ')}</span></td>
@@ -3008,7 +3023,11 @@ function renderChecklistTable() {
       <td>${cl.nextExpire}</td>
       <td>${statusHtml}</td>
       <td>${cl.emailTo}</td>
-      <td><button class="link-btn link-red" onclick="deleteChecklist(${index})">🗑</button></td>
+      <td>${fileHtml}</td>
+      <td>
+        <button class="link-btn" onclick="openChecklistModal(${index})">✏ Edit</button>
+        <button class="link-btn link-red" onclick="deleteChecklist(${index})">🗑</button>
+      </td>
     </tr>`;
   }).join('');
 }
@@ -3022,7 +3041,32 @@ function deleteChecklist(index) {
   toast('🗑 Checklist removed');
 }
 
-function openChecklistModal() {
+function openChecklistModal(index = -1) {
+  document.getElementById('cl-file').value = '';
+  document.getElementById('cl-existing-file').style.display = 'none';
+
+  if (index >= 0) {
+    // EDIT MODE
+    const cl = S.checklists[index];
+    document.getElementById('cl-name').value = cl.name;
+    document.getElementById('cl-last').value = cl.lastChecked;
+    document.getElementById('cl-freq').value = cl.frequency;
+    document.getElementById('cl-next').value = cl.nextExpire;
+    document.getElementById('cl-alert').value = cl.advanceAlert;
+    document.getElementById('cl-email').value = cl.emailTo;
+    document.getElementById('cl-edit-index').value = index;
+    if(cl.fileUrl) {
+      document.getElementById('cl-existing-file').innerHTML = `Currently attached: <a href="${cl.fileUrl}" target="_blank">View File</a> (Upload new to replace)`;
+      document.getElementById('cl-existing-file').style.display = 'block';
+    }
+  } else {
+    // ADD NEW MODE
+    document.getElementById('cl-name').value = '';
+    document.getElementById('cl-last').value = '';
+    document.getElementById('cl-next').value = '';
+    document.getElementById('cl-email').value = S.gsheet?.defaultEmail || '';
+    document.getElementById('cl-edit-index').value = -1;
+  }
   document.getElementById('checklistModal').classList.add('open');
 }
 
@@ -3043,19 +3087,35 @@ function calcNextExpire() {
   document.getElementById('cl-next').value = d.toISOString().split('T')[0];
 }
 
+// Convert file to Base64
+function getBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result.split(',')[1]);
+    reader.onerror = error => reject(error);
+  });
+}
+
 async function saveChecklistToSheet() {
   if(!S.gsheet || !S.gsheet.sheetId || !S.gsheet.webAppUrl){
     toast('⚠ Configure Google Sheet Sync first to enable tracking', true);
     return;
   }
   
+  const editIndex = parseInt(document.getElementById('cl-edit-index').value);
+  const oldName = editIndex >= 0 ? S.checklists[editIndex].name : null;
+  const fileInput = document.getElementById('cl-file');
+
   const data = {
+    oldName: oldName,
     name: document.getElementById('cl-name').value,
     lastChecked: document.getElementById('cl-last').value,
     frequency: document.getElementById('cl-freq').value,
     nextExpire: document.getElementById('cl-next').value,
     advanceAlert: document.getElementById('cl-alert').value,
-    emailTo: document.getElementById('cl-email').value
+    emailTo: document.getElementById('cl-email').value,
+    fileUrl: editIndex >= 0 ? S.checklists[editIndex].fileUrl : ''
   };
 
   if(!data.name || !data.lastChecked || !data.emailTo) {
@@ -3063,39 +3123,67 @@ async function saveChecklistToSheet() {
      return;
   }
 
-  const payload = {
-    sheetId: S.gsheet.sheetId, 
-    action: 'saveChecklist', 
-    checklistData: data
-  };
-
-  const btn = document.querySelector('#checklistModal .btn-green');
-  btn.textContent = '⏳ Saving...';
+  const btn = document.getElementById('btn-save-checklist');
   
   try {
+    // 1. Upload File (if one is selected)
+    if (fileInput.files.length > 0) {
+      btn.textContent = '⏳ Uploading File...';
+      const file = fileInput.files[0];
+      const base64Data = await getBase64(file);
+      
+      const fileRes = await fetch(S.gsheet.webAppUrl, {
+        method: 'POST',
+        headers: {'Content-Type': 'text/plain;charset=utf-8'},
+        body: JSON.stringify({
+          action: 'uploadChecklistFile',
+          base64: base64Data,
+          mimeType: file.type,
+          filename: file.name
+        })
+      });
+      const fileJson = await fileRes.json();
+      if(fileJson.ok) {
+        data.fileUrl = fileJson.url;
+      } else {
+        throw new Error("File upload failed: " + fileJson.error);
+      }
+    }
+
+    // 2. Save Checklist Data
+    btn.textContent = '⏳ Saving Checklist...';
+    const payload = {
+      sheetId: S.gsheet.sheetId, 
+      action: 'saveChecklist', 
+      checklistData: data
+    };
+
     const res = await fetch(S.gsheet.webAppUrl, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain;charset=utf-8'},
       body: JSON.stringify(payload),
     });
+    
     const json = await res.json();
     if(json && json.ok === false){ 
-      toast('❌ Save error: ' + (json.error || 'unknown'), true); 
-    } else {
-      // Save locally to trigger the website notification alert bar immediately
-      if(!S.checklists) S.checklists = [];
-      S.checklists.push(data);
-      save();
-      checkAlerts();
-      renderChecklistTable();
-
-      toast('✅ Checklist saved to backend tracker');
-      closeModal('checklistModal');
-      document.getElementById('cl-name').value = '';
-      document.getElementById('cl-last').value = '';
-      document.getElementById('cl-next').value = '';
-      document.getElementById('cl-email').value = '';
+      throw new Error(json.error || 'unknown server error'); 
     }
+    
+    // Save locally to trigger the website notification alert bar immediately
+    if(!S.checklists) S.checklists = [];
+    if (editIndex >= 0) {
+      S.checklists[editIndex] = data; // Update existing
+    } else {
+      S.checklists.push(data); // Add new
+    }
+    
+    save();
+    checkAlerts();
+    renderChecklistTable();
+
+    toast('✅ Checklist tracker saved successfully!');
+    closeModal('checklistModal');
+    
   } catch(err) {
     toast('❌ Sync failed: ' + err.message, true);
   } finally {
