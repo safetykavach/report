@@ -641,6 +641,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
+<!-- Saved Checklists -->
+<div class="section-card">
+  <div class="section-head" style="background:#004D40"><span>📝 Saved Checklists</span><span style="font-size:11px;font-weight:400;opacity:.8">🔴=Overdue 🟠=Due≤7d 🟢=OK</span></div>
+  <div style="overflow-x:auto">
+    <table class="ehs-table">
+      <thead><tr><th>Checklist Name</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>Email Alert To</th><th>Action</th></tr></thead>
+      <tbody id="checklistBody"></tbody>
+    </table>
+  </div>
+</div>
+
 
 <div style="text-align:center;padding:8px 0 20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
   <button class="btn btn-combo" style="padding:13px 34px;font-size:15px" onclick="saveAndExport()">💾⬇ Save &amp; Export</button>
@@ -1457,6 +1468,8 @@ function buildTables(){
       <td><input type="text" class="comment-in" id="pu-com-${p.k}" placeholder="Comments…" onchange="savePumpNow('${p.k}')"></td>
     </tr>`;
   });
+  
+  renderChecklistTable();
 }
 
 // ── Mobile sync helpers ──
@@ -2966,6 +2979,49 @@ function closeModal(id){
 // ═══════════════════════════════════════════════════════════════
 // CHECKLIST TRACKER
 // ═══════════════════════════════════════════════════════════════
+function renderChecklistTable() {
+  const tbody = document.getElementById('checklistBody');
+  if (!tbody) return;
+  if (!S.checklists || S.checklists.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
+    return;
+  }
+  
+  const today = new Date(); 
+  today.setHours(0,0,0,0);
+  
+  tbody.innerHTML = S.checklists.map((cl, index) => {
+    let statusHtml = '<span class="due-ok">—</span>';
+    if (cl.nextExpire) {
+      const due = new Date(cl.nextExpire + 'T00:00:00');
+      due.setHours(0,0,0,0);
+      const diff = Math.ceil((due - today) / 86400000);
+      if (diff < 0) statusHtml = `<span class="due-over">🔴 Overdue ${Math.abs(diff)}d</span>`;
+      else if (diff <= 7) statusHtml = `<span class="due-soon">🟠 Due in ${diff}d</span>`;
+      else statusHtml = `<span class="due-ok">🟢 OK (${diff}d)</span>`;
+    }
+    
+    return `<tr>
+      <td style="font-weight:600">${cl.name}</td>
+      <td><span style="text-transform:capitalize">${cl.frequency.replace('_', ' ')}</span></td>
+      <td>${cl.lastChecked}</td>
+      <td>${cl.nextExpire}</td>
+      <td>${statusHtml}</td>
+      <td>${cl.emailTo}</td>
+      <td><button class="link-btn link-red" onclick="deleteChecklist(${index})">🗑</button></td>
+    </tr>`;
+  }).join('');
+}
+
+function deleteChecklist(index) {
+  if(!confirm('Delete this checklist tracker?')) return;
+  S.checklists.splice(index, 1);
+  save();
+  renderChecklistTable();
+  checkAlerts();
+  toast('🗑 Checklist removed');
+}
+
 function openChecklistModal() {
   document.getElementById('checklistModal').classList.add('open');
 }
@@ -3031,6 +3087,7 @@ async function saveChecklistToSheet() {
       S.checklists.push(data);
       save();
       checkAlerts();
+      renderChecklistTable();
 
       toast('✅ Checklist saved to backend tracker');
       closeModal('checklistModal');
