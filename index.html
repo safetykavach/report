@@ -239,6 +239,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn btn-purple" onclick="openEmailModal();closeMobileMenu()">📧 Share via Email</button>
   <button class="btn btn-navy" onclick="openSheetSyncModal();closeMobileMenu()">🔗 Google Sheet Sync<span class="sync-badge sync-off" id="syncBadgeMobile">Off</span></button>
   <div style="border-top:1px solid rgba(255,255,255,.15);margin:4px 0;padding-top:8px;display:flex;flex-direction:column;gap:6px">
+    <button class="btn btn-navy" onclick="requestNotificationPermission();closeMobileMenu()">🔔 Enable Notifications</button>
     <button class="btn btn-navy" onclick="switchView('history',null);closeMobileMenu()">📅 Entry History</button>
     <button class="btn btn-navy" onclick="switchView('incidents',null);closeMobileMenu()">📁 Incident Log</button>
     <button class="btn btn-navy" onclick="confirmReset('month');closeMobileMenu()">🔄 Reset MTD</button>
@@ -558,6 +559,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <button class="nav-item" id="nav-incidents" onclick="switchView('incidents',this)">📁 Incident Log</button>
   <div class="nav-sep"></div>
   <div class="nav-sec-title">Tools</div>
+  <button class="nav-item" onclick="requestNotificationPermission()">🔔 Enable Notifications</button>
   <button class="nav-item" onclick="openChecklistModal()">📝 Add Checklist</button>
   <button class="nav-item" onclick="confirmReset('month')">🔄 Reset MTD</button>
   <button class="nav-item" onclick="confirmReset('year')">🗑 Reset YTD</button>
@@ -878,7 +880,6 @@ function closeMobileMenu(){document.getElementById('mobileMenu').classList.remov
 // INIT
 // ═══════════════════════════════════════════════════════════════
 window.onload=function(){
-  requestNotificationPermission(); // Ask for browser push notifications
   const defaultDate=getDefaultReportDate();
   document.getElementById('entryDate').value=defaultDate;
   document.getElementById('startupDate').value=defaultDate;
@@ -1992,17 +1993,20 @@ let sessionNotified = new Set(); // Prevents spamming the same notification repe
 
 function requestNotificationPermission() {
   if (!("Notification" in window)) {
-    console.warn("This browser does not support desktop notifications.");
+    toast("⚠ Push notifications are not supported on this browser.", true);
     return;
   }
-  // If permission is not yet granted or denied, ask the user
-  if (Notification.permission === "default") {
-    Notification.requestPermission().then(permission => {
-      if (permission === "granted") {
-        toast("✅ Browser push notifications enabled!");
-      }
-    });
+  if (Notification.permission === "granted") {
+    toast("✅ Notifications are already enabled!");
+    return;
   }
+  Notification.requestPermission().then(permission => {
+    if (permission === "granted") {
+      toast("✅ Browser push notifications enabled!");
+    } else {
+      toast("⚠ Notifications were denied.", true);
+    }
+  });
 }
 
 function checkAlerts(){
