@@ -710,7 +710,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </div><!-- content-area -->
 </div><!-- layout -->
 
-<script data-cfasync="false" src="/cdn-cgi/scripts/5c5dd728/cloudflare-static/email-decode.min.js"></script><script>
+<script>
 // ═══════════════════════════════════════════════════════════════
 // FIELD DEFINITIONS
 // ═══════════════════════════════════════════════════════════════
@@ -1504,13 +1504,19 @@ function syncYC(){ liveCalc(); }
 function syncYCClosed(){ }
 
 function populateFire(){
+  const isValidDate = (str) => /^\d{4}-\d{2}-\d{2}$/.test(str);
   FIRE_EQUIP.forEach(f=>{
     const d=S.fireEquip[f.k]||{};
     const el=id=>document.getElementById(id);
     if(el('fe-freq-'+f.k)) el('fe-freq-'+f.k).value=d.freq||normalizeFreq(f.freq);
     if(el('fe-nos-'+f.k)) el('fe-nos-'+f.k).value=d.nos||f.nos||'';
-    if(el('fe-last-'+f.k)) el('fe-last-'+f.k).value=d.lastDate||'';
-    if(el('fe-next-'+f.k)) el('fe-next-'+f.k).value=d.nextDate||'';
+
+    const lastEl = el('fe-last-'+f.k);
+    if(lastEl) lastEl.value = isValidDate(d.lastDate) ? d.lastDate : '';
+
+    const nextEl = el('fe-next-'+f.k);
+    if(nextEl) nextEl.value = isValidDate(d.nextDate) ? d.nextDate : '';
+
     if(el('fe-com-'+f.k)) el('fe-com-'+f.k).value=d.comments||'';
     updateFireStatus(f.k);
   });
