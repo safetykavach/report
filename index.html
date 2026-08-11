@@ -657,7 +657,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="section-head" style="background:#004D40"><span>📝 Saved Checklists</span><span style="font-size:11px;font-weight:400;opacity:.8">🔴=Overdue 🟠=Due≤7d 🟢=OK</span></div>
   <div style="overflow-x:auto">
     <table class="ehs-table">
-      <thead><tr><th>Checklist Name</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>Email Alert To</th><th>File</th><th>Action</th></tr></thead>
+      <thead><tr><th>Checklist Name</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>File</th><th>Action</th></tr></thead>
       <tbody id="checklistBody"></tbody>
     </table>
   </div>
@@ -3002,7 +3002,7 @@ function renderChecklistTable() {
   const tbody = document.getElementById('checklistBody');
   if (!tbody) return;
   if (!S.checklists || S.checklists.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
     return;
   }
   
@@ -3028,7 +3028,6 @@ function renderChecklistTable() {
       <td>${cl.lastChecked}</td>
       <td>${cl.nextExpire}</td>
       <td>${statusHtml}</td>
-      <td>${cl.emailTo}</td>
       <td>${fileHtml}</td>
       <td>
         <button class="link-btn" onclick="openChecklistModal(${index})">✏ Edit</button>
