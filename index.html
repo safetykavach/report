@@ -663,7 +663,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="section-head" style="background:#004D40"><span>📝 Saved Checklists</span><span style="font-size:11px;font-weight:400;opacity:.8">🔴=Overdue 🟠=Due≤7d 🟢=OK</span></div>
   <div style="overflow-x:auto">
     <table class="ehs-table">
-      <thead><tr><th>Checklist Name</th><th>Format No.</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>File</th><th>Action</th></tr></thead>
+      <thead><tr><th>Checklist Name</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>File</th><th>Action</th></tr></thead>
       <tbody id="checklistBody"></tbody>
     </table>
   </div>
@@ -3047,11 +3047,10 @@ function renderChecklistTable() {
       else statusHtml = `<span class="due-ok">🟢 OK (${diff}d)</span>`;
     }
     
-    let fileHtml = cl.fileUrl ? `<a href="${cl.fileUrl}" target="_blank" class="btn btn-navy" style="padding:4px 8px;font-size:10.5px">📎 File</a>` : `<span style="color:var(--muted);font-size:11px">No file</span>`;
+    let fileHtml = cl.fileUrl ? `<a href="${cl.fileUrl}" target="_blank" style="text-decoration:none; color:var(--text); font-size:14px;" title="View Attached File">📎</a>` : `<span style="color:var(--muted);font-size:11px">No file</span>`;
     
     return `<tr>
       <td style="font-weight:600">${cl.name}</td>
-      <td style="color:var(--navy);font-weight:500;font-size:12px">${cl.formatNo || '-'}</td>
       <td><span style="text-transform:capitalize">${cl.frequency.replace('_', ' ')}</span></td>
       <td>${cl.lastChecked}</td>
       <td>${cl.nextExpire}</td>
