@@ -845,6 +845,7 @@ function closeMobileMenu(){document.getElementById('mobileMenu').classList.remov
 // INIT
 // ═══════════════════════════════════════════════════════════════
 window.onload=function(){
+  requestNotificationPermission(); // Ask for browser push notifications
   const defaultDate=getDefaultReportDate();
   document.getElementById('entryDate').value=defaultDate;
   document.getElementById('startupDate').value=defaultDate;
@@ -1914,6 +1915,23 @@ function updateFireStatus(k){
   else if(diff<=7) el.innerHTML=`<span class="due-soon">🟠 Due in ${diff}d</span>`;
   else el.innerHTML=`<span class="due-ok">🟢 OK (${diff}d)</span>`;
 }
+let sessionNotified = new Set(); // Prevents spamming the same notification repeatedly
+
+function requestNotificationPermission() {
+  if (!("Notification" in window)) {
+    console.warn("This browser does not support desktop notifications.");
+    return;
+  }
+  // If permission is not yet granted or denied, ask the user
+  if (Notification.permission === "default") {
+    Notification.requestPermission().then(permission => {
+      if (permission === "granted") {
+        toast("✅ Browser push notifications enabled!");
+      }
+    });
+  }
+}
+
 function checkAlerts(){
   const today=new Date(); today.setHours(0,0,0,0);
   const alerts=[];
@@ -1944,8 +1962,27 @@ function checkAlerts(){
 
   const bar=document.getElementById('alertBar');
   const chips=document.getElementById('alertChips');
-  if(alerts.length){bar.style.display='block';chips.innerHTML=alerts.map(a=>`<span class="chip">${a}</span>`).join('');}
-  else bar.style.display='none';
+  
+  if(alerts.length){
+    bar.style.display='block';
+    chips.innerHTML=alerts.map(a=>`<span class="chip">${a}</span>`).join('');
+    
+    // Trigger Browser Push Notifications
+    if ("Notification" in window && Notification.permission === "granted") {
+      alerts.forEach(msg => {
+        // Only send push notification if we haven't already sent it during this session
+        if (!sessionNotified.has(msg)) {
+          new Notification("EHS Safety Tracker", { 
+            body: msg,
+            icon: "https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/warning/default/24px.svg" 
+          });
+          sessionNotified.add(msg);
+        }
+      });
+    }
+  } else {
+    bar.style.display='none';
+  }
 }
 
 // ═══════════════════════════════════════════════════════════════
