@@ -284,9 +284,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <!-- Status rows -->
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
 
-      <div style="display:flex;align-items:center;justify-content:space-between;background:#F7F9FC;border:1px solid var(--border);border-radius:10px;padding:10px 14px">
-        <span style="font-size:12.5px;font-weight:700;color:var(--navy)">📄 Excel Template</span>
-        <span id="qsTemplateStatus" style="font-size:12px;font-weight:700">…</span>
+      <div style="background:#F7F9FC;border:1px solid var(--border);border-radius:10px;padding:10px 14px">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:6px">
+          <span style="font-size:12.5px;font-weight:700;color:var(--navy)">📄 Excel Template</span>
+          <button class="btn btn-gold" style="font-size:11px;padding:5px 12px;font-weight:700" onclick="manualFetchTemplate()">⬇ Fetch</button>
+        </div>
+        <div id="qsTemplateStatus" style="font-size:12px;font-weight:700;color:var(--muted)">…</div>
       </div>
 
       <div style="background:#F7F9FC;border:1px solid var(--border);border-radius:10px;padding:10px 14px">
@@ -962,6 +965,20 @@ function qsRefreshTemplateStatus(){
   if(!el) return;
   if(importedWorkbook&&importedSheet) el.innerHTML='<span style="color:var(--green)">✅ Fetched</span>';
   else el.innerHTML='<span style="color:var(--red)">⚠ Not found</span>';
+}
+
+async function manualFetchTemplate() {
+  const el = document.getElementById('qsTemplateStatus');
+  if(el) el.innerHTML = '⏳ Fetching...';
+  
+  await restoreImportedTemplate();
+  qsRefreshTemplateStatus();
+  
+  if(!importedWorkbook) {
+    toast('⚠ Template not found in cloud or local cache', true);
+  } else {
+    toast('✅ Template fetched successfully');
+  }
 }
 async function qsFetchPortal(){
   const kavachUrl=(S.gsheet&&S.gsheet.kavachUrl)||'';
