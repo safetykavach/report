@@ -818,7 +818,7 @@ function loadState(){
   try{const s=localStorage.getItem('ehs_v3');if(s)return JSON.parse(s);}catch(e){}
   return {
     entries:{}, currentMonth:'', currentFY:'',
-    importedBaseMTD:{}, importedBaseYTD:{},
+    importedBaseMTD:{}, importedBaseYTD:{}, importedBaseDate:'',
     gsheet:{sheetId:'', webAppUrl:''},
     fireEquip:{
       fireExt:{nos:'72',lastDate:'',nextDate:'',comments:''},
@@ -1636,17 +1636,25 @@ function liveCalcTraining(){
   const date=document.getElementById('entryDate')?.value||'';
   const ym=date.substring(0,7)||S.currentMonth||'';
   const fy=S.currentFY||getFY(date||new Date().toISOString().split('T')[0]);
+  
+  const baseYM = S.importedBaseDate ? S.importedBaseDate.substring(0,7) : '';
+  const baseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
+
   let mtd=0, ytd=0;
   Object.entries(S.entries).forEach(([d,e])=>{
     if(d===date) return; // exclude current (handled live below)
+    
+    let skipMTD = (S.importedBaseDate && d <= S.importedBaseDate && d.substring(0,7) === baseYM);
+    let skipYTD = (S.importedBaseDate && d <= S.importedBaseDate && getFY(d) === baseFY);
+
     if(e.ehsTraining==='Yes'||e.ehsTraining===1||e.ehsTraining===true){
-      if(d.substring(0,7)===ym) mtd++;
-      if(getFY(d)===fy) ytd++;
+      if(d.substring(0,7)===ym && !skipMTD) mtd++;
+      if(getFY(d)===fy && !skipYTD) ytd++;
     }
   });
   // Add imported base
-  mtd+=(S.importedBaseMTD?.ehsTraining||0);
-  ytd+=(S.importedBaseYTD?.ehsTraining||0);
+  if (ym === baseYM) mtd+=(S.importedBaseMTD?.ehsTraining||0);
+  if (fy === baseFY) ytd+=(S.importedBaseYTD?.ehsTraining||0);
   // Add current day if Yes
   const curSel=document.getElementById('i-ehsTraining');
   if(curSel?.value==='Yes'){ mtd++; ytd++; }
@@ -1695,19 +1703,29 @@ function liveCalc(){
 function computeSnapshotForDate(date, entryOverride){
   const ym=date.substring(0,7);
   const fy=getFY(date);
-  const impMTD=S.importedBaseMTD||{};
-  const impYTD=S.importedBaseYTD||{};
+  
+  const baseYM = S.importedBaseDate ? S.importedBaseDate.substring(0,7) : '';
+  const baseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
+
+  const impMTD = (ym === baseYM) ? (S.importedBaseMTD||{}) : {};
+  const impYTD = (fy === baseFY) ? (S.importedBaseYTD||{}) : {};
+  
   const mtd={}, ytd={};
   numFields().forEach(f=>{ mtd[f.k]=impMTD[f.k]||0; ytd[f.k]=impYTD[f.k]||0; });
   Object.values(S.entries).forEach(e=>{
     if(!e.date||e.date>date) return; // only entries up to & including this date
+    
     const eym=e.date.substring(0,7);
     const efy=getFY(e.date);
+    
+    let skipMTD = (S.importedBaseDate && e.date <= S.importedBaseDate && eym === baseYM);
+    let skipYTD = (S.importedBaseDate && e.date <= S.importedBaseDate && efy === baseFY);
+
     const src=(e.date===date&&entryOverride)?entryOverride:e;
     numFields().forEach(f=>{
       const v=parseFloat(src[f.k])||0;
-      if(eym===ym) mtd[f.k]=(mtd[f.k]||0)+v;
-      if(efy===fy) ytd[f.k]=(ytd[f.k]||0)+v;
+      if(eym===ym && !skipMTD) mtd[f.k]=(mtd[f.k]||0)+v;
+      if(efy===fy && !skipYTD) ytd[f.k]=(ytd[f.k]||0)+v;
     });
   });
   return {mtd, ytd};
@@ -1725,19 +1743,31 @@ function computeBase(excludeDate){
   const curFY=S.currentFY;
   const histMTD={}, histYTD={};
   numFields().forEach(f=>{histMTD[f.k]=0; histYTD[f.k]=0;});
+  
+  const baseYM = S.importedBaseDate ? S.importedBaseDate.substring(0,7) : '';
+  const baseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
+
   Object.values(S.entries).forEach(e=>{
     if(!e.date||e.date===excludeDate) return;
-    const ym=e.date.substring(0,7);
-    const fy=getFY(e.date);
+    
+    const eym=e.date.substring(0,7);
+    const efy=getFY(e.date);
+    
+    // CRITICAL FIX: Do not double-count entries that are already baked into the Excel base
+    let skipMTD = (S.importedBaseDate && e.date <= S.importedBaseDate && eym === baseYM);
+    let skipYTD = (S.importedBaseDate && e.date <= S.importedBaseDate && efy === baseFY);
+
     numFields().forEach(f=>{
       const v=parseFloat(e[f.k])||0;
-      if(ym===curMonth) histMTD[f.k]=(histMTD[f.k]||0)+v;
-      if(fy===curFY)   histYTD[f.k]=(histYTD[f.k]||0)+v;
+      if(eym===curMonth && !skipMTD) histMTD[f.k]=(histMTD[f.k]||0)+v;
+      if(efy===curFY && !skipYTD)   histYTD[f.k]=(histYTD[f.k]||0)+v;
     });
   });
 
-  const impMTD=S.importedBaseMTD||{};
-  const impYTD=S.importedBaseYTD||{};
+  // Only apply the imported base if we are currently looking at the same month/FY it was imported for
+  const impMTD = (curMonth === baseYM) ? (S.importedBaseMTD||{}) : {};
+  const impYTD = (curFY === baseFY) ? (S.importedBaseYTD||{}) : {};
+
   baseMTD={}; baseYTD={};
   numFields().forEach(f=>{
     baseMTD[f.k]=(histMTD[f.k]||0)+(impMTD[f.k]||0);
@@ -2154,24 +2184,13 @@ function doImport(){
     }
   });
   entryForStorage.ptwCompliance=entry.ptwCompliance||'No';
-  entryForStorage.c_ptwCompliance=entry.c_ptwCompliance||'';
+      entryForStorage.c_ptwCompliance=entry.c_ptwCompliance||'';
 
-  // Clear all existing entries for the same month — the Excel MTD/YTD columns
-  // are the authoritative cumulative base. Keeping old entries would double-count
-  // days already baked into the Excel MTD/YTD figures.
-  const importedYM=date.substring(0,7);
-  const importedFY=getFY(date);
-  Object.keys(S.entries).forEach(d=>{
-    if(d.substring(0,7)===importedYM) delete S.entries[d];
-  });
-  // Also clear earlier months in the same FY so YTD doesn't double-count
-  Object.keys(S.entries).forEach(d=>{
-    if(getFY(d)===importedFY && d.substring(0,7)<importedYM) delete S.entries[d];
-  });
-
-  S.importedBaseMTD=impMTD;
-  S.importedBaseYTD=impYTD;
-  S.entries[date]=entryForStorage;
+      S.importedBaseMTD=impMTD;
+      S.importedBaseYTD=impYTD;
+      S.importedBaseDate=date; // Track exactly when the import happened
+      
+      S.entries[date]=entryForStorage;
 
   if(date){
     document.getElementById('entryDate').value=date;
@@ -2865,9 +2884,10 @@ function doReset(){
     Object.keys(S.entries).forEach(d=>{if(d.substring(0,7)===S.currentMonth) delete S.entries[d];});
     S.currentMonth=today.substring(0,7);
     S.importedBaseMTD={};
+    if(S.importedBaseDate && S.importedBaseDate.substring(0,7)===S.currentMonth) S.importedBaseDate='';
     toast('🔄 MTD reset!');
   } else {
-    S.entries={}; S.importedBaseMTD={}; S.importedBaseYTD={};
+    S.entries={}; S.importedBaseMTD={}; S.importedBaseYTD={}; S.importedBaseDate='';
     S.currentMonth=today.substring(0,7); S.currentFY=getFY(today);
     toast('🗑 YTD reset!');
   }
