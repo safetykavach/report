@@ -890,6 +890,7 @@ window.onload=function(){
   qsFetchPortal(); // auto-fetch for the default selected date; ⬇ Fetch button still works for manual re-fetch
   restoreImportedTemplate().then(qsRefreshTemplateStatus); // pulls back last-imported Excel template, if any, so Export works right away
   fetchAllEntriesFromSheet(false); // pulls in entries saved from OTHER devices too
+  fetchChecklistsFromSheet(); // pulls in checklists from the cloud
   // Show startup modal
   document.getElementById('startupModal').classList.add('open');
 };
@@ -3004,6 +3005,26 @@ function closeModal(id){
 // ═══════════════════════════════════════════════════════════════
 // CHECKLIST TRACKER
 // ═══════════════════════════════════════════════════════════════
+async function fetchChecklistsFromSheet() {
+  if(!(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl)) return;
+  try {
+    const res = await fetch(S.gsheet.webAppUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({sheetId: S.gsheet.sheetId, action: 'getChecklists'})
+    });
+    const json = await res.json();
+    if (json && json.ok && json.checklists) {
+      S.checklists = json.checklists;
+      save(); // Update local memory
+      renderChecklistTable(); // Redraw the table
+      checkAlerts(); // Refresh notifications based on the downloaded data
+    }
+  } catch(e) {
+    console.error('[Checklists] Could not fetch from cloud:', e);
+  }
+}
+
 function renderChecklistTable() {
   const tbody = document.getElementById('checklistBody');
   if (!tbody) return;
