@@ -1653,8 +1653,8 @@ function liveCalcTraining(){
     }
   });
   // Add imported base
-  if (ym === baseYM) mtd+=(S.importedBaseMTD?.ehsTraining||0);
-  if (fy === baseFY) ytd+=(S.importedBaseYTD?.ehsTraining||0);
+  if (!baseYM || ym === baseYM) mtd+=(S.importedBaseMTD?.ehsTraining||0);
+  if (!baseFY || fy === baseFY) ytd+=(S.importedBaseYTD?.ehsTraining||0);
   // Add current day if Yes
   const curSel=document.getElementById('i-ehsTraining');
   if(curSel?.value==='Yes'){ mtd++; ytd++; }
@@ -1707,8 +1707,8 @@ function computeSnapshotForDate(date, entryOverride){
   const baseYM = S.importedBaseDate ? S.importedBaseDate.substring(0,7) : '';
   const baseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
 
-  const impMTD = (ym === baseYM) ? (S.importedBaseMTD||{}) : {};
-  const impYTD = (fy === baseFY) ? (S.importedBaseYTD||{}) : {};
+  const impMTD = (!baseYM || ym === baseYM) ? (S.importedBaseMTD||{}) : {};
+  const impYTD = (!baseFY || fy === baseFY) ? (S.importedBaseYTD||{}) : {};
   
   const mtd={}, ytd={};
   numFields().forEach(f=>{ mtd[f.k]=impMTD[f.k]||0; ytd[f.k]=impYTD[f.k]||0; });
@@ -1764,9 +1764,10 @@ function computeBase(excludeDate){
     });
   });
 
-  // Only apply the imported base if we are currently looking at the same month/FY it was imported for
-  const impMTD = (curMonth === baseYM) ? (S.importedBaseMTD||{}) : {};
-  const impYTD = (curFY === baseFY) ? (S.importedBaseYTD||{}) : {};
+  // Apply the imported base if we are currently looking at the same month/FY it was imported for
+  // (or if importedBaseDate is missing from legacy saves)
+  const impMTD = (!baseYM || curMonth === baseYM) ? (S.importedBaseMTD||{}) : {};
+  const impYTD = (!baseFY || curFY === baseFY) ? (S.importedBaseYTD||{}) : {};
 
   baseMTD={}; baseYTD={};
   numFields().forEach(f=>{
