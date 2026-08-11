@@ -367,9 +367,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.6">
       Checklists saved here trigger email alerts and show on-site notifications. They do not appear in the Excel export.
     </p>
-    <div class="fg">
-      <label>Name of checklist</label>
-      <input type="text" id="cl-name" placeholder="e.g., Monthly Crane Inspection">
+    <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
+      <div class="fg">
+        <label>Name of checklist</label>
+        <input type="text" id="cl-name" placeholder="e.g., Monthly Crane Inspection">
+      </div>
+      <div class="fg">
+        <label>Format No.</label>
+        <input type="text" id="cl-format" placeholder="e.g., EHS/F/01">
+      </div>
     </div>
     <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
       <div class="fg">
@@ -657,7 +663,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="section-head" style="background:#004D40"><span>📝 Saved Checklists</span><span style="font-size:11px;font-weight:400;opacity:.8">🔴=Overdue 🟠=Due≤7d 🟢=OK</span></div>
   <div style="overflow-x:auto">
     <table class="ehs-table">
-      <thead><tr><th>Checklist Name</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>File</th><th>Action</th></tr></thead>
+      <thead><tr><th>Checklist Name</th><th>Format No.</th><th>Frequency</th><th>Last Checked</th><th>Next Expire</th><th>Due Status</th><th>File</th><th>Action</th></tr></thead>
       <tbody id="checklistBody"></tbody>
     </table>
   </div>
@@ -3002,7 +3008,7 @@ function renderChecklistTable() {
   const tbody = document.getElementById('checklistBody');
   if (!tbody) return;
   if (!S.checklists || S.checklists.length === 0) {
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
     return;
   }
   
@@ -3024,6 +3030,7 @@ function renderChecklistTable() {
     
     return `<tr>
       <td style="font-weight:600">${cl.name}</td>
+      <td style="color:var(--navy);font-weight:500;font-size:12px">${cl.formatNo || '-'}</td>
       <td><span style="text-transform:capitalize">${cl.frequency.replace('_', ' ')}</span></td>
       <td>${cl.lastChecked}</td>
       <td>${cl.nextExpire}</td>
@@ -3054,6 +3061,7 @@ function openChecklistModal(index = -1) {
     // EDIT MODE
     const cl = S.checklists[index];
     document.getElementById('cl-name').value = cl.name;
+    document.getElementById('cl-format').value = cl.formatNo || '';
     document.getElementById('cl-last').value = cl.lastChecked;
     document.getElementById('cl-freq').value = cl.frequency;
     document.getElementById('cl-next').value = cl.nextExpire;
@@ -3067,6 +3075,7 @@ function openChecklistModal(index = -1) {
   } else {
     // ADD NEW MODE
     document.getElementById('cl-name').value = '';
+    document.getElementById('cl-format').value = '';
     document.getElementById('cl-last').value = '';
     document.getElementById('cl-next').value = '';
     document.getElementById('cl-email').value = S.gsheet?.defaultEmail || '';
@@ -3115,6 +3124,7 @@ async function saveChecklistToSheet() {
   const data = {
     oldName: oldName,
     name: document.getElementById('cl-name').value,
+    formatNo: document.getElementById('cl-format').value,
     lastChecked: document.getElementById('cl-last').value,
     frequency: document.getElementById('cl-freq').value,
     nextExpire: document.getElementById('cl-next').value,
