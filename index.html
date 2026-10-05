@@ -2006,24 +2006,10 @@ function updateFireStatus(k){
   else if(diff<=7) el.innerHTML=`<span class="due-soon">🟠 Due in ${diff}d</span>`;
   else el.innerHTML=`<span class="due-ok">🟢 OK (${diff}d)</span>`;
 }
-let sessionNotified = new Set(); // Prevents spamming the same notification repeatedly
+// (push notification state removed)
 
 function requestNotificationPermission() {
-  if (!("Notification" in window)) {
-    toast("⚠ Push notifications are not supported on this browser.", true);
-    return;
-  }
-  if (Notification.permission === "granted") {
-    toast("✅ Notifications are already enabled!");
-    return;
-  }
-  Notification.requestPermission().then(permission => {
-    if (permission === "granted") {
-      toast("✅ Browser push notifications enabled!");
-    } else {
-      toast("⚠ Notifications were denied.", true);
-    }
-  });
+  toast("ℹ️ Push notifications are disabled in this version.");
 }
 
 function checkAlerts(){
@@ -2937,10 +2923,42 @@ function confirmReset(type){
 function doReset(){
   const today=new Date().toISOString().split('T')[0];
   if(pendingReset==='month'){
-    Object.keys(S.entries).forEach(d=>{if(d.substring(0,7)===S.currentMonth) delete S.entries[d];});
-    S.currentMonth=today.substring(0,7);
-    S.importedBaseMTD={};
-    if(S.importedBaseDate && S.importedBaseDate.substring(0,7)===S.currentMonth) S.importedBaseDate='';
+    const newMonth = today.substring(0,7);
+    const newFY = getFY(today);
+    const oldBaseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
+    const ytdTotal = {};
+    numFields().forEach(f => { ytdTotal[f.k] = 0; });
+
+    // Step 1: Capture full YTD (current FY) BEFORE deleting anything.
+    // Skip entries already baked into the imported Excel base.
+    Object.values(S.entries).forEach(e => {
+      if(!e.date) return;
+      if(getFY(e.date) !== newFY) return;
+      if(S.importedBaseDate && e.date <= S.importedBaseDate && oldBaseFY === newFY) return;
+      numFields().forEach(f => {
+        ytdTotal[f.k] += parseFloat(e[f.k]) || 0;
+      });
+    });
+    // Add imported base YTD (only if it belongs to the current FY)
+    if(!oldBaseFY || oldBaseFY === newFY){
+      numFields().forEach(f => {
+        ytdTotal[f.k] += (S.importedBaseYTD[f.k] || 0);
+      });
+    }
+
+    // Step 2: Delete every entry BEFORE the new month (not just current month)
+    Object.keys(S.entries).forEach(d => { if(d < newMonth+'-01') delete S.entries[d]; });
+
+    // Step 3: Reset MTD base to zero. Carry YTD forward as the new base.
+    S.currentMonth = newMonth;
+    S.currentFY = newFY;
+    S.importedBaseMTD = {};
+    S.importedBaseYTD = ytdTotal;
+    // Anchor importedBaseDate to the day BEFORE new month starts, so
+    // future entries are NOT skipped in YTD summation (avoids double count).
+    const prevDay = new Date(newMonth+'-01T00:00:00');
+    prevDay.setDate(prevDay.getDate() - 1);
+    S.importedBaseDate = prevDay.toISOString().split('T')[0];
     toast('🔄 MTD reset!');
   } else {
     S.entries={}; S.importedBaseMTD={}; S.importedBaseYTD={}; S.importedBaseDate='';
