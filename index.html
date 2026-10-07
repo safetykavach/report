@@ -9,17 +9,16 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
 <style>
 :root{
-  --navy:#5B7694; /* Soft slate navy */
-  --gold:#F3C65B; /* Soft pastel gold */
-  --gold2:#FCE59F; 
-  --red:#E57373; /* Soft coral red */
-  --green:#81C784; /* Soft sage green */
+  --navy:#5B7694;
+  --gold:#F3C65B;
+  --gold2:#FCE59F;
+  --red:#E57373;
+  --green:#81C784;
   --green-bg:#F1F8F2;
-  --bg:#e0e5ec; /* Soft clay background */
+  --bg:#e0e5ec;
   --surface:#e0e5ec;
   --border:rgba(163,177,198,0.2);
   --text:#1A2340;--muted:#6A7A96;
-  /* Claymorphism Shadows */
   --clay-outer: 9px 9px 16px rgba(163,177,198,0.6), -9px -9px 16px rgba(255,255,255, 0.6);
   --clay-inner: inset 6px 6px 10px 0 rgba(163,177,198, 0.4), inset -6px -6px 10px 0 rgba(255,255,255, 0.8);
   --clay-inset: inset 4px 4px 8px rgba(163,177,198,0.6), inset -4px -4px 8px rgba(255,255,255, 0.6);
@@ -46,7 +45,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .sync-badge{font-size:10.5px;padding:2px 8px;border-radius:20px;font-weight:700;margin-left:6px;vertical-align:middle}
 .sync-on{background:var(--green-bg);color:var(--green)}
 .sync-off{background:#F1F1F1;color:var(--muted)}
-/* Mobile hamburger menu */
 .menu-btn{display:none;background:var(--surface);border:1px solid rgba(255,255,255,0.5);color:var(--navy);width:42px;height:42px;border-radius:14px;cursor:pointer;align-items:center;justify-content:center;font-size:20px;flex-shrink:0;box-shadow:var(--clay-outer);}
 .mobile-menu{display:none;position:fixed;top:70px;left:0;right:0;background:var(--surface);z-index:199;padding:20px;gap:12px;flex-direction:column;box-shadow:var(--clay-outer);border-bottom:1px solid rgba(255,255,255,0.6);}
 .mobile-menu.open{display:flex}
@@ -64,7 +62,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .import-badge.show{display:inline-flex;align-items:center;gap:5px}
 .section-card{background:var(--surface);border-radius:24px;box-shadow:var(--clay-outer);margin-bottom:28px;overflow:hidden;border:1px solid rgba(255,255,255,0.4);}
 .section-head{background:var(--surface) !important;color:var(--navy);box-shadow:var(--clay-inner); border-radius: 20px 20px 0 0; padding:18px 24px;display:flex;align-items:center;justify-content:space-between;font-family:'Rajdhani',sans-serif;font-size:18px;font-weight:800;letter-spacing:.5px; margin: 8px;}
-/* Desktop table */
 .ehs-table{width:100%;border-collapse:collapse}
 .ehs-table th{background:rgba(163,177,198,0.15) !important;color:var(--navy);padding:14px 18px;font-family:'Rajdhani',sans-serif;font-size:14px;font-weight:800;letter-spacing:.5px;text-align:center;white-space:nowrap;border-bottom:2px solid var(--border);}
 .ehs-table th:first-child{text-align:left;min-width:180px}
@@ -88,9 +85,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .ni.red-input{box-shadow: inset 4px 4px 8px rgba(229,57,53,0.2), inset -4px -4px 8px rgba(255,255,255,0.6);}
 .mtd-cell{text-align:center;font-weight:800;font-size:15px;color:var(--navy);padding:10px 13px;border-bottom:1px solid var(--border)}
 .ytd-cell{text-align:center;font-weight:800;font-size:15px;color:#7B3F00;padding:10px 13px;border-bottom:1px solid var(--border)}
-/* C16 special input */
-
-/* Stats */
 .stats-row{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;margin-bottom:18px}
 .stat{background:var(--surface);border-radius:24px;padding:20px;box-shadow:var(--clay-outer);border: 2px solid rgba(255,255,255,0.5); text-align:center; display:flex; flex-direction:column; align-items:center;}
 .stat.s-red{color:var(--red);}
@@ -111,6 +105,9 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .due-over{color:var(--red);font-weight:700}
 .date-alert{border:1.5px solid var(--red)!important;background:#FFF5F5!important;color:var(--red)!important;font-weight:700}
 #toast{position:fixed;bottom:28px;right:16px;background:var(--green);color:#fff;padding:11px 18px;border-radius:8px;font-size:13.5px;font-weight:500;box-shadow:0 6px 24px rgba(0,0,0,.2);z-index:9999;display:none;animation:toastIn .3s ease;max-width:calc(100vw - 32px)}
+#undoResetFloat{position:fixed;left:16px;bottom:16px;z-index:9998;background:var(--navy);color:#fff;border:none;padding:12px 20px;border-radius:26px;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:700;cursor:pointer;box-shadow:0 6px 20px rgba(91,118,148,0.45);transition:all .2s ease;display:none;align-items:center;gap:6px;animation:toastIn .3s ease}
+#undoResetFloat:hover{transform:translateY(-2px);box-shadow:0 10px 26px rgba(91,118,148,0.55)}
+#undoResetFloat:active{transform:translateY(1px)}
 @keyframes toastIn{from{transform:translateY(18px);opacity:0}to{transform:none;opacity:1}}
 .modal-bg{display:none;position:fixed;inset:0;background:rgba(0,0,0,.45);z-index:500;align-items:center;justify-content:center;padding:12px}
 .modal-bg.open{display:flex}
@@ -146,7 +143,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .badge-open{background:#fff0f0;color:var(--red)}
 .badge-type{background:#FFF3CD;color:#7B5000}
 .info-box{background:#EBF8FF;border:1px solid #BEE3F8;border-radius:8px;padding:12px 16px;font-size:12.5px;color:#2C5282;margin-bottom:12px}
-/* Email modal specific */
 .email-recipients{background:#f8f9ff;border:1px solid var(--border);border-radius:8px;padding:12px;margin-bottom:12px;font-size:12.5px}
 .email-recipients strong{color:var(--navy);display:block;margin-bottom:4px;font-size:11.5px;text-transform:uppercase;letter-spacing:.5px}
 .email-chip{display:inline-block;background:#e8eeff;color:var(--navy);border-radius:4px;padding:2px 8px;margin:2px 3px 2px 0;font-size:11.5px;font-weight:500}
@@ -156,18 +152,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 .mail-client-btn .mail-info{flex:1}
 .mail-client-btn .mail-name{font-weight:600;color:var(--navy);font-size:13.5px}
 .mail-client-btn .mail-desc{font-size:11.5px;color:var(--muted);margin-top:1px}
-
-/* Mobile-specific table overrides */
 @media(max-width:768px){
   .sidebar{display:none}
   .view-inner{padding:12px}
   .stats-row{grid-template-columns:repeat(2,1fr);gap:10px}
   .stat{padding:10px 12px}
   .stat-val{font-size:24px}
-  /* Stack tables on mobile */
   .table-responsive{overflow-x:auto;-webkit-overflow-scrolling:touch;margin:-1px}
   .ehs-table,.fire-table{min-width:580px}
-  /* Mobile card rows for inc/train/ptw/obs tables */
   .mobile-card-tbl{display:none}
   .mobile-rows{display:block}
   .m-row{background:var(--surface);border-radius:20px;box-shadow:var(--clay-outer);margin-bottom:20px;padding:18px;border: 1px solid rgba(255,255,255,0.4);}
@@ -188,13 +180,12 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   .datebar-info{margin-left:0}
   .bbs-section{flex-direction:column;align-items:flex-start;gap:8px}
   .section-head{font-size:14px;padding:9px 14px}
-  /* Fire & pump tables — keep scrollable */
   .fire-table-wrap,.pump-table-wrap{overflow-x:auto;-webkit-overflow-scrolling:touch}
   .fire-table,.pump-table{min-width:620px}
-  /* Modal */
   .modal{padding:16px}
   .modal-footer{flex-direction:column}
   .modal-footer .btn{width:100%;justify-content:center}
+  #undoResetFloat{left:12px;bottom:12px;padding:11px 16px;font-size:12.5px}
 }
 @media(min-width:769px){
   .mobile-rows{display:none}
@@ -228,7 +219,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <button class="menu-btn" onclick="toggleMobileMenu()">☰</button>
 </div>
 
-<!-- Mobile Menu -->
 <div class="mobile-menu" id="mobileMenu">
   <button class="btn btn-navy" onclick="copyPrevDay();closeMobileMenu()">📋 Copy Prev Day</button>
   <label class="btn btn-navy" style="cursor:pointer">
@@ -239,11 +229,11 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <button class="btn btn-purple" onclick="openEmailModal();closeMobileMenu()">📧 Share via Email</button>
   <button class="btn btn-navy" onclick="openSheetSyncModal();closeMobileMenu()">🔗 Google Sheet Sync<span class="sync-badge sync-off" id="syncBadgeMobile">Off</span></button>
   <div style="border-top:1px solid rgba(255,255,255,.15);margin:4px 0;padding-top:8px;display:flex;flex-direction:column;gap:6px">
-    <button class="btn btn-navy" onclick="requestNotificationPermission();closeMobileMenu()">🔔 Enable Notifications</button>
     <button class="btn btn-navy" onclick="switchView('history',null);closeMobileMenu()">📅 Entry History</button>
     <button class="btn btn-navy" onclick="switchView('incidents',null);closeMobileMenu()">📁 Incident Log</button>
     <button class="btn btn-navy" onclick="confirmReset('month');closeMobileMenu()">🔄 Reset MTD</button>
     <button class="btn btn-navy" onclick="confirmReset('year');closeMobileMenu()">🗑 Reset YTD</button>
+    <button class="btn btn-navy" onclick="undoReset();closeMobileMenu()">↩️ Undo Last Reset</button>
   </div>
 </div>
 
@@ -252,6 +242,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="chips" id="alertChips"></div>
 </div>
 <div id="toast"></div>
+<button id="undoResetFloat" onclick="undoReset()" title="Restore data from before the last reset">↩️ Undo Last Reset</button>
 
 <!-- IMPORT MODAL -->
 <div class="modal-bg" id="importModal">
@@ -271,17 +262,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- QUICK START MODAL: minimalistic daily entry point -->
+<!-- QUICK START MODAL -->
 <div class="modal-bg open" id="startupModal">
   <div class="modal" style="max-width:420px;padding:24px 22px">
     <div style="font-size:17px;font-weight:800;color:var(--navy);margin-bottom:2px">👋 Quick Start</div>
     <div style="font-size:12px;color:var(--muted);margin-bottom:16px">Choose a date, confirm today's data</div>
 
-    <!-- Date tiles -->
     <div style="display:flex;gap:6px;align-items:stretch;margin-bottom:18px;overflow-x:auto;padding-bottom:2px" id="qsDateTiles"></div>
     <input type="date" id="qsCalendarInput" style="position:absolute;width:1px;height:1px;opacity:0;pointer-events:none" onchange="qsSelectCustomDate(this.value)">
 
-    <!-- Status rows -->
     <div style="display:flex;flex-direction:column;gap:8px;margin-bottom:18px">
 
       <div style="background:#F7F9FC;border:1px solid var(--border);border-radius:10px;padding:10px 14px">
@@ -319,7 +308,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- STARTUP MODAL (ADVANCED): Import Excel + Paste Mail + Choose Report Date -->
+<!-- STARTUP MODAL (ADVANCED) -->
 <div class="modal-bg" id="startupModalAdvanced">
   <div class="modal" style="max-width:520px">
     <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px">
@@ -328,7 +317,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </div>
     <p style="font-size:12.5px;color:var(--muted);margin-bottom:18px;line-height:1.6">Import yesterday's Excel file to pre-fill MTD/YTD base values, then choose today's report date.</p>
 
-    <!-- Step 1: Import Excel -->
     <div style="background:#F5F8FF;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
       <div style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">① Import Excel (Optional)</div>
       <label style="display:flex;align-items:center;gap:10px;cursor:pointer;width:100%">
@@ -339,7 +327,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <div id="startupImportPreview" style="display:none;margin-top:10px;font-size:12px;color:#2C5282;background:#EBF8FF;border:1px solid #BEE3F8;border-radius:7px;padding:9px 12px;line-height:1.7"></div>
     </div>
 
-    <!-- Step 2: Daily Mail Data -->
     <div style="background:#F5F8FF;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:14px">
       <div style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">② Daily Mail Data (Optional)</div>
       <div style="display:flex;gap:10px;align-items:center;margin-bottom:10px;flex-wrap:wrap">
@@ -350,7 +337,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
       <div id="mailPastePreview" style="display:none;margin-top:10px;font-size:12px;border-radius:7px;padding:9px 12px;line-height:1.7"></div>
     </div>
 
-    <!-- Step 3: Choose Date -->
     <div style="background:#F5F8FF;border:1.5px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:18px">
       <div style="font-size:12px;font-weight:700;color:var(--navy);text-transform:uppercase;letter-spacing:.6px;margin-bottom:10px">③ Choose Report Date</div>
       <div style="display:flex;align-items:center;gap:10px;flex-wrap:wrap">
@@ -374,7 +360,7 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="modal">
     <h3>📝 Add Checklist Tracker</h3>
     <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.6">
-      Checklists saved here trigger email alerts and show on-site notifications. They do not appear in the Excel export.
+      Checklists saved here trigger on-page alerts. They do not appear in the Excel export.
     </p>
     <div style="display:grid;grid-template-columns:2fr 1fr;gap:10px">
       <div class="fg">
@@ -487,15 +473,15 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <h3>📧 Share Report via Email</h3>
     <div class="email-recipients">
       <strong>To:</strong>
-      <span class="email-chip"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="90f1e2e5fefbf8f1e2f5d0f4f8f1fee5fbf1bef3fffd">[email&#160;protected]</a></span>
+      <span class="email-chip">arunkhare@dhanuka.com</span>
     </div>
     <div class="email-recipients">
       <strong>CC:</strong>
-      <span class="email-chip"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="b1c3d0d5d9d0c3d0dcd0dff1d5d9d0dfc4dad09fd2dedc">[email&#160;protected]</a></span>
-      <span class="email-chip"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="d8b9b5b1acbcadbabda198bcb0b9b6adb3b9f6bbb7b5">[email&#160;protected]</a></span>
-      <span class="email-chip"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="f8889d8a8b9796969d948d9c90b89c9099968d9399d69b9795">[email&#160;protected]</a></span>
-      <span class="email-chip"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="46362f3f33352e2c2f2822272a06222e2728332d276825292b">[email&#160;protected]</a></span>
-      <span class="email-chip"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="9dfff5fcf3e8edeffce9fcedddf9f5fcf3e8f6fcb3fef2f0">[email&#160;protected]</a></span>
+      <span class="email-chip">radharaman@dhanuka.com</span>
+      <span class="email-chip">amitdubey@dhanuka.com</span>
+      <span class="email-chip">personneludh@dhanuka.com</span>
+      <span class="email-chip">piyushjindal@dhanuka.com</span>
+      <span class="email-chip">bhanupratap@dhanuka.com</span>
     </div>
     <div class="fg" style="margin-bottom:14px">
       <label>Email Subject</label>
@@ -519,9 +505,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <h3>🔗 Google Sheet Sync</h3>
     <p style="font-size:12.5px;color:var(--muted);margin-bottom:14px;line-height:1.6">
       Connect this report to a Google Sheet using a small Apps Script Web App as the bridge.
-      Deploy the <b>Code.gs</b> script (provided separately) in your Google Sheet, copy its
-      Web App URL below, and paste your Sheet ID. Every time you press
-      <b>💾⬇ Save &amp; Export</b>, today's data is also pushed to that sheet.
     </p>
     <div class="fg" style="margin-bottom:14px">
       <label>Google Sheet ID</label>
@@ -531,17 +514,14 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     <div class="fg" style="margin-bottom:14px">
       <label>Apps Script Web App URL</label>
       <input type="text" id="gs-webAppUrl" placeholder="https://script.google.com/macros/s/.../exec">
-      <span style="font-size:11px;color:var(--muted)">From Deploy → New deployment → Web app, after deploying Code.gs</span>
     </div>
     <div class="fg" style="margin-bottom:14px">
       <label>Safety Kavach Portal URL (for ⬇ Fetch from Portal)</label>
       <input type="text" id="gs-kavachUrl" placeholder="https://script.google.com/macros/s/.../exec">
-      <span style="font-size:11px;color:var(--muted)">Your Safety Kavach portal's own Web App /exec URL. Separate from the Sheet Sync URL above — only used to fetch daily digest data in Step ②.</span>
     </div>
     <div class="fg" style="margin-bottom:14px">
       <label>Default Alert Email (For Checklists)</label>
       <input type="email" id="gs-defaultEmail" placeholder="safety.team@example.com">
-      <span style="font-size:11px;color:var(--muted)">This email will auto-fill whenever you add a new Checklist Tracker.</span>
     </div>
     <div id="gsTestResult" style="font-size:12.5px;margin-bottom:10px"></div>
     <div class="modal-footer">
@@ -562,10 +542,10 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <button class="nav-item" id="nav-incidents" onclick="switchView('incidents',this)">📁 Incident Log</button>
   <div class="nav-sep"></div>
   <div class="nav-sec-title">Tools</div>
-  <button class="nav-item" onclick="requestNotificationPermission()">🔔 Enable Notifications</button>
   <button class="nav-item" onclick="openChecklistModal()">📝 Add Checklist</button>
   <button class="nav-item" onclick="confirmReset('month')">🔄 Reset MTD</button>
   <button class="nav-item" onclick="confirmReset('year')">🗑 Reset YTD</button>
+  <button class="nav-item" onclick="undoReset()">↩️ Undo Last Reset</button>
 </div>
 
 <div class="content-area">
@@ -596,21 +576,17 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- Incident Update -->
 <div class="section-card">
   <div class="section-head"><span>⚠️ Incident Update</span><span style="font-size:11px;font-weight:400;opacity:.8">MTD/YTD update live as you type</span></div>
-  <!-- Desktop table -->
   <div style="overflow-x:auto">
     <table class="mobile-card-tbl" id="incDesktopTbl">
       <thead><tr><th>Category</th><th>UOM</th><th>Last 24 Hrs</th><th>MTD</th><th>YTD</th><th>Comments</th><th>Action Plan</th></tr></thead>
       <tbody id="incBody"></tbody>
     </table>
   </div>
-  <!-- Mobile cards -->
   <div class="mobile-rows" id="incMobileRows"></div>
 </div>
 
-<!-- EHS Trainings -->
 <div class="section-card">
   <div class="section-head"><span>📚 EHS Trainings</span></div>
   <div style="overflow-x:auto">
@@ -622,7 +598,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="mobile-rows" id="trainMobileRows"></div>
 </div>
 
-<!-- Permit To Work -->
 <div class="section-card">
   <div class="section-head"><span>📋 Permit To Work</span></div>
   <div style="overflow-x:auto">
@@ -634,7 +609,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="mobile-rows" id="ptwMobileRows"></div>
 </div>
 
-<!-- Observations -->
 <div class="section-card">
   <div class="section-head"><span>👁 Observations</span></div>
   <div style="overflow-x:auto">
@@ -646,7 +620,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   <div class="mobile-rows" id="obsMobileRows"></div>
 </div>
 
-<!-- Fire Equipment -->
 <div class="section-card">
   <div class="section-head" style="background:#8B0000"><span>🔥 Fire Fighting Equipment</span><span style="font-size:11px;font-weight:400;opacity:.8">🔴=Overdue 🟠=Due≤7d 🟢=OK</span></div>
   <div class="fire-table-wrap" style="overflow-x:auto">
@@ -657,7 +630,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- Fire Pump Room -->
 <div class="section-card">
   <div class="section-head" style="background:#4A148C"><span>💧 Fire Pump Room</span></div>
   <div class="pump-table-wrap" style="overflow-x:auto">
@@ -668,7 +640,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
   </div>
 </div>
 
-<!-- Saved Checklists -->
 <div class="section-card">
   <div class="section-head" style="background:#004D40"><span>📝 Saved Checklists</span><span style="font-size:11px;font-weight:400;opacity:.8">🔴=Overdue 🟠=Due≤7d 🟢=OK</span></div>
   <div style="overflow-x:auto">
@@ -678,7 +649,6 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
     </table>
   </div>
 </div>
-
 
 <div style="text-align:center;padding:8px 0 20px;display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
   <button class="btn btn-combo" style="padding:13px 34px;font-size:15px" onclick="saveAndExport()">💾⬇ Save &amp; Export</button>
@@ -723,8 +693,8 @@ body{font-family:'DM Sans',sans-serif;background:var(--bg);color:var(--text);min
 </div>
 </div>
 
-</div><!-- content-area -->
-</div><!-- layout -->
+</div>
+</div>
 
 <script>
 // ═══════════════════════════════════════════════════════════════
@@ -779,16 +749,11 @@ const PUMPS=[
   {k:'mainPump',   l:'Fire Main Pump',mode:'Auto',     freq:'Daily'},
   {k:'dieselPump', l:'Diesel Pump',   mode:'Manually', freq:'Weekly'},
 ];
-
-// ── Fire equipment testing frequency options + interval (days) used to
-//    auto-calculate the Next Due date ──
 const FREQ_OPTIONS=['Daily','Weekly','Every 15 Days','Twice in a Month','Monthly','Twice in a Year','Yearly'];
 const FREQ_DAYS={
   'Daily':1, 'Weekly':7, 'Every 15 Days':15, 'Twice in a Month':15,
   'Monthly':30, 'Twice in a Year':182, 'Yearly':365,
 };
-// Maps the old free-text frequency labels (from FIRE_EQUIP defaults) onto
-// one of FREQ_OPTIONS so the dropdown starts on a sensible value
 function normalizeFreq(raw){
   const s=(raw||'').toLowerCase().replace(/\s+/g,' ').trim();
   if(s.includes('twice')&&s.includes('year')) return 'Twice in a Year';
@@ -804,18 +769,11 @@ function normalizeFreq(raw){
 // ═══════════════════════════════════════════════════════════════
 // STATE
 // ═══════════════════════════════════════════════════════════════
-// ─── ONE-TIME HARDCODED DEFAULTS ───────────────────────────────
-// Fill these in once and save this file. Every browser/device/mobile
-// that opens THIS file will start pre-filled with these values — no
-// need to re-enter them in the 🔗 Google Sheet Sync modal again, even
-// after sharing the file elsewhere. (Settings saved via the modal on
-// a given browser will still override these for that browser only.)
 const DEFAULT_GSHEET = {
   sheetId:   '1HdjwtUOtQ_14NzWP6UOwZ12hZLGnOvjwuGRbcnEGqA0',
   webAppUrl: 'https://script.google.com/macros/s/AKfycbxzCYz8dDzkRZCOlF3aaHmwXmj5elgBACGx80-hg73ElzRFWIKcbnd-mQlvkMrcQGBJ/exec',
   kavachUrl: 'https://script.google.com/macros/s/AKfycbzr7RvqlFn-tOUVQ52ilnVymchWbC5yBVAlkn81YovIinHMwkdGLVEgHtEhaX0h7uij/exec'
 };
-// ─────────────────────────────────────────────────────────────────
 let S=loadState();
 if(!S.gsheet) S.gsheet={};
 S.gsheet.sheetId   = S.gsheet.sheetId   || DEFAULT_GSHEET.sheetId;
@@ -848,19 +806,14 @@ function loadState(){
     checklists:[],
   };
 }
-function save(){
-  localStorage.setItem('ehs_v3',JSON.stringify(S));
-}
+function save(){ localStorage.setItem('ehs_v3',JSON.stringify(S)); }
 function getFY(d){const m=new Date(d).getMonth()+1,y=new Date(d).getFullYear();return m>=4?`${y}-${y+1}`:`${y-1}-${y}`;}
-// Default report date = yesterday; if yesterday is a Sunday, roll back to Saturday
 function getDefaultReportDate(){
   const d=new Date();
   d.setDate(d.getDate()-1);
   if(d.getDay()===0) d.setDate(d.getDate()-1);
   return d.toISOString().split('T')[0];
 }
-// Jockey Pump & Fire Main Pump run in Auto mode daily, so their "last tested"
-// date is simply the report date chosen on the startup popup
 function autoSetDailyPumpDates(date){
   if(!date) return;
   ['jockeyPump','mainPump'].forEach(k=>{
@@ -875,7 +828,6 @@ function autoSetDailyPumpDates(date){
 }
 function numFields(){return [...INC,...TRAIN.filter(f=>!f.yn&&!f.train),...PTW,...OBS];}
 
-// Mobile menu
 function toggleMobileMenu(){document.getElementById('mobileMenu').classList.toggle('open');}
 function closeMobileMenu(){document.getElementById('mobileMenu').classList.remove('open');}
 
@@ -896,11 +848,11 @@ window.onload=function(){
   qsRenderDateTiles();
   qsUpdatePumpStatus();
   qsRefreshTemplateStatus();
-  qsFetchPortal(); // auto-fetch for the default selected date; ⬇ Fetch button still works for manual re-fetch
-  restoreImportedTemplate().then(qsRefreshTemplateStatus); // pulls back last-imported Excel template, if any, so Export works right away
-  fetchAllEntriesFromSheet(false); // pulls in entries saved from OTHER devices too
-  fetchChecklistsFromSheet(); // pulls in checklists from the cloud
-  // Show startup modal
+  qsFetchPortal();
+  restoreImportedTemplate().then(qsRefreshTemplateStatus);
+  fetchAllEntriesFromSheet(false);
+  fetchChecklistsFromSheet();
+  updateUndoButton();
   document.getElementById('startupModal').classList.add('open');
 };
 
@@ -914,14 +866,11 @@ function setStartupDate(which){
   const d=new Date();
   if(which==='yesterday'){
     d.setDate(d.getDate()-1);
-    if(d.getDay()===0) d.setDate(d.getDate()-1); // Sunday → roll back to Saturday
+    if(d.getDay()===0) d.setDate(d.getDate()-1);
   }
   document.getElementById('startupDate').value=d.toISOString().split('T')[0];
 }
 
-// ═══════════════════════════════════════════════════════════════
-// QUICK START POPUP (minimalistic) — the new default landing modal
-// ═══════════════════════════════════════════════════════════════
 function qsRenderDateTiles(){
   const container=document.getElementById('qsDateTiles');
   if(!container) return;
@@ -951,10 +900,7 @@ function qsSelectDate(iso){
   qsUpdatePumpStatus();
   qsFetchPortal();
 }
-function qsSelectCustomDate(iso){
-  if(!iso) return;
-  qsSelectDate(iso);
-}
+function qsSelectCustomDate(iso){ if(!iso) return; qsSelectDate(iso); }
 function qsUpdatePumpStatus(){
   const d=document.getElementById('startupDate').value||getDefaultReportDate();
   const el=document.getElementById('qsPumpStatus');
@@ -970,19 +916,16 @@ function qsRefreshTemplateStatus(){
 async function manualFetchTemplate() {
   const el = document.getElementById('qsTemplateStatus');
   if(el) el.innerHTML = '⏳ Fetching...';
-  
   await restoreImportedTemplate();
   qsRefreshTemplateStatus();
-  
-  if(!importedWorkbook) {
-    toast('⚠ Template not found in cloud or local cache', true);
-  } else {
-    toast('✅ Template fetched successfully');
-  }
+  if(!importedWorkbook) toast('⚠ Template not found in cloud or local cache', true);
+  else toast('✅ Template fetched successfully');
 }
+
 async function qsFetchPortal(){
   const kavachUrl=(S.gsheet&&S.gsheet.kavachUrl)||'';
   const box=document.getElementById('qsPortalDetails');
+  if(!box) return;
   if(!kavachUrl){
     box.innerHTML='<span style="color:var(--red)">⚠ Configure Safety Kavach Portal URL in 🔗 Sheet Sync first</span>';
     return;
@@ -1058,11 +1001,9 @@ function handleStartupFileSelect(input){
     try{
       const wb=new ExcelJS.Workbook();
       await wb.xlsx.load(arrayBuffer);
-      // Use same sheet-finding logic as importExcel
       const ws=wb.worksheets.find(s=>s.name.toUpperCase().includes('UDH')||s.name.toUpperCase().includes('DAILY SAFETY'))||wb.worksheets[0];
       if(!ws) throw new Error('No worksheet found');
 
-      // ── Identical cell helpers to importExcel ──
       function cellVal(row,col){
         const c=ws.getRow(row).getCell(col);
         if(!c||c.value===null||c.value===undefined) return null;
@@ -1084,7 +1025,6 @@ function handleStartupFileSelect(input){
         return s;
       }
 
-      // ── Same date detection as importExcel (row 1 col 1 title) ──
       const title=cellStr(1,1);
       let detectedDate='';
       const dm=title.match(/(\d{1,2})\s+(Jan|Feb|Mar|Apr|May|Jun|Jul|Aug|Sep|Oct|Nov|Dec)\s*(\d{4})?/i);
@@ -1094,15 +1034,12 @@ function handleStartupFileSelect(input){
         detectedDate=`${yr}-${String(mo).padStart(2,'0')}-${String(dm[1]).padStart(2,'0')}`;
       }
 
-      const c16FromExcel=cellStr(16,3);
-
       const sample=[];
       [4,17,23,31].forEach(ri=>{
         const n=cellStr(ri,1); const h=cellNum(ri,3); const m=cellNum(ri,4); const y=cellNum(ri,5);
         if(n) sample.push(`<b>${n}</b>: 24h=${h}, MTD=${m}, YTD=${y}`);
       });
 
-      // Store using same structure as pendingImport
       startupPendingImport={wb, ws, cellNum, cellStr, cellDate, detectedDate, fileName:file.name};
 
       if(detectedDate) document.getElementById('startupDate').value=detectedDate;
@@ -1118,16 +1055,18 @@ function handleStartupFileSelect(input){
       document.getElementById('startupProceedBtn').textContent='✅ Import & Proceed';
       if(document.getElementById('mailPasteBox').value.trim()) parseMailData();
     }catch(err){
+      console.error('handleStartupFileSelect failed:', err);
       document.getElementById('startupFileName').textContent='❌ Error: '+err.message;
       document.getElementById('startupFileName').style.color='var(--red)';
       document.getElementById('startupFileName').style.fontWeight='400';
+      startupPendingImport=null;
     }
   });
   input.value='';
 }
 
 // ═══════════════════════════════════════════════════════════════
-// PASTE DAILY MAIL DATA — parse Unsafe Cond/Act/BBS + verify vs Excel MTD
+// PASTE DAILY MAIL DATA
 // ═══════════════════════════════════════════════════════════════
 function parseMailData(){
   const txt=document.getElementById('mailPasteBox').value;
@@ -1139,8 +1078,6 @@ function parseMailData(){
     const m=txt.match(re);
     return m?{h24:parseFloat(m[1])||0, mtd:parseFloat(m[2])||0}:null;
   }
-  // Grabs EVERY occurrence of a label (used for "↳ SLT Round", which can appear
-  // once under Unsafe Conditions and once under Unsafe Acts)
   function grabAll(labelPattern){
     const re=new RegExp(labelPattern+'[^\\d\\-]*([\\d.]+)[^\\d\\-]*([\\d.]+)','gi');
     const out=[]; let m;
@@ -1155,8 +1092,6 @@ function parseMailData(){
     bbsObs:     grab('BBS\\s+Observations'),
   };
 
-  // ── SLT Round: any non-zero 24hr value (under Unsafe Conditions or Unsafe
-  //    Acts) means Site Leadership did a round today → mark Nos = 1 ──
   const sltMatches=grabAll('↳?\\s*SLT\\s*Round');
   const sltHasRound=sltMatches.some(d=>d.h24>0);
 
@@ -1207,10 +1142,6 @@ function parseMailData(){
   box.innerHTML=lines.join('<br>')+(startupPendingImport?'':'<br><span style="color:var(--muted)">Import Excel above (Step ①) to auto-verify against the MTD base.</span>');
 }
 
-// ═══════════════════════════════════════════════════════════════
-// FETCH DAILY MAIL DATA DIRECTLY FROM SAFETY KAVACH PORTAL
-// (skips manual copy-paste of the digest email)
-// ═══════════════════════════════════════════════════════════════
 async function fetchMailDataFromPortal(){
   const kavachUrl=(S.gsheet&&S.gsheet.kavachUrl)||'';
   const statusEl=document.getElementById('mailFetchStatus');
@@ -1262,12 +1193,15 @@ async function fetchMailDataFromPortal(){
 
 function applyPastedMailData(){
   if(!pastedMailData) return;
-  Object.entries(pastedMailData).forEach(([k,d])=>{
-    const el=document.getElementById('i-'+k); if(el) el.value=d.h24;
-    const mel=document.getElementById('im-'+k); if(mel) mel.value=d.h24;
-  });
-  liveCalc();
+  try{
+    Object.entries(pastedMailData).forEach(([k,d])=>{
+      const el=document.getElementById('i-'+k); if(el) el.value=d.h24;
+      const mel=document.getElementById('im-'+k); if(mel) mel.value=d.h24;
+    });
+    liveCalc();
+  }catch(e){ console.error('applyPastedMailData failed:', e); }
 }
+
 function skipStartup(){
   const date=document.getElementById('startupDate').value||getDefaultReportDate();
   document.getElementById('entryDate').value=date;
@@ -1277,26 +1211,45 @@ function skipStartup(){
   startupPendingImport=null;
 }
 
+// ═══════════════════════════════════════════════════════════════
+// ★★★★★ FIXED proceedStartup — modal ALWAYS closes, errors caught ★★★★★
+// ═══════════════════════════════════════════════════════════════
 function proceedStartup(){
   const chosenDate=document.getElementById('startupDate').value||getDefaultReportDate();
+  let hadImport=false;
+  try{
+    if(startupPendingImport){
+      startupPendingImport.detectedDate=chosenDate;
+      pendingImport=startupPendingImport;
+      document.getElementById('entryDate').value=chosenDate;
+      try{
+        doImport();
+        hadImport=true;
+      }catch(importErr){
+        console.error('[proceedStartup] doImport threw:', importErr);
+        toast('❌ Import failed: '+importErr.message, true);
+      }
+    } else {
+      document.getElementById('entryDate').value=chosenDate;
+      onDateChange();
+      toast('📅 Report date set to '+chosenDate);
+    }
 
-  if(startupPendingImport){
-    // Override detectedDate with user-chosen date if user changed it
-    startupPendingImport.detectedDate=chosenDate;
-    // Temporarily set pendingImport for doImport
-    pendingImport=startupPendingImport;
-    document.getElementById('entryDate').value=chosenDate;
-    doImport();
-  } else {
-    document.getElementById('entryDate').value=chosenDate;
-    onDateChange();
-    toast('📅 Report date set to '+chosenDate);
+    try{ applyPastedMailData(); }catch(e){ console.error('applyPastedMailData failed:', e); }
+    try{ autoSetDailyPumpDates(chosenDate); }catch(e){ console.error('autoSetDailyPumpDates failed:', e); }
+
+    if(hadImport) toast('✅ Excel imported & proceeding');
+  }catch(err){
+    console.error('[proceedStartup] outer failure:', err);
+    toast('❌ Unexpected error: '+err.message, true);
+  }finally{
+    // ★ Guarantee the modal closes no matter what
+    document.getElementById('startupModalAdvanced').classList.remove('open');
+    document.getElementById('startupModal').classList.remove('open');
+    startupPendingImport=null;
+    pendingImport=null;
+    pastedMailData=null;
   }
-  applyPastedMailData();
-  autoSetDailyPumpDates(chosenDate);
-  document.getElementById('startupModalAdvanced').classList.remove('open');
-  startupPendingImport=null;
-  pastedMailData=null;
 }
 
 // ═══════════════════════════════════════════════════════════════
@@ -1317,11 +1270,9 @@ function switchView(v,btn){
 // BUILD TABLES
 // ═══════════════════════════════════════════════════════════════
 function buildTables(){
-  // ── Incident ──
   const ib=document.getElementById('incBody'); ib.innerHTML='';
   const imr=document.getElementById('incMobileRows'); imr.innerHTML='';
   INC.forEach(f=>{
-    // Desktop row
     ib.innerHTML+=`<tr>
       <td class="lbl ${f.red?'red':''}">${f.l}</td>
       <td class="unit">Nos</td>
@@ -1331,7 +1282,6 @@ function buildTables(){
       <td><input type="text" class="comment-in" id="c-${f.k}" placeholder="Comments…"></td>
       <td><input type="text" class="comment-in" id="a-${f.k}" placeholder="Action plan…"></td>
     </tr>`;
-    // Mobile card
     imr.innerHTML+=`<div class="m-row ${f.red?'red-row':''}" style="margin:0 0 8px">
       <div class="m-row-label ${f.red?'red':''}">${f.l}</div>
       <div class="m-row-grid">
@@ -1346,12 +1296,10 @@ function buildTables(){
     </div>`;
   });
 
-  // ── Training ──
   const tb=document.getElementById('trainBody'); tb.innerHTML='';
   const tmr=document.getElementById('trainMobileRows'); tmr.innerHTML='';
   TRAIN.forEach(f=>{
     if(f.train){
-      // EHS Trainings special row: Yes/No dropdown + training name textbox
       const prevTopic=getPrevTrainingTopic();
       const prevHint=prevTopic?`<button onclick="useTrainingSuggestion()" class="btn btn-navy" style="padding:2px 7px;font-size:10.5px;white-space:nowrap" title="Use: ${prevTopic}">↺ ${prevTopic.substring(0,18)}${prevTopic.length>18?'…':''}</button>`:'';
       tb.innerHTML+=`<tr id="row-${f.k}">
@@ -1374,7 +1322,6 @@ function buildTables(){
           <span id="trainNameHint" style="font-size:11px;color:var(--muted);font-style:italic">${prevTopic?'Prev: '+prevTopic:''}</span>
         </td>
       </tr>`;
-      // Mobile
       tmr.innerHTML+=`<div class="m-row" style="margin:0 0 8px" id="mrow-${f.k}">
         <div class="m-row-label">${f.l}</div>
         <div style="display:flex;align-items:center;gap:10px;margin-bottom:4px">
@@ -1403,7 +1350,6 @@ function buildTables(){
       <td class="ytd-cell" id="y-${f.k}">${f.yn?'—':'0'}</td>
       <td><input type="text" class="comment-in" id="c-${f.k}" placeholder="Notes…"></td>
     </tr>`;
-    // Mobile
     if(f.yn){
       tmr.innerHTML+=`<div class="m-row" style="margin:0 0 8px">
         <div class="m-row-label">${f.l}</div>
@@ -1425,7 +1371,6 @@ function buildTables(){
     }
   });
 
-  // ── PTW ──
   const pb=document.getElementById('ptwBody'); pb.innerHTML='';
   const pmr=document.getElementById('ptwMobileRows'); pmr.innerHTML='';
   PTW.forEach(f=>{
@@ -1458,7 +1403,6 @@ function buildTables(){
     </div>
   </div>`;
 
-  // ── Observations ──
   const ob=document.getElementById('obsBody'); ob.innerHTML='';
   const omr=document.getElementById('obsMobileRows'); omr.innerHTML='';
   OBS.forEach(f=>{
@@ -1480,7 +1424,6 @@ function buildTables(){
     </div>`;
   });
 
-  // ── Fire equip ──
   const fb=document.getElementById('fireBody'); fb.innerHTML='';
   FIRE_EQUIP.forEach(f=>{
     fb.innerHTML+=`<tr id="fire-${f.k}">
@@ -1497,7 +1440,6 @@ function buildTables(){
       <td><input type="text" class="comment-in" id="fe-com-${f.k}" placeholder="Comments…" onchange="saveFireNow('${f.k}')"></td>
     </tr>`;
   });
-  // ── Pumps ──
   const pu=document.getElementById('pumpBody'); pu.innerHTML='';
   PUMPS.forEach(p=>{
     pu.innerHTML+=`<tr>
@@ -1509,11 +1451,10 @@ function buildTables(){
       <td><input type="text" class="comment-in" id="pu-com-${p.k}" placeholder="Comments…" onchange="savePumpNow('${p.k}')"></td>
     </tr>`;
   });
-  
+
   renderChecklistTable();
 }
 
-// ── Mobile sync helpers ──
 function syncInput(k, fromPfx, toPfx){
   const from=document.getElementById(fromPfx+k);
   const to=document.getElementById(toPfx+k);
@@ -1530,8 +1471,6 @@ function syncSelect(k, fromPfx, toPfx){
   const to=document.getElementById(toPfx+k);
   if(from&&to) to.value=from.value;
 }
-function syncYC(){ liveCalc(); }
-function syncYCClosed(){ }
 
 function populateFire(){
   const isValidDate = (str) => /^\d{4}-\d{2}-\d{2}$/.test(str);
@@ -1540,13 +1479,10 @@ function populateFire(){
     const el=id=>document.getElementById(id);
     if(el('fe-freq-'+f.k)) el('fe-freq-'+f.k).value=d.freq||normalizeFreq(f.freq);
     if(el('fe-nos-'+f.k)) el('fe-nos-'+f.k).value=d.nos||f.nos||'';
-
     const lastEl = el('fe-last-'+f.k);
     if(lastEl) lastEl.value = isValidDate(d.lastDate) ? d.lastDate : '';
-
     const nextEl = el('fe-next-'+f.k);
     if(nextEl) nextEl.value = isValidDate(d.nextDate) ? d.nextDate : '';
-
     if(el('fe-com-'+f.k)) el('fe-com-'+f.k).value=d.comments||'';
     updateFireStatus(f.k);
   });
@@ -1561,8 +1497,6 @@ function populatePumps(){
     updatePumpDateAlert(p.k);
   });
 }
-// Diesel Pump is tested manually (weekly) — flag it red if the last test
-// date is more than 7 days old
 function updatePumpDateAlert(k){
   const inp=document.getElementById('pu-date-'+k);
   if(!inp) return;
@@ -1585,8 +1519,6 @@ function saveFireNow(k){
   };
   save(); checkAlerts();
 }
-// Recomputes "Next Due" = Last Tested date + the interval for the selected
-// frequency. Only auto-fills if a Last Tested date is already set.
 function computeNextDue(k){
   const freq=document.getElementById('fe-freq-'+k)?.value;
   const last=document.getElementById('fe-last-'+k)?.value;
@@ -1597,16 +1529,8 @@ function computeNextDue(k){
   d.setDate(d.getDate()+days);
   nextEl.value=d.toISOString().split('T')[0];
 }
-function onFireFreqChange(k){
-  computeNextDue(k);
-  updateFireStatus(k);
-  saveFireNow(k);
-}
-function onFireLastDateChange(k){
-  computeNextDue(k);
-  updateFireStatus(k);
-  saveFireNow(k);
-}
+function onFireFreqChange(k){ computeNextDue(k); updateFireStatus(k); saveFireNow(k); }
+function onFireLastDateChange(k){ computeNextDue(k); updateFireStatus(k); saveFireNow(k); }
 function savePumpNow(k){
   if(!S.pumps[k]) S.pumps[k]={};
   S.pumps[k]={
@@ -1619,10 +1543,6 @@ function savePumpNow(k){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// LIVE CALC — syncs mobile display too
-// ═══════════════════════════════════════════════════════════════
-
-// ═══════════════════════════════════════════════════════════════
 // EHS TRAINING HELPERS
 // ═══════════════════════════════════════════════════════════════
 function getPrevTrainingTopic(){
@@ -1631,7 +1551,6 @@ function getPrevTrainingTopic(){
   const prev=cur?allDates.filter(d=>d<cur).pop():allDates[allDates.length-2];
   return prev&&S.entries[prev]?S.entries[prev].trainingName||'':'';
 }
-
 function onTrainingToggle(){
   const sel=document.getElementById('i-ehsTraining');
   const selM=document.getElementById('im-ehsTraining');
@@ -1644,7 +1563,6 @@ function onTrainingToggle(){
   if(hint) hint.style.display=isYes?'none':'block';
   liveCalcTraining();
 }
-
 function useTrainingSuggestion(){
   const prev=getPrevTrainingTopic();
   if(!prev) return;
@@ -1653,32 +1571,24 @@ function useTrainingSuggestion(){
   if(el) el.value=prev;
   if(elM) elM.value=prev;
 }
-
 function liveCalcTraining(){
-  // MTD = count of saved entries this month where ehsTraining=Yes (+ current if Yes)
   const date=document.getElementById('entryDate')?.value||'';
   const ym=date.substring(0,7)||S.currentMonth||'';
   const fy=S.currentFY||getFY(date||new Date().toISOString().split('T')[0]);
-  
   const baseYM = S.importedBaseDate ? S.importedBaseDate.substring(0,7) : '';
   const baseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
-
   let mtd=0, ytd=0;
   Object.entries(S.entries).forEach(([d,e])=>{
-    if(d===date) return; // exclude current (handled live below)
-    
+    if(d===date) return;
     let skipMTD = (S.importedBaseDate && d <= S.importedBaseDate && d.substring(0,7) === baseYM);
     let skipYTD = (S.importedBaseDate && d <= S.importedBaseDate && getFY(d) === baseFY);
-
     if(e.ehsTraining==='Yes'||e.ehsTraining===1||e.ehsTraining===true){
       if(d.substring(0,7)===ym && !skipMTD) mtd++;
       if(getFY(d)===fy && !skipYTD) ytd++;
     }
   });
-  // Add imported base
   if (!baseYM || ym === baseYM) mtd+=(S.importedBaseMTD?.ehsTraining||0);
   if (!baseFY || fy === baseFY) ytd+=(S.importedBaseYTD?.ehsTraining||0);
-  // Add current day if Yes
   const curSel=document.getElementById('i-ehsTraining');
   if(curSel?.value==='Yes'){ mtd++; ytd++; }
   ['m-ehsTraining','mm-ehsTraining'].forEach(id=>{const el=document.getElementById(id);if(el) el.textContent=mtd;});
@@ -1686,13 +1596,11 @@ function liveCalcTraining(){
 }
 
 function liveCalc(){
-  // Sync mobile inputs → desktop inputs first
   numFields().forEach(f=>{
     const mob=document.getElementById('im-'+f.k);
     const desk=document.getElementById('i-'+f.k);
     if(mob&&desk&&document.activeElement===mob) desk.value=mob.value;
   });
-
   numFields().forEach(f=>{
     const el=document.getElementById('i-'+f.k);
     if(!el||el.tagName==='SELECT') return;
@@ -1707,7 +1615,6 @@ function liveCalc(){
     if(yEl) yEl.textContent=yVal;
     if(mmEl) mmEl.textContent=mVal;
     if(ymEl) ymEl.textContent=yVal;
-    // Sync mobile input display
     const mobIn=document.getElementById('im-'+f.k);
     if(mobIn&&document.activeElement!==mobIn) mobIn.value=el.value;
   });
@@ -1716,34 +1623,23 @@ function liveCalc(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// COMPUTE BASE
-// ═══════════════════════════════════════════════════════════════
-// ═══════════════════════════════════════════════════════════════
-// PER-ENTRY MTD/YTD SNAPSHOTS — used by History View/Edit/Export so
-// each saved record can carry its own frozen MTD/YTD, independent of
-// today's live form calculation.
+// SNAPSHOTS
 // ═══════════════════════════════════════════════════════════════
 function computeSnapshotForDate(date, entryOverride){
   const ym=date.substring(0,7);
   const fy=getFY(date);
-  
   const baseYM = S.importedBaseDate ? S.importedBaseDate.substring(0,7) : '';
   const baseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
-
   const impMTD = (!baseYM || ym === baseYM) ? (S.importedBaseMTD||{}) : {};
   const impYTD = (!baseFY || fy === baseFY) ? (S.importedBaseYTD||{}) : {};
-  
   const mtd={}, ytd={};
   numFields().forEach(f=>{ mtd[f.k]=impMTD[f.k]||0; ytd[f.k]=impYTD[f.k]||0; });
   Object.values(S.entries).forEach(e=>{
-    if(!e.date||e.date>date) return; // only entries up to & including this date
-    
+    if(!e.date||e.date>date) return;
     const eym=e.date.substring(0,7);
     const efy=getFY(e.date);
-    
     let skipMTD = (S.importedBaseDate && e.date <= S.importedBaseDate && eym === baseYM);
     let skipYTD = (S.importedBaseDate && e.date <= S.importedBaseDate && efy === baseFY);
-
     const src=(e.date===date&&entryOverride)?entryOverride:e;
     numFields().forEach(f=>{
       const v=parseFloat(src[f.k])||0;
@@ -1760,38 +1656,27 @@ function recalcAllSnapshots(){
     e._mtd=snap.mtd; e._ytd=snap.ytd;
   });
 }
-
 function computeBase(excludeDate){
   const curMonth=S.currentMonth;
   const curFY=S.currentFY;
   const histMTD={}, histYTD={};
   numFields().forEach(f=>{histMTD[f.k]=0; histYTD[f.k]=0;});
-  
   const baseYM = S.importedBaseDate ? S.importedBaseDate.substring(0,7) : '';
   const baseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
-
   Object.values(S.entries).forEach(e=>{
     if(!e.date||e.date===excludeDate) return;
-    
     const eym=e.date.substring(0,7);
     const efy=getFY(e.date);
-    
-    // CRITICAL FIX: Do not double-count entries that are already baked into the Excel base
     let skipMTD = (S.importedBaseDate && e.date <= S.importedBaseDate && eym === baseYM);
     let skipYTD = (S.importedBaseDate && e.date <= S.importedBaseDate && efy === baseFY);
-
     numFields().forEach(f=>{
       const v=parseFloat(e[f.k])||0;
       if(eym===curMonth && !skipMTD) histMTD[f.k]=(histMTD[f.k]||0)+v;
       if(efy===curFY && !skipYTD)   histYTD[f.k]=(histYTD[f.k]||0)+v;
     });
   });
-
-  // Apply the imported base if we are currently looking at the same month/FY it was imported for
-  // (or if importedBaseDate is missing from legacy saves)
   const impMTD = (!baseYM || curMonth === baseYM) ? (S.importedBaseMTD||{}) : {};
   const impYTD = (!baseFY || curFY === baseFY) ? (S.importedBaseYTD||{}) : {};
-
   baseMTD={}; baseYTD={};
   numFields().forEach(f=>{
     baseMTD[f.k]=(histMTD[f.k]||0)+(impMTD[f.k]||0);
@@ -1799,9 +1684,6 @@ function computeBase(excludeDate){
   });
 }
 
-// ═══════════════════════════════════════════════════════════════
-// DATE CHANGE
-// ═══════════════════════════════════════════════════════════════
 function onDateChange(){
   const date=document.getElementById('entryDate').value;
   if(!date) return;
@@ -1818,7 +1700,6 @@ function onDateChange(){
   }
   liveCalc();
   renderHistory();
-  // Update email subject
   updateEmailSubject();
 }
 
@@ -1838,7 +1719,6 @@ function loadForm(e){
     if(!el) return;
     const mel=document.getElementById('im-'+f.k);
     if(f.k==='toolboxTalks'){
-      // Always 6, no calculation — overrides any previously saved value
       el.value=6; if(mel) mel.value=6;
     } else {
       el.tagName==='SELECT'?el.value=e[f.k]||'Yes':el.value=e[f.k]??0;
@@ -1871,14 +1751,13 @@ function clearForm(){
     el.tagName==='SELECT'?el.value='Yes':el.value=dflt;
     const mel=document.getElementById('im-'+f.k);
     if(mel) mel.tagName==='SELECT'?mel.value='Yes':mel.value=dflt;
-    ['c-','a-'].forEach(p=>{const e2=document.getElementById(p+f.k); if(e2) e2.value='';}); 
+    ['c-','a-'].forEach(p=>{const e2=document.getElementById(p+f.k); if(e2) e2.value='';});
     ['cm-','am-'].forEach(p=>{const e2=document.getElementById(p+f.k); if(e2) e2.value='';});
   });
   const ptwC=document.getElementById('i-ptwCompliance'); if(ptwC) ptwC.value='No';
   const ptwCm=document.getElementById('im-ptwCompliance'); if(ptwCm) ptwCm.value='No';
   const ptwCC=document.getElementById('c-ptwCompliance'); if(ptwCC) ptwCC.value='';
   const ptwCCm=document.getElementById('cm-ptwCompliance'); if(ptwCCm) ptwCCm.value='';
-  // yellow card removed in new format
 }
 
 function copyPrevDay(){
@@ -1891,9 +1770,6 @@ function copyPrevDay(){
   toast(`📋 Copied from ${prev} — update 24h values then Save`);
 }
 
-// ═══════════════════════════════════════════════════════════════
-// SAVE
-// ═══════════════════════════════════════════════════════════════
 function getForm(){
   const data={};
   [...INC,...TRAIN,...PTW,...OBS].forEach(f=>{
@@ -1926,7 +1802,7 @@ function saveEntry(skipCascadeCheck){
       `You're updating a previously saved entry (${date}).\n\n`+
       `Update MTD & YTD across ALL saved entries to reflect this change?\n\n`+
       `OK  = Yes, update everywhere\n`+
-      `Cancel = No, only update THIS entry's own MTD/YTD (for its own export) — other saved entries stay as they were`
+      `Cancel = No, only update THIS entry's own MTD/YTD`
     );
     finalizeSaveEntry(date, data, updateAll);
     return;
@@ -1936,24 +1812,20 @@ function saveEntry(skipCascadeCheck){
 function finalizeSaveEntry(date, data, cascade){
   const isEdit=!!S.entries[date];
   S.entries[date]=data;
-
   if(cascade){
     recalcAllSnapshots();
   }else{
     const snap=computeSnapshotForDate(date, data);
     data._mtd=snap.mtd; data._ytd=snap.ytd;
   }
-
   save();
   computeBase(date);
   liveCalc();
   renderHistory();
   document.getElementById('datebarInfo').textContent=`✅ Saved for ${date}`;
-  toast(isEdit?(cascade?`✏ Updated ${date} — MTD/YTD refreshed for all entries`:`✏ Updated ${date} — MTD/YTD changed for this entry's export only`):`✅ Saved entry for ${date}`);
+  toast(isEdit?(cascade?`✏ Updated ${date}`:`✏ Updated ${date} (local only)`):`✅ Saved entry for ${date}`);
 }
 
-// Merged action: Save the entry, export the Excel file, and (if configured)
-// push the same data to Google Sheets — one button, one click.
 async function saveAndExport(){
   saveEntry();
   await exportExcel();
@@ -1961,11 +1833,6 @@ async function saveAndExport(){
     await syncToGoogleSheet();
   }
 }
-
-// ═══════════════════════════════════════════════════════════════
-// STATS & YC
-// ═══════════════════════════════════════════════════════════════
-function calcYC(){ /* yellow card removed */ }
 
 function updateStats(){
   const getM=k=>parseFloat(document.getElementById('m-'+k)?.textContent)||0;
@@ -1991,9 +1858,6 @@ function updateStats(){
   document.getElementById('bbsMTD2').textContent=bbs;
 }
 
-// ═══════════════════════════════════════════════════════════════
-// FIRE STATUS & ALERTS
-// ═══════════════════════════════════════════════════════════════
 function updateFireStatus(k){
   const nxt=document.getElementById('fe-next-'+k)?.value;
   const el=document.getElementById('fe-st-'+k);
@@ -2006,8 +1870,10 @@ function updateFireStatus(k){
   else if(diff<=7) el.innerHTML=`<span class="due-soon">🟠 Due in ${diff}d</span>`;
   else el.innerHTML=`<span class="due-ok">🟢 OK (${diff}d)</span>`;
 }
-// (push notification state removed)
 
+// ═══════════════════════════════════════════════════════════════
+// ★★★ Notifications fully removed — on-page alert bar only ★★★
+// ═══════════════════════════════════════════════════════════════
 function requestNotificationPermission() {
   toast("ℹ️ Push notifications are disabled in this version.");
 }
@@ -2022,8 +1888,6 @@ function checkAlerts(){
     const diff=Math.ceil((due-today)/86400000);
     if(diff<=7) alerts.push(diff<0?`${f.l}: OVERDUE ${Math.abs(diff)}d`:`${f.l}: Due in ${diff}d`);
   });
-  
-  // Website Notification logic for Checklists
   if(S.checklists) {
     S.checklists.forEach(cl => {
       if(!cl.nextExpire) return;
@@ -2032,34 +1896,17 @@ function checkAlerts(){
       if(cl.advanceAlert === '1 day') targetAlert.setDate(targetAlert.getDate() - 1);
       else if(cl.advanceAlert === '1 week') targetAlert.setDate(targetAlert.getDate() - 7);
       else if(cl.advanceAlert === '1 month') targetAlert.setMonth(targetAlert.getMonth() - 1);
-      
       if(today >= targetAlert) {
          const diff = Math.ceil((due-today)/86400000);
          alerts.push(diff < 0 ? `📋 ${cl.name}: OVERDUE ${Math.abs(diff)}d` : `📋 ${cl.name}: Due in ${diff}d`);
       }
     });
   }
-
   const bar=document.getElementById('alertBar');
   const chips=document.getElementById('alertChips');
-  
   if(alerts.length){
     bar.style.display='block';
     chips.innerHTML=alerts.map(a=>`<span class="chip">${a}</span>`).join('');
-    
-    // Trigger Browser Push Notifications
-    if ("Notification" in window && Notification.permission === "granted") {
-      alerts.forEach(msg => {
-        // Only send push notification if we haven't already sent it during this session
-        if (!sessionNotified.has(msg)) {
-          new Notification("EHS Safety Tracker", { 
-            body: msg,
-            icon: "https://fonts.gstatic.com/s/i/short-term/release/googlesymbols/warning/default/24px.svg" 
-          });
-          sessionNotified.add(msg);
-        }
-      });
-    }
   } else {
     bar.style.display='none';
   }
@@ -2152,8 +1999,8 @@ function doImport(){
   Object.entries(ROW_MAP).forEach(([ri,key])=>{
     const r=parseInt(ri);
     if(key==='ehsTraining'){
-      entry[key]=cellStr(r,2)||'No';   // B17 = New? Yes/No
-      entry.trainingName=cellStr(r,3)||''; // C17 = training name
+      entry[key]=cellStr(r,2)||'No';
+      entry.trainingName=cellStr(r,3)||'';
       impMTD[key]=cellNum(r,4);
       impYTD[key]=cellNum(r,5);
     } else if(key==='safetyOath'){
@@ -2197,30 +2044,28 @@ function doImport(){
     }
   });
   entryForStorage.ptwCompliance=entry.ptwCompliance||'No';
-      entryForStorage.c_ptwCompliance=entry.c_ptwCompliance||'';
+  entryForStorage.c_ptwCompliance=entry.c_ptwCompliance||'';
 
-      S.importedBaseMTD=impMTD;
-      S.importedBaseYTD=impYTD;
-      S.importedBaseDate=date; // Track exactly when the import happened
-      
-      S.entries[date]=entryForStorage;
-      
-      // Push this base to Google Sheets so Incognito/other devices can use it
-      if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl) {
-        fetch(S.gsheet.webAppUrl, {
-          method: 'POST',
-          headers: {'Content-Type': 'text/plain;charset=utf-8'},
-          body: JSON.stringify({
-            sheetId: S.gsheet.sheetId,
-            action: 'saveImportedBase',
-            importedBaseMTD: impMTD,
-            importedBaseYTD: impYTD,
-            importedBaseDate: date
-          })
-        }).catch(console.error);
-      }
+  S.importedBaseMTD=impMTD;
+  S.importedBaseYTD=impYTD;
+  S.importedBaseDate=date;
+  S.entries[date]=entryForStorage;
 
-      if(date){
+  if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl) {
+    fetch(S.gsheet.webAppUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({
+        sheetId: S.gsheet.sheetId,
+        action: 'saveImportedBase',
+        importedBaseMTD: impMTD,
+        importedBaseYTD: impYTD,
+        importedBaseDate: date
+      })
+    }).catch(console.error);
+  }
+
+  if(date){
     document.getElementById('entryDate').value=date;
     const ym=date.substring(0,7);
     S.currentMonth=ym; S.currentFY=getFY(date);
@@ -2244,9 +2089,7 @@ function doImport(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// TEMPLATE PERSISTENCE — once an Excel file is imported, its exact
-// layout/format is saved so future sessions (even after closing the
-// browser) can Export WITHOUT re-importing every time.
+// TEMPLATE PERSISTENCE
 // ═══════════════════════════════════════════════════════════════
 function arrayBufferToBase64(buffer){
   let binary='';
@@ -2268,10 +2111,7 @@ async function persistImportedTemplate(){
     if(!importedWorkbook||!importedSheet) return;
     const buffer=await importedWorkbook.xlsx.writeBuffer();
     const base64=arrayBufferToBase64(buffer);
-    // Fast local cache (works even offline, same browser only)
     try{ localStorage.setItem('ehs_v3_template', JSON.stringify({sheetName:importedSheet.name, base64})); }catch(e){}
-    // Real backend — Google Drive, via the same Sheet Sync webapp/Sheet ID
-    // already configured in 🔗 Google Sheet Sync. Works across ANY device/browser.
     if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl){
       try{
         const res=await fetch(S.gsheet.webAppUrl, {
@@ -2281,22 +2121,14 @@ async function persistImportedTemplate(){
         });
         const json=await res.json();
         if(!json || json.ok===false){
-          console.error('[Template] Drive save rejected by backend:', json && json.error);
-          toast('⚠ Template Drive save failed: '+((json&&json.error)||'unknown error'), true);
-        }else{
-          console.log('[Template] Saved to Drive OK');
+          console.error('[Template] Drive save rejected:', json && json.error);
         }
       }catch(e){
-        console.error('[Template] Drive save network/JS error:', e);
-        toast('⚠ Template Drive save failed: '+e.message, true);
+        console.error('[Template] Drive save failed:', e);
       }
     }
   }catch(e){ console.error('[Template] persist failed:', e); }
 }
-// Extracts MTD/YTD base values + fire/pump inspection dates from an already-
-// loaded workbook, and applies them to app state S. This is the piece that
-// a plain "Fetched ✅" template restore was missing — restoring the file
-// alone doesn't repopulate these derived values, only a real Import did.
 function applyTemplateBaseToState(wb, ws, targetDate){
   try{
     function cellVal(row,col){
@@ -2319,17 +2151,15 @@ function applyTemplateBaseToState(wb, ws, targetDate){
       const d=new Date(s); if(!isNaN(d)) return d.toISOString().split('T')[0];
       return s;
     }
-
     const impMTD={}, impYTD={};
     Object.entries(ROW_MAP).forEach(([ri,key])=>{
       const r=parseInt(ri);
-      if(key==='safetyOath') return; // no MTD/YTD column for this row
+      if(key==='safetyOath') return;
       impMTD[key]=cellNum(r,4);
       impYTD[key]=cellNum(r,5);
     });
     S.importedBaseMTD=impMTD;
     S.importedBaseYTD=impYTD;
-
     FIRE_ROW_KEYS.forEach((k,idx)=>{
       const r=38+idx;
       if(!S.fireEquip[k]) S.fireEquip[k]={};
@@ -2345,18 +2175,14 @@ function applyTemplateBaseToState(wb, ws, targetDate){
       S.pumps[k].lastDate=S.pumps[k].lastDate||cellDate(r,5)||'';
       S.pumps[k].comments=S.pumps[k].comments||cellStr(r,6)||'';
     });
-
     save();
     populateFire(); populatePumps();
     if(targetDate) computeBase(targetDate);
     liveCalc();
     checkAlerts();
-  }catch(e){ console.error('[Template] applying base values to state failed:', e); }
+  }catch(e){ console.error('[Template] applying base to state failed:', e); }
 }
-
 async function restoreImportedTemplate(){
-  // 1) Try the Drive backend first — this is what makes the template
-  //    available on ANY device/browser, not just this one.
   if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl){
     try{
       const res=await fetch(S.gsheet.webAppUrl, {
@@ -2374,12 +2200,9 @@ async function restoreImportedTemplate(){
         applyTemplateBaseToState(wb, ws, document.getElementById('entryDate').value);
         try{ localStorage.setItem('ehs_v3_template', JSON.stringify({sheetName:ws.name, base64:json.base64})); }catch(e){}
         return;
-      }else{
-        console.warn('[Template] Drive restore: backend said', json && json.error);
       }
-    }catch(e){ console.error('[Template] Drive restore failed, falling back to local cache:', e); }
+    }catch(e){ console.error('[Template] Drive restore failed:', e); }
   }
-  // 2) Fallback: local cache from a previous import on THIS browser only
   try{
     const raw=localStorage.getItem('ehs_v3_template');
     if(!raw) return;
@@ -2393,9 +2216,6 @@ async function restoreImportedTemplate(){
   }catch(e){ console.error('[Template] local restore failed:', e); }
 }
 
-// Human-readable row labels used only when NO template has ever been
-// imported — builds a plain, working workbook from scratch so Export
-// always produces a file, even before the first Excel import.
 const ROW_LABELS={
   unsafeAct:'Unsafe Act', unsafeCond:'Unsafe Condition', nearMiss:'Near Miss',
   firstAid:'First Aid', lti:'LTI', rwc:'Restricted Work Case', mtc:'Medical Treatment Case',
@@ -2415,31 +2235,22 @@ function buildBlankWorkbook(){
   ws.getColumn(1).width=30; ws.getColumn(2).width=14; ws.getColumn(3).width=10;
   ws.getColumn(4).width=10; ws.getColumn(5).width=10; ws.getColumn(6).width=30; ws.getColumn(7).width=30;
   ws.getRow(3).values=['Parameter','','24 Hrs','MTD','YTD','Comments','Action Taken'];
-
-  Object.entries(ROW_MAP).forEach(([ri,key])=>{
-    ws.getRow(parseInt(ri)).getCell(1).value=ROW_LABELS[key]||key;
-  });
+  Object.entries(ROW_MAP).forEach(([ri,key])=>{ ws.getRow(parseInt(ri)).getCell(1).value=ROW_LABELS[key]||key; });
   ws.getRow(30).getCell(1).value='PTW Compliance';
   FIRE_ROW_KEYS.forEach((k,idx)=>{ ws.getRow(38+idx).getCell(1).value=FIRE_LABELS[k]||k; });
   PUMP_ROW_KEYS.forEach((k,idx)=>{ ws.getRow(46+idx).getCell(1).value=PUMP_LABELS[k]||k; });
-
   return {wb, ws};
 }
 
-// ═══════════════════════════════════════════════════════════════
-// EXPORT EXCEL — updates C16 (row 16 col 3) plus all existing cells
-// ═══════════════════════════════════════════════════════════════
 async function exportExcel(historicalDate){
   const isHistorical=!!historicalDate;
   const date=historicalDate||document.getElementById('entryDate').value||new Date().toISOString().split('T')[0];
   const entry=S.entries[date]||{};
-
   let mtdSnap={}, ytdSnap={};
   if(isHistorical){
     if(entry._mtd&&entry._ytd){ mtdSnap=entry._mtd; ytdSnap=entry._ytd; }
     else { const snap=computeSnapshotForDate(date, entry); mtdSnap=snap.mtd; ytdSnap=snap.ytd; }
   }
-
   const get24=k=>{
     if(isHistorical) return entry[k]||0;
     const el=document.getElementById('i-'+k); if(!el) return entry[k]||0; return el.tagName==='SELECT'?el.value:(parseFloat(el.value)||0);
@@ -2460,68 +2271,55 @@ async function exportExcel(historicalDate){
     importedWorkbook=built.wb;
     importedSheet=built.ws;
     persistImportedTemplate();
-    toast('ℹ️ No Excel template imported yet — exporting with a plain layout. Import once to keep your official format.');
+    toast('ℹ️ No Excel template imported yet — exporting with a plain layout.');
   }
 
   const ws=importedSheet;
   const dt=new Date(date+'T00:00:00');
-  const mo=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
-  const dateStr=`${dt.getDate()} ${mo[dt.getMonth()]}`;
+  const mo2=['January','February','March','April','May','June','July','August','September','October','November','December'];
 
   function setVal(rowNum,colNum,val){
     const cell=ws.getRow(rowNum).getCell(colNum);
-    if(cell.type===ExcelJS.ValueType.Formula){ cell.value=val; }
-    else { cell.value=val; }
+    cell.value=val;
   }
   function setNum(rowNum,colNum,val){ setVal(rowNum,colNum,typeof val==='number'?val:(parseFloat(val)||0)); }
   function setStr(rowNum,colNum,val){ setVal(rowNum,colNum,val||''); }
 
-  // ── Row 1: title, Row 2: Date:- DD Month YYYY ──
   setStr(1,1,`Daily Safety Update (Unit: Udhampur)\n(Last 24 Hrs update)`);
-  const mo2=['January','February','March','April','May','June','July','August','September','October','November','December'];
   setStr(2,1,`Date:- ${dt.getDate()} ${mo2[dt.getMonth()]} ${dt.getFullYear()}`);
 
-  // ── Rows 4-14: Incident ──
   [[4,'unsafeAct'],[5,'unsafeCond'],[6,'nearMiss'],[7,'firstAid'],[8,'lti'],[9,'rwc'],[10,'mtc'],[11,'fireSpark'],[12,'dangerous'],[13,'spill'],[14,'propDamage']].forEach(([r,k])=>{
     setNum(r,3,get24(k)); setNum(r,4,getMTD(k)); setNum(r,5,getYTD(k));
     setStr(r,6,getComm(k)); setStr(r,7,getAction(k));
   });
 
-  // ── Row 16: EHS Trainings ──
   const trainSel=isHistorical ? (entry.ehsTraining||'No') : (document.getElementById('i-ehsTraining')?.value||'No');
   const trainName=isHistorical ? (entry.trainingName||'') : (document.getElementById('trainingName')?.value||'');
   const trainMTD=isHistorical ? (mtdSnap.ehsTraining||0) : (parseInt(document.getElementById('m-ehsTraining')?.textContent)||0);
   const trainYTD=isHistorical ? (ytdSnap.ehsTraining||0) : (parseInt(document.getElementById('y-ehsTraining')?.textContent)||0);
-  // B16 = New?(Yes/No), C16 = training name
   setStr(16,2,trainSel);
   setStr(16,3,trainSel==='Yes'?trainName:(trainName||''));
   setNum(16,4,trainMTD);
   setNum(16,5,trainYTD);
 
-  // ── Row 17: Safety Oath ──
   setStr(17,3,isHistorical ? (entry.safetyOath||'Yes') : (document.getElementById('i-safetyOath')?.value||'Yes'));
 
-  // ── Rows 18-21: Training ──
   [[18,'toolboxTalks'],[19,'siteRounds'],[20,'mockDrill'],[21,'fireDrill']].forEach(([r,k])=>{
     setNum(r,3,get24(k)); setNum(r,4,getMTD(k)); setNum(r,5,getYTD(k));
     setStr(r,6,getComm(k));
   });
 
-  // ── Row 30: PTW compliance ──
   setStr(30,2,isHistorical ? (entry.ptwCompliance||'No') : (document.getElementById('i-ptwCompliance')?.value||'No'));
 
-  // ── Rows 24-29: PTW ──
   [[24,'ptwGeneral'],[25,'ptwHot'],[26,'ptwHeight'],[27,'ptwConfined'],[28,'ptwHT'],[29,'ptwOther']].forEach(([r,k])=>{
     setNum(r,3,get24(k)); setNum(r,4,getMTD(k)); setNum(r,5,getYTD(k));
   });
 
-  // ── Rows 32-35: Observations ──
   [[32,'bbsObs'],[33,'anyOtherObs'],[34,'progDisc'],[35,'safetyComm']].forEach(([r,k])=>{
     setNum(r,3,get24(k)); setNum(r,4,getMTD(k)); setNum(r,5,getYTD(k));
     setStr(r,6,getComm(k));
   });
 
-  // ── Rows 38-44: Fire Equipment ──
   FIRE_ROW_KEYS.forEach((k,idx)=>{
     const r=38+idx; const d=getFE(k);
     setStr(r,3,d.nos);
@@ -2529,7 +2327,6 @@ async function exportExcel(historicalDate){
     setStr(r,6,d.com);
   });
 
-  // ── Rows 46-48: Pumps ──
   PUMP_ROW_KEYS.forEach((k,idx)=>{
     const r=46+idx; const d=getPump(k);
     setStr(r,3,d.mode);
@@ -2568,7 +2365,6 @@ function openEmailModal(){
   const defaultBody=`Dear Sir,\n\nPlease find attached the EHS Daily Update report for Udhampur Site dated ${dt.getDate()} ${mo[dt.getMonth()]} ${dt.getFullYear()}.\n\nRegards,\nBhanu Pratap Singh`;
   const bodyEl=document.getElementById('emailBody');
   if(bodyEl&&!bodyEl.value) bodyEl.value=defaultBody;
-
   buildMailClientsList();
   document.getElementById('emailModal').classList.add('open');
 }
@@ -2577,27 +2373,22 @@ function buildMailClientsList(){
   const subject=document.getElementById('emailSubject')?.value||'EHS Daily Update - UDH Site';
   const body=document.getElementById('emailBody')?.value||'';
   const to=EMAIL_TO;
-  const cc=EMAIL_CC.join(';');
-
   const encSubj=encodeURIComponent(subject);
   const encBody=encodeURIComponent(body);
   const encTo=encodeURIComponent(to);
   const encCC=encodeURIComponent(EMAIL_CC.join(','));
-
   const mailtoLink=`mailto:${encTo}?cc=${encodeURIComponent(EMAIL_CC.join(','))}&subject=${encSubj}&body=${encBody}`;
   const gmailLink=`https://mail.google.com/mail/?view=cm&fs=1&to=${encTo}&cc=${encCC}&su=${encSubj}&body=${encBody}`;
   const outlookWebLink=`https://outlook.live.com/mail/0/deeplink/compose?to=${encTo}&cc=${encCC}&subject=${encSubj}&body=${encBody}`;
   const outlook365Link=`https://outlook.office.com/mail/deeplink/compose?to=${encTo}&cc=${encCC}&subject=${encSubj}&body=${encBody}`;
   const yahooLink=`https://compose.mail.yahoo.com/?to=${encTo}&cc=${encCC}&subject=${encSubj}&body=${encBody}`;
-
   const clients=[
-    {icon:'📬', name:'Default Mail App', desc:'Opens your system default email client (Outlook, Apple Mail, etc.)', href:mailtoLink, target:'_self'},
-    {icon:'📧', name:'Gmail', desc:'Opens Gmail in browser — web.google.com', href:gmailLink, target:'_blank'},
+    {icon:'📬', name:'Default Mail App', desc:'Opens your system default email client', href:mailtoLink, target:'_self'},
+    {icon:'📧', name:'Gmail', desc:'Opens Gmail in browser', href:gmailLink, target:'_blank'},
     {icon:'📮', name:'Outlook Web (Personal)', desc:'Opens Outlook.com in browser', href:outlookWebLink, target:'_blank'},
-    {icon:'🏢', name:'Outlook 365 (Work/Corporate)', desc:'Opens Office 365 Outlook in browser', href:outlook365Link, target:'_blank'},
+    {icon:'🏢', name:'Outlook 365 (Work)', desc:'Opens Office 365 Outlook', href:outlook365Link, target:'_blank'},
     {icon:'📨', name:'Yahoo Mail', desc:'Opens Yahoo Mail in browser', href:yahooLink, target:'_blank'},
   ];
-
   const list=document.getElementById('mailClientsList');
   list.innerHTML=clients.map(c=>`
     <a href="${c.href}" target="${c.target}" style="text-decoration:none" onclick="closeModal('emailModal')">
@@ -2614,7 +2405,7 @@ function buildMailClientsList(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// HISTORY & INCIDENTS
+// HISTORY
 // ═══════════════════════════════════════════════════════════════
 async function fetchAllEntriesFromSheet(manual){
   if(!(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl)){
@@ -2632,20 +2423,17 @@ async function fetchAllEntriesFromSheet(manual){
       if(manual) toast('❌ Could not fetch entries: '+((json&&json.error)||'unknown error'),true);
       return;
     }
-    
-    // If the sheet has saved base data from an Excel import, apply it to local storage
     if (json.baseData) {
       S.importedBaseMTD = json.baseData.importedBaseMTD || {};
       S.importedBaseYTD = json.baseData.importedBaseYTD || {};
       S.importedBaseDate = json.baseData.importedBaseDate || '';
       save();
     }
-
     let added=0;
     json.rows.forEach(row=>{
       const date=row['Date'];
       if(!date) return;
-      if(S.entries[date]) return; // never overwrite a local (possibly unsynced) entry
+      if(S.entries[date]) return;
       const entry={date};
       const mtd={}, ytd={};
       [...INC,...TRAIN.filter(f=>!f.train),...PTW,...OBS].forEach(f=>{
@@ -2663,9 +2451,9 @@ async function fetchAllEntriesFromSheet(manual){
       S.entries[date]=entry;
       added++;
     });
-    if(added || json.baseData){ 
-      save(); 
-      renderHistory(); 
+    if(added || json.baseData){
+      save();
+      renderHistory();
       computeBase(document.getElementById('entryDate').value);
       liveCalc();
     }
@@ -2713,7 +2501,6 @@ function renderHistoryViewStatic(date){
   if(!e) return;
   let mtd=e._mtd, ytd=e._ytd;
   if(!mtd||!ytd){ const snap=computeSnapshotForDate(date,e); mtd=snap.mtd; ytd=snap.ytd; }
-
   let rows='';
   numFields().forEach(f=>{
     const v=parseFloat(e[f.k])||0;
@@ -2724,7 +2511,6 @@ function renderHistoryViewStatic(date){
       <td style="padding:6px 10px;border:1px solid var(--border);text-align:center">${ytd[f.k]||0}</td>
     </tr>`;
   });
-
   document.getElementById('historyViewTitle').textContent='📄 '+date;
   document.getElementById('historyViewBody').innerHTML=
     `<table style="width:100%;border-collapse:collapse;font-size:12.5px">
@@ -2745,15 +2531,11 @@ function historyViewEdit(){
   const date=window._historyViewDate;
   const e=S.entries[date];
   if(!e) return;
-
-  // Base MTD/YTD = everything EXCEPT this entry's own contribution, so we
-  // can live-preview "base + whatever's currently typed" as the user edits.
   const zeroOverride={};
   numFields().forEach(f=>{ zeroOverride[f.k]=0; });
   const baseSnap=computeSnapshotForDate(date, zeroOverride);
   window._hvBaseMTD=baseSnap.mtd;
   window._hvBaseYTD=baseSnap.ytd;
-
   let rows='';
   numFields().forEach(f=>{
     const v=e[f.k]||0;
@@ -2766,12 +2548,10 @@ function historyViewEdit(){
       <td style="padding:4px 8px;border:1px solid var(--border)"><input type="text" id="hv-c-${f.k}" value="${(c+'').replace(/"/g,'&quot;')}" placeholder="Comments" style="width:100%;padding:5px;border:1px solid var(--border);border-radius:6px;font-size:12.5px"></td>
     </tr>`;
   });
-
   const trainSel=e.ehsTraining||'No';
   const trainName=e.trainingName||'';
   const safetyOath=e.safetyOath||'Yes';
   const ptwCompliance=e.ptwCompliance||'No';
-
   document.getElementById('historyViewBody').innerHTML=
     `<table style="width:100%;border-collapse:collapse;font-size:12.5px;margin-bottom:12px">
       <tr style="background:var(--navy);color:#fff">
@@ -2822,7 +2602,6 @@ function historyViewSaveEdit(){
   const date=window._historyViewDate;
   const old=S.entries[date]||{};
   const data={...old, date};
-
   numFields().forEach(f=>{
     const iEl=document.getElementById('hv-i-'+f.k);
     const cEl=document.getElementById('hv-c-'+f.k);
@@ -2833,23 +2612,15 @@ function historyViewSaveEdit(){
   data.trainingName=document.getElementById('hv-trainingName')?.value||'';
   data.safetyOath=document.getElementById('hv-safetyOath')?.value||'Yes';
   data.ptwCompliance=document.getElementById('hv-ptwCompliance')?.value||'No';
-
-  const updateAll=confirm(
-    `You're updating a previously saved entry (${date}).\n\n`+
-    `Update MTD & YTD across ALL saved entries to reflect this change?\n\n`+
-    `OK  = Yes, update everywhere\n`+
-    `Cancel = No, only update THIS entry's own MTD/YTD (for its own export) — other saved entries stay as they were`
-  );
+  const updateAll=confirm(`Update MTD & YTD across ALL saved entries?`);
   finalizeSaveEntry(date, data, updateAll);
   renderHistoryViewStatic(date);
-  // Also refresh the live dashboard if this date happens to be the one currently loaded there
   if(document.getElementById('entryDate').value===date) onDateChange();
 }
 async function historyViewExport(){
   const date=window._historyViewDate;
   await exportExcel(date);
 }
-
 function loadDateEntry(date){
   document.getElementById('entryDate').value=date;
   switchView('entry',document.getElementById('nav-entry'));
@@ -2902,7 +2673,7 @@ function addIncident(){
 }
 
 // ═══════════════════════════════════════════════════════════════
-// RESET
+// ★★★ FIXED RESET + UNDO ★★★
 // ═══════════════════════════════════════════════════════════════
 let pendingReset=null;
 function confirmReset(type){
@@ -2922,40 +2693,46 @@ function confirmReset(type){
 }
 function doReset(){
   const today=new Date().toISOString().split('T')[0];
+  // Save one-level undo snapshot BEFORE the reset runs
+  try{
+    const backup={
+      entries: JSON.parse(JSON.stringify(S.entries||{})),
+      importedBaseMTD: JSON.parse(JSON.stringify(S.importedBaseMTD||{})),
+      importedBaseYTD: JSON.parse(JSON.stringify(S.importedBaseYTD||{})),
+      importedBaseDate: S.importedBaseDate||'',
+      currentMonth: S.currentMonth||'',
+      currentFY: S.currentFY||'',
+      resetType: pendingReset,
+      timestamp: new Date().toISOString(),
+    };
+    localStorage.setItem('ehs_v3_undoReset', JSON.stringify(backup));
+    updateUndoButton();
+  }catch(e){ console.error('Undo backup failed:', e); }
+
   if(pendingReset==='month'){
+    // ★★★ FIX: capture YTD BEFORE deleting, then delete all entries before new month ★★★
     const newMonth = today.substring(0,7);
     const newFY = getFY(today);
     const oldBaseFY = S.importedBaseDate ? getFY(S.importedBaseDate) : '';
     const ytdTotal = {};
     numFields().forEach(f => { ytdTotal[f.k] = 0; });
 
-    // Step 1: Capture full YTD (current FY) BEFORE deleting anything.
-    // Skip entries already baked into the imported Excel base.
     Object.values(S.entries).forEach(e => {
       if(!e.date) return;
       if(getFY(e.date) !== newFY) return;
       if(S.importedBaseDate && e.date <= S.importedBaseDate && oldBaseFY === newFY) return;
-      numFields().forEach(f => {
-        ytdTotal[f.k] += parseFloat(e[f.k]) || 0;
-      });
+      numFields().forEach(f => { ytdTotal[f.k] += parseFloat(e[f.k]) || 0; });
     });
-    // Add imported base YTD (only if it belongs to the current FY)
     if(!oldBaseFY || oldBaseFY === newFY){
-      numFields().forEach(f => {
-        ytdTotal[f.k] += (S.importedBaseYTD[f.k] || 0);
-      });
+      numFields().forEach(f => { ytdTotal[f.k] += (S.importedBaseYTD[f.k] || 0); });
     }
 
-    // Step 2: Delete every entry BEFORE the new month (not just current month)
     Object.keys(S.entries).forEach(d => { if(d < newMonth+'-01') delete S.entries[d]; });
 
-    // Step 3: Reset MTD base to zero. Carry YTD forward as the new base.
     S.currentMonth = newMonth;
     S.currentFY = newFY;
     S.importedBaseMTD = {};
     S.importedBaseYTD = ytdTotal;
-    // Anchor importedBaseDate to the day BEFORE new month starts, so
-    // future entries are NOT skipped in YTD summation (avoids double count).
     const prevDay = new Date(newMonth+'-01T00:00:00');
     prevDay.setDate(prevDay.getDate() - 1);
     S.importedBaseDate = prevDay.toISOString().split('T')[0];
@@ -2967,7 +2744,7 @@ function doReset(){
   }
   save(); computeBase(document.getElementById('entryDate').value);
   liveCalc(); renderHistory();
-  
+
   if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl) {
     fetch(S.gsheet.webAppUrl, {
       method: 'POST',
@@ -2985,6 +2762,59 @@ function doReset(){
   closeModal('resetModal');
 }
 
+function hasUndoResetBackup(){
+  try{ return !!localStorage.getItem('ehs_v3_undoReset'); }catch(e){ return false; }
+}
+function updateUndoButton(){
+  const btn=document.getElementById('undoResetFloat');
+  if(!btn) return;
+  const has=hasUndoResetBackup();
+  btn.style.display=has?'flex':'none';
+}
+function undoReset(){
+  let backup=null;
+  try{
+    const raw=localStorage.getItem('ehs_v3_undoReset');
+    if(!raw){ toast('⚠ No reset to undo', true); updateUndoButton(); return; }
+    backup=JSON.parse(raw);
+  }catch(e){ toast('❌ Undo data corrupt', true); return; }
+
+  if(!confirm('Restore data from before the last reset?\n\nReset was: '+
+      (backup.resetType==='month'?'Reset MTD':'Reset YTD')+
+      '\nTaken at: '+new Date(backup.timestamp).toLocaleString())) return;
+
+  S.entries          = backup.entries||{};
+  S.importedBaseMTD  = backup.importedBaseMTD||{};
+  S.importedBaseYTD  = backup.importedBaseYTD||{};
+  S.importedBaseDate = backup.importedBaseDate||'';
+  S.currentMonth     = backup.currentMonth||'';
+  S.currentFY        = backup.currentFY||'';
+  save();
+  try{ localStorage.removeItem('ehs_v3_undoReset'); }catch(e){}
+  updateUndoButton();
+
+  computeBase(document.getElementById('entryDate').value);
+  liveCalc();
+  renderHistory();
+  checkAlerts();
+
+  if(S.gsheet && S.gsheet.sheetId && S.gsheet.webAppUrl) {
+    fetch(S.gsheet.webAppUrl, {
+      method: 'POST',
+      headers: {'Content-Type': 'text/plain;charset=utf-8'},
+      body: JSON.stringify({
+        sheetId: S.gsheet.sheetId,
+        action: 'saveImportedBase',
+        importedBaseMTD: S.importedBaseMTD,
+        importedBaseYTD: S.importedBaseYTD,
+        importedBaseDate: S.importedBaseDate
+      })
+    }).catch(console.error);
+  }
+
+  toast('↩️ Reset undone — data restored');
+}
+
 // ═══════════════════════════════════════════════════════════════
 // HELPERS
 // ═══════════════════════════════════════════════════════════════
@@ -2996,6 +2826,11 @@ function toast(msg, isErr){
   clearTimeout(t._t);
   t._t=setTimeout(()=>{t.style.display='none';},3200);
 }
+function closeModal(id){
+  const el=document.getElementById(id);
+  if(el) el.classList.remove('open');
+}
+
 // ═══════════════════════════════════════════════════════════════
 // GOOGLE SHEET SYNC
 // ═══════════════════════════════════════════════════════════════
@@ -3043,11 +2878,9 @@ async function testSheetSync(){
     if(json&&json.ok){ resEl.innerHTML='<span style="color:var(--green)">✅ Connected — sheet reachable.</span>'; }
     else{ resEl.innerHTML='<span style="color:var(--red)">❌ '+(json&&json.error||'Could not verify connection')+'</span>'; }
   }catch(err){
-    resEl.innerHTML='<span style="color:var(--red)">❌ '+err.message+' (check the Web App is deployed with "Anyone" access)</span>';
+    resEl.innerHTML='<span style="color:var(--red)">❌ '+err.message+'</span>';
   }
 }
-// Flattens the whole on-screen entry into a simple key→value payload the
-// Apps Script side can write straight into a sheet row (see Code.gs)
 function buildSheetPayload(date){
   const entry=S.entries[date]||{};
   const get24=k=>{ const el=document.getElementById('i-'+k); if(!el) return entry[k]||0; return el.tagName==='SELECT'?el.value:(parseFloat(el.value)||0); };
@@ -3055,7 +2888,6 @@ function buildSheetPayload(date){
   const getYTD=k=>parseFloat(document.getElementById('y-'+k)?.textContent)||0;
   const getComm=k=>document.getElementById('c-'+k)?.value||entry['c_'+k]||'';
   const getAction=k=>document.getElementById('a-'+k)?.value||entry['a_'+k]||'';
-
   const fields={};
   [...INC,...TRAIN.filter(f=>!f.train),...PTW,...OBS].forEach(f=>{
     const k=f.k;
@@ -3068,7 +2900,6 @@ function buildSheetPayload(date){
   fields.ehsTraining=document.getElementById('i-ehsTraining')?.value||'No';
   fields.trainingName=document.getElementById('trainingName')?.value||'';
   fields.ptwCompliance=document.getElementById('i-ptwCompliance')?.value||'No';
-
   FIRE_EQUIP.forEach(f=>{
     const k=f.k;
     fields['fire_'+k+'_freq']=document.getElementById('fe-freq-'+k)?.value||'';
@@ -3107,9 +2938,6 @@ async function syncToGoogleSheet(){
     toast('❌ Sheet sync failed: '+err.message,true);
   }
 }
-function closeModal(id){
-  document.getElementById(id).classList.remove('open');
-}
 
 // ═══════════════════════════════════════════════════════════════
 // CHECKLIST TRACKER
@@ -3125,15 +2953,12 @@ async function fetchChecklistsFromSheet() {
     const json = await res.json();
     if (json && json.ok && json.checklists) {
       S.checklists = json.checklists;
-      save(); // Update local memory
-      renderChecklistTable(); // Redraw the table
-      checkAlerts(); // Refresh notifications based on the downloaded data
+      save();
+      renderChecklistTable();
+      checkAlerts();
     }
-  } catch(e) {
-    console.error('[Checklists] Could not fetch from cloud:', e);
-  }
+  } catch(e) { console.error('[Checklists] fetch failed:', e); }
 }
-
 function renderChecklistTable() {
   const tbody = document.getElementById('checklistBody');
   if (!tbody) return;
@@ -3141,10 +2966,7 @@ function renderChecklistTable() {
     tbody.innerHTML = '<tr><td colspan="8" style="text-align:center;padding:16px;color:var(--muted)">No checklists saved yet.</td></tr>';
     return;
   }
-  
-  const today = new Date(); 
-  today.setHours(0,0,0,0);
-  
+  const today = new Date(); today.setHours(0,0,0,0);
   tbody.innerHTML = S.checklists.map((cl, index) => {
     let statusHtml = '<span class="due-ok">—</span>';
     if (cl.nextExpire) {
@@ -3155,14 +2977,12 @@ function renderChecklistTable() {
       else if (diff <= 7) statusHtml = `<span class="due-soon">🟠 Due in ${diff}d</span>`;
       else statusHtml = `<span class="due-ok">🟢 OK (${diff}d)</span>`;
     }
-    
     let fileHtml = cl.fileUrl ? `<a href="${cl.fileUrl}" target="_blank" style="text-decoration:none; color:var(--text); font-size:14px;" title="View Attached File">📎</a>` : `<span style="color:var(--muted);font-size:11px">No file</span>`;
-    
     return `<tr>
       <td style="font-weight:600">${cl.name}</td>
-      <td><span style="text-transform:capitalize">${cl.frequency.replace('_', ' ')}</span></td>
-      <td>${cl.lastChecked}</td>
-      <td>${cl.nextExpire}</td>
+      <td><span style="text-transform:capitalize">${(cl.frequency||'').replace('_', ' ')}</span></td>
+      <td>${cl.lastChecked||''}</td>
+      <td>${cl.nextExpire||''}</td>
       <td>${statusHtml}</td>
       <td>${fileHtml}</td>
       <td>
@@ -3172,22 +2992,16 @@ function renderChecklistTable() {
     </tr>`;
   }).join('');
 }
-
 function deleteChecklist(index) {
   if(!confirm('Delete this checklist tracker?')) return;
   S.checklists.splice(index, 1);
-  save();
-  renderChecklistTable();
-  checkAlerts();
+  save(); renderChecklistTable(); checkAlerts();
   toast('🗑 Checklist removed');
 }
-
 function openChecklistModal(index = -1) {
   document.getElementById('cl-file').value = '';
   document.getElementById('cl-existing-file').style.display = 'none';
-
   if (index >= 0) {
-    // EDIT MODE
     const cl = S.checklists[index];
     document.getElementById('cl-name').value = cl.name;
     document.getElementById('cl-format').value = cl.formatNo || '';
@@ -3202,7 +3016,6 @@ function openChecklistModal(index = -1) {
       document.getElementById('cl-existing-file').style.display = 'block';
     }
   } else {
-    // ADD NEW MODE
     document.getElementById('cl-name').value = '';
     document.getElementById('cl-format').value = '';
     document.getElementById('cl-last').value = '';
@@ -3212,12 +3025,10 @@ function openChecklistModal(index = -1) {
   }
   document.getElementById('checklistModal').classList.add('open');
 }
-
 function calcNextExpire() {
   const lastStr = document.getElementById('cl-last').value;
   const freq = document.getElementById('cl-freq').value;
   if (!lastStr) return;
-  
   const d = new Date(lastStr + 'T00:00:00');
   if (freq === 'daily') d.setDate(d.getDate() + 1);
   else if (freq === 'weekly') d.setDate(d.getDate() + 7);
@@ -3226,11 +3037,8 @@ function calcNextExpire() {
   else if (freq === 'two_months') d.setMonth(d.getMonth() + 2);
   else if (freq === 'quarterly') d.setMonth(d.getMonth() + 3);
   else if (freq === 'yearly') d.setFullYear(d.getFullYear() + 1);
-  
   document.getElementById('cl-next').value = d.toISOString().split('T')[0];
 }
-
-// Convert file to Base64
 function getBase64(file) {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -3239,17 +3047,14 @@ function getBase64(file) {
     reader.onerror = error => reject(error);
   });
 }
-
 async function saveChecklistToSheet() {
   if(!S.gsheet || !S.gsheet.sheetId || !S.gsheet.webAppUrl){
     toast('⚠ Configure Google Sheet Sync first to enable tracking', true);
     return;
   }
-  
   const editIndex = parseInt(document.getElementById('cl-edit-index').value);
   const oldName = editIndex >= 0 ? S.checklists[editIndex].name : null;
   const fileInput = document.getElementById('cl-file');
-
   const data = {
     oldName: oldName,
     name: document.getElementById('cl-name').value,
@@ -3261,26 +3066,21 @@ async function saveChecklistToSheet() {
     emailTo: document.getElementById('cl-email').value,
     fileUrl: editIndex >= 0 ? S.checklists[editIndex].fileUrl : ''
   };
-
   if(!data.name || !data.lastChecked || !data.emailTo) {
      toast('⚠ Please fill required fields (Name, Date, Email)', true);
      return;
   }
-
   const btn = document.getElementById('btn-save-checklist');
-  
   try {
-    // 1. Upload File (if one is selected)
     if (fileInput.files.length > 0) {
       btn.textContent = '⏳ Uploading File...';
       const file = fileInput.files[0];
       const base64Data = await getBase64(file);
-      
       const fileRes = await fetch(S.gsheet.webAppUrl, {
         method: 'POST',
         headers: {'Content-Type': 'text/plain;charset=utf-8'},
         body: JSON.stringify({
-          sheetId: S.gsheet.sheetId, // <-- Added the missing sheetId here
+          sheetId: S.gsheet.sheetId,
           action: 'uploadChecklistFile',
           base64: base64Data,
           mimeType: file.type,
@@ -3288,47 +3088,24 @@ async function saveChecklistToSheet() {
         })
       });
       const fileJson = await fileRes.json();
-      if(fileJson.ok) {
-        data.fileUrl = fileJson.url;
-      } else {
-        throw new Error("File upload failed: " + fileJson.error);
-      }
+      if(fileJson.ok) { data.fileUrl = fileJson.url; }
+      else { throw new Error("File upload failed: " + fileJson.error); }
     }
-
-    // 2. Save Checklist Data
     btn.textContent = '⏳ Saving Checklist...';
-    const payload = {
-      sheetId: S.gsheet.sheetId, 
-      action: 'saveChecklist', 
-      checklistData: data
-    };
-
+    const payload = { sheetId: S.gsheet.sheetId, action: 'saveChecklist', checklistData: data };
     const res = await fetch(S.gsheet.webAppUrl, {
       method: 'POST',
       headers: {'Content-Type': 'text/plain;charset=utf-8'},
       body: JSON.stringify(payload),
     });
-    
     const json = await res.json();
-    if(json && json.ok === false){ 
-      throw new Error(json.error || 'unknown server error'); 
-    }
-    
-    // Save locally to trigger the website notification alert bar immediately
+    if(json && json.ok === false){ throw new Error(json.error || 'unknown server error'); }
     if(!S.checklists) S.checklists = [];
-    if (editIndex >= 0) {
-      S.checklists[editIndex] = data; // Update existing
-    } else {
-      S.checklists.push(data); // Add new
-    }
-    
-    save();
-    checkAlerts();
-    renderChecklistTable();
-
+    if (editIndex >= 0) S.checklists[editIndex] = data;
+    else S.checklists.push(data);
+    save(); checkAlerts(); renderChecklistTable();
     toast('✅ Checklist tracker saved successfully!');
     closeModal('checklistModal');
-    
   } catch(err) {
     toast('❌ Sync failed: ' + err.message, true);
   } finally {
